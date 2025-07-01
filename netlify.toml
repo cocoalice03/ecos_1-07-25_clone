@@ -1,0 +1,15 @@
+# Configuration de déploiement pour Netlify
+
+[build]
+  # Commande pour construire le projet (frontend et backend)
+  command = "npm run build"
+  # Répertoire contenant les fichiers statiques du frontend à publier
+  publish = "dist/public"
+  # Répertoire contenant les fonctions serverless (notre backend)
+  functions = "dist"
+
+[[redirects]]
+  # Redirige toutes les requêtes API vers notre fonction serverless
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200

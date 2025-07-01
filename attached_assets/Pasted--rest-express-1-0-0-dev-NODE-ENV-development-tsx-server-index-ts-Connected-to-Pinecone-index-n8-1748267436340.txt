@@ -1,0 +1,90 @@
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+Connected to Pinecone index: n8n
+1:44:21 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 7 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+1:47:41 PM [express] POST /api/webhook 200 in 820ms :: {"message":"Session created successfully","se…
+1:47:49 PM [express] POST /api/webhook 200 in 57ms :: {"message":"Session created successfully","ses…
+1:48:05 PM [express] POST /api/webhook 200 in 254ms :: {"message":"Session created successfully","se…
+1:48:17 PM [express] POST /api/webhook 200 in 194ms :: {"message":"Session created successfully","se…
+1:48:20 PM [express] POST /api/webhook 200 in 46ms :: {"message":"Session created successfully","ses…
+1:48:37 PM [express] POST /api/webhook 200 in 204ms :: {"message":"Session created successfully","se…
+1:48:37 PM [express] GET /api/status 200 in 79ms :: {"email":"%3Femail=test@example.com","questionsU…
+1:48:37 PM [express] GET /api/history 200 in 259ms :: {"exchanges":[]}
+1:48:39 PM [express] POST /api/webhook 200 in 51ms :: {"message":"Session created successfully","ses…
+1:48:58 PM [express] POST /api/webhook 200 in 172ms :: {"message":"Session created successfully","se…
+1:49:29 PM [vite] hmr update /src/App.tsx?v=zTIEXuZ3ECLf6X7IzE1GO, /src/index.css?v=zTIEXuZ3ECLf6X7IzE1GO
+1:49:31 PM [express] POST /api/webhook 200 in 246ms :: {"message":"Session created successfully","se…
+1:49:35 PM [vite] hmr update /src/App.tsx?v=zTIEXuZ3ECLf6X7IzE1GO, /src/index.css?v=zTIEXuZ3ECLf6X7IzE1GO (x2)
+1:49:35 PM [express] POST /api/webhook 200 in 47ms :: {"message":"Session created successfully","ses…
+1:49:42 PM [express] POST /api/webhook 200 in 46ms :: {"message":"Session created successfully","ses…
+1:49:43 PM [express] GET /api/status 304 in 50ms :: {"email":"%3Femail=test@example.com","questionsU…
+1:49:43 PM [express] GET /api/history 304 in 209ms :: {"exchanges":[]}
+1:49:44 PM [express] POST /api/webhook 200 in 48ms :: {"message":"Session created successfully","ses…
+1:49:56 PM [express] POST /api/webhook 200 in 193ms :: {"message":"Session created successfully","se…
+1:49:57 PM [express] GET /api/history 200 in 46ms :: {"exchanges":[]}
+1:49:57 PM [express] GET /api/status 200 in 251ms :: {"email":"%3Femail=test@example.com","questions…
+Error processing question: ZodError: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email",
+    "path": [
+      "email"
+    ]
+  }
+]
+    at get error [as error] (file:///home/runner/workspace/node_modules/zod/lib/index.mjs:587:31)
+    at ZodObject.parse (file:///home/runner/workspace/node_modules/zod/lib/index.mjs:663:22)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:118:45)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at <anonymous> (/home/runner/workspace/server/index.ts:36:3)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at urlencodedParser (/home/runner/workspace/node_modules/body-parser/lib/types/urlencoded.js:85:7)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at /home/runner/workspace/node_modules/body-parser/lib/read.js:137:5
+    at AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    at invokeCallback (/home/runner/workspace/node_modules/raw-body/index.js:238:16)
+    at done (/home/runner/workspace/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/home/runner/workspace/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:518:28)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  issues: [
+    {
+      validation: 'email',
+      code: 'invalid_string',
+      message: 'Invalid email',
+      path: [Array]
+    }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)],
+  errors: [
+    {
+      validation: 'email',
+      code: 'invalid_string',
+      message: 'Invalid email',
+      path: [Array]
+    }
+  ]
+}
+1:50:02 PM [express] POST /api/ask 400 in 8ms :: {"message":"Invalid request data","errors":[{"valid…
+1:50:04 PM [express] POST /api/webhook 200 in 47ms :: {"message":"Session created successfully","ses…

@@ -1,0 +1,12 @@
+# Ignorer les dépendances Node.js, Netlify les installera.
+node_modules/
+
+# Ignorer le dossier de build local, il sera regénéré par Netlify.
+dist/
+
+# Ignorer les fichiers d'environnement locaux.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
