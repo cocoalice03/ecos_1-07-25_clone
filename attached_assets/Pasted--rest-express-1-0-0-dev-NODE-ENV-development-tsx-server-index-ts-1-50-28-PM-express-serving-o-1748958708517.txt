@@ -1,0 +1,240 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+1:50:28 PM [express] serving on port 5000du-membre-superieur
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Available Scenarios - Full query: { email: 'testteacher@gmail.com' }
+Available Scenarios - Email received: testteacher@gmail.com
+1:51:12 PM [express] GET /api/ecos/sessions 304 in 673ms :: {"sessions":[{"id":62,"status":"complete…
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:51:13 PM [express] GET /api/ecos/available-scenarios 304 in 1428ms :: {"scenarios":[{"id":1,"title…
+1:51:21 PM [express] POST /api/webhook 200 in 1ms :: {"message":"Session created successfully","sess…
+Available Scenarios - Full query: { email: 'teststudent@test.fr' }
+Available Scenarios - Email received: teststudent@test.fr
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:51:22 PM [express] GET /api/ecos/available-scenarios 304 in 63ms :: {"scenarios":[{"id":1,"title":…
+1:51:22 PM [express] GET /api/ecos/sessions 304 in 63ms :: {"sessions":[{"id":64,"status":"completed…
+🔄 Starting evaluation for session 64
+Error evaluating session: TypeError: Cannot read properties of undefined (reading 'referencedTable')
+    at normalizeRelation (/home/runner/workspace/node_modules/src/relations.ts:571:74)
+    at PgDialect.buildRelationalQueryWithoutPK (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:1282:32)
+    at QueryPromise._getQuery (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:117:23)
+    at QueryPromise._toSQL (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:134:22)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:92:39)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:91:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:154:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:153:17)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1125:28)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1125:28)
+1:51:25 PM [express] POST /api/ecos/evaluate 500 in 98ms :: {"message":"Erreur lors de l'évaluation"}
+🔄 Starting evaluation for session 64
+Error evaluating session: TypeError: Cannot read properties of undefined (reading 'referencedTable')
+    at normalizeRelation (/home/runner/workspace/node_modules/src/relations.ts:571:74)
+    at PgDialect.buildRelationalQueryWithoutPK (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:1282:32)
+    at QueryPromise._getQuery (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:117:23)
+    at QueryPromise._toSQL (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:134:22)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:92:39)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:91:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:154:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:153:17)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Error generating evaluation: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1013:30)
+1:51:25 PM [express] GET /api/ecos/sessions/64/report 200 in 233ms :: {"report":{"sessionId":64,"isI…
+Available Scenarios - Full query: { email: 'testteacher@gmail.com' }
+Available Scenarios - Email received: testteacher@gmail.com
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:51:28 PM [express] GET /api/ecos/available-scenarios 304 in 61ms :: {"scenarios":[{"id":1,"title":…
+1:51:28 PM [express] GET /api/ecos/sessions 304 in 63ms :: {"sessions":[{"id":62,"status":"completed…
+🔄 Starting evaluation for session 63
+Error evaluating session: TypeError: Cannot read properties of undefined (reading 'referencedTable')
+    at normalizeRelation (/home/runner/workspace/node_modules/src/relations.ts:571:74)
+    at PgDialect.buildRelationalQueryWithoutPK (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:1282:32)
+    at QueryPromise._getQuery (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:117:23)
+    at QueryPromise._toSQL (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:134:22)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:92:39)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:91:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:154:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:153:17)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1125:28)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1125:28)
+1:51:30 PM [express] POST /api/ecos/evaluate 500 in 63ms :: {"message":"Erreur lors de l'évaluation"}
+🔄 Starting evaluation for session 63
+Error evaluating session: TypeError: Cannot read properties of undefined (reading 'referencedTable')
+    at normalizeRelation (/home/runner/workspace/node_modules/src/relations.ts:571:74)
+    at PgDialect.buildRelationalQueryWithoutPK (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:1282:32)
+    at QueryPromise._getQuery (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:117:23)
+    at QueryPromise._toSQL (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:134:22)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:92:39)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:91:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:154:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/query.ts:153:17)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Error generating evaluation: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:120:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1013:30)
+1:51:30 PM [express] GET /api/ecos/sessions/63/report 200 in 181ms :: {"report":{"sessionId":63,"isI…

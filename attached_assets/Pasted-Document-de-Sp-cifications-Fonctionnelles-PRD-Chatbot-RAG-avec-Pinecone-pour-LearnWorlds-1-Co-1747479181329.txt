@@ -1,0 +1,172 @@
+Document de Spécifications Fonctionnelles (PRD)
+Chatbot RAG avec Pinecone pour LearnWorlds
+
+⸻
+
+1. Contexte & Objectifs
+	•	Contexte :
+	•	Mise en place d’un assistant conversationnel pour un LMS (LearnWorlds), capable de répondre aux questions des apprenants sur le contenu des cours.
+	•	L’utilisateur est authentifié via son adresse e-mail transmise depuis Zapier via un webhook LearnWorlds → Replit.
+	•	Objectifs :
+	•	Offrir des réponses pertinentes et rapides en s’appuyant sur un moteur Retrieval-Augmented Generation (RAG) avec Pinecone.
+	•	Suivre et historiser les échanges utilisateur–chatbot.
+	•	Imposer une limite de 20 questions utilisateur/jour pour maîtriser la charge et encourager l’auto-apprentissage.
+	•	Développer et héberger l’application sur Replit avec une UI épurée.
+
+⸻
+
+2. Périmètre fonctionnel
+	1.	RAG & Recherche vectorielle
+	•	Indexation des documents de cours dans Pinecone.
+	•	Recherche de passages pertinents pour alimenter le générateur de texte (LLM).
+	2.	Interface Utilisateur (UI) minimaliste
+	•	Champ de saisie de question.
+	•	Fil de discussion (historique limité côté UI).
+	•	Indication du compteur de questions restantes (sur 20/jour).
+	3.	Suivi des échanges
+	•	Enregistrement en base SQL de chaque question et réponse :
+	•	id_exchange, utilisateur_email, question, réponse, timestamp.
+	4.	Intégration LMS via Zapier
+	•	Webhook entrant contenant { email_utilisateur }.
+	•	Création ou récupération de session utilisateur en back-end.
+	5.	Limitation d’usage
+	•	Compteur quotidien par utilisateur (réinitialisé à minuit UTC+2).
+	•	Blocage au-delà de 20 questions, avec message expliquant la limite.
+
+⸻
+
+3. Cas d’Utilisation Principaux
+
+Acteur	Objectif utilisateur	Résultat attendu
+Apprenant	Poser une question sur un contenu de cours	Recevoir une réponse précise, sourcée et rapide
+Apprenant	Consulter son nombre de questions restantes	Voir “Vous avez X/20 questions utilisées aujourd’hui”
+Système	Empêcher la 21ᵉ question	Afficher “Limite quotidienne atteinte, réessayez demain”
+
+
+⸻
+
+4. Exigences Fonctionnelles
+	1.	RF-01 : Indexer les documents de cours (PDF, HTML) dans Pinecone.
+	2.	RF-02 : Exécuter une recherche vectorielle pour chaque question.
+	3.	RF-03 : Générer la réponse avec un LLM (ex. GPT-4).
+	4.	RF-04 : Enregistrer question/réponse dans une base SQL (PostgreSQL ou MySQL).
+	5.	RF-05 : Recevoir et authentifier l’email utilisateur via webhook Zapier.
+	6.	RF-06 : Calculer et afficher le compteur de questions restantes.
+	7.	RF-07 : Gestion d’erreurs : indisponibilité Pinecone, LLM ou DB → message d’excuse et essai ultérieur.
+
+⸻
+
+5. Exigences Non-Fonctionnelles
+	•	Performance :
+	•	Temps de réponse ≤ 2 s (recherche Pinecone + génération).
+	•	Scalabilité :
+	•	Support de plusieurs dizaines d’utilisateurs simultanés.
+	•	Disponibilité :
+	•	SLA cible : 99,5 % uptime.
+	•	Maintenance :
+	•	Code hébergé sur Replit, CI/CD automatisé pour déploiement continu.
+	•	Accessibilité & UI :
+	•	Interface responsive, WCAG AA.
+
+⸻
+
+6. Architecture Technique
+
+[LearnWorlds LMS] ──(Webhook Zapier)──▶ [API Replit (Node.js/Python)] ──▶ [RAG Engine]
+                                                            │
+                                                            ├─▶ Pinecone (index & retrieve)
+                                                            ├─▶ LLM (OpenAI API)
+                                                            └─▶ SQL DB (PostgreSQL)
+
+	•	API Replit
+	•	Endpoints RESTful :
+	•	POST /webhook → création/session utilisateur
+	•	POST /ask → pose question
+	•	GET  /status → nombre questions restantes
+	•	Stockage
+	•	Pinecone : index vectoriel des contenus.
+	•	SQL : table exchanges (voir section 8).
+
+⸻
+
+7. Schéma de la Base SQL
+
+CREATE TABLE exchanges (
+  id_exchange SERIAL PRIMARY KEY,
+  utilisateur_email VARCHAR(255) NOT NULL,
+  question TEXT NOT NULL,
+  reponse TEXT NOT NULL,
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE daily_counters (
+  utilisateur_email VARCHAR(255) PRIMARY KEY,
+  date DATE NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0
+);
+
+
+⸻
+
+8. Flux des Données
+	1.	Webhook LMS → Zapier → Replit
+	•	Payload : { "email": "user@example.com" }.
+	2.	Client UI → API /ask
+	•	Vérification du compteur (daily_counters).
+	•	Si < 20 → recherche Pinecone + appel LLM → enregistrement.
+	3.	Réponse UI
+	•	Affiche réponse + compteur mis à jour.
+
+⸻
+
+9. Sécurité & Conformité
+	•	Authentification :
+	•	Vérification de la provenance Zapier (signature HMAC).
+	•	Chiffrement :
+	•	TLS 1.2+ pour toutes les communications.
+	•	Chiffrement au repos pour la DB (AES-256) et Pinecone.
+	•	RGPD :
+	•	Stockage minimal des données personnelles (seulement email et échanges).
+	•	Droits d’accès et suppression sur demande.
+	•	Journalisation & Audit :
+	•	Logs centralisés (timestamp, IP, user-agent).
+
+⸻
+
+10. Contraintes & Environnement
+	•	Plateforme de dev : Replit (Node.js ou Python).
+	•	Langages recommandés :
+	•	Back-end : TypeScript/Node.js ou Python/Flask.
+	•	Front-end : React + CSS minimaliste.
+	•	Services externes :
+	•	Pinecone (indexation vectorielle).
+	•	OpenAI API (LLM).
+	•	Zapier (webhook relay).
+
+⸻
+
+11. Indicateurs de Succès (KPIs)
+	•	Taux de disponibilité ≥ 99,5 %.
+	•	Temps moyen de réponse ≤ 2 s.
+	•	Taux de satisfaction (feedback post-chat) ≥ 85 %.
+	•	Nombre d’échanges/jour (doit rester sous contrôle).
+
+⸻
+
+12. Roadmap & Déploiement
+	1.	S1 :
+	•	Mise en place de l’API Replit & du webhook Zapier.
+	•	Schema SQL & endpoints de base.
+	2.	S2 :
+	•	Intégration Pinecone + indexation initiale des cours.
+	•	Premier prototype RAG (sans UI).
+	3.	S3 :
+	•	Développement UI minimaliste & compteur quotidien.
+	•	Tests de charge et monitoring.
+	4.	S4 :
+	•	Sécurité, RGPD, mises au point.
+	•	Déploiement production et formation équipe support.
+
+⸻
+
+Ce PRD garantit une vision claire des besoins fonctionnels et techniques pour développer un chatbot RAG performant, sécurisé et bien intégré à LearnWorlds, tout en assurant un suivi rigoureux des échanges et une limite d’usage quotidienne.

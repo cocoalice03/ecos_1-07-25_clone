@@ -1,0 +1,199 @@
+
+> rest-express@1.0.0 dev
+Connected to Pinecone index: arthrologie-du-membre-superieur
+1:48:26 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Available Scenarios - Full query: { email: 'testteacher@gmail.com' }
+Available Scenarios - Email received: testteacher@gmail.com
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:48:36 PM [express] GET /api/ecos/available-scenarios 304 in 733ms :: {"scenarios":[{"id":1,"title"…
+1:48:36 PM [express] GET /api/ecos/sessions 304 in 1444ms :: {"sessions":[{"id":62,"status":"complet…
+Available Scenarios - Full query: { email: 'testteacher@gmail.com' }
+Available Scenarios - Email received: testteacher@gmail.com
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:48:41 PM [express] GET /api/ecos/available-scenarios 304 in 59ms :: {"scenarios":[{"id":1,"title":…
+1:48:41 PM [express] GET /api/ecos/sessions 304 in 67ms :: {"sessions":[{"id":62,"status":"completed…
+1:48:47 PM [express] POST /api/webhook 200 in 1ms :: {"message":"Session created successfully","sess…
+Available Scenarios - Full query: { email: 'teststudent@test.fr' }
+Available Scenarios - Email received: teststudent@test.fr
+1:48:47 PM [express] GET /api/ecos/sessions 304 in 63ms :: {"sessions":[{"id":64,"status":"completed…
+Available Scenarios - Query result: [
+  {
+    id: 1,
+    title: 'PBVE 1',
+    description: 'une femme arrive avec son bébé qui a des pieds botvarus équin ',
+    createdAt: 2025-05-30T15:21:34.468Z
+  },
+  {
+    id: 2,
+    title: 'PBVE',
+    description: 'qsvd<c',
+    createdAt: 2025-05-30T15:28:51.447Z
+  },
+  {
+    id: 3,
+    title: 'PBVE2',
+    description: 'qsv<wxc',
+    createdAt: 2025-05-30T15:31:36.748Z
+  },
+  {
+    id: 4,
+    title: 'wdfbv',
+    description: 'bwdcv',
+    createdAt: 2025-05-30T15:37:41.017Z
+  },
+  {
+    id: 7,
+    title: 'PBVE',
+    description: 'a mother comes in the practice of a physiotherapist with her newborn. She has a prescription for the foot of the baby',
+    createdAt: 2025-05-30T16:41:58.023Z
+  },
+  {
+    id: 9,
+    title: 'Consultation de médecine générale',
+    description: 'Vous êtes interne en médecine générale.\n' +
+      'Une maman vient consulter pour son enfant de 3 ans, Léa, qui a de la fièvre depuis 2 jours. Vous devez :\n' +
+      '\n' +
+      'Accueillir la patiente\n' +
+      'Interroger la maman pour orienter votre diagnostic\n' +
+      'Rassurer et expliquer la conduite à tenir\n' +
+      'Proposer un suivi',
+    createdAt: 2025-06-03T13:05:43.951Z
+  }
+]
+Available Scenarios - Number of scenarios found: 6
+1:48:47 PM [express] GET /api/ecos/available-scenarios 304 in 66ms :: {"scenarios":[{"id":1,"title":…
+🔄 Starting evaluation for session 64
+🔄 Starting evaluation for session 64
+⚠️ Insufficient conversation history for session 64 (0 messages)
+Error evaluating session: Error: Session ne contient pas assez d'échanges pour générer une évaluation. Au moins une question et une réponse sont nécessaires.
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1102:26)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:124:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1102:26)
+1:48:50 PM [express] POST /api/ecos/evaluate 500 in 215ms :: {"message":"Erreur lors de l'évaluation…
+⚠️ Insufficient conversation history for session 64 (0 messages)
+Error evaluating session: Error: Session ne contient pas assez d'échanges pour générer une évaluation. Au moins une question et une réponse sont nécessaires.
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1012:28)
+Error fetching session report: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:124:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1012:28)
+1:48:50 PM [express] GET /api/ecos/sessions/64/report 500 in 253ms :: {"message":"Erreur lors de la …
+🔄 Starting evaluation for session 63
+🔄 Starting evaluation for session 63
+⚠️ Insufficient conversation history for session 63 (0 messages)
+Error evaluating session: Error: Session ne contient pas assez d'échanges pour générer une évaluation. Au moins une question et une réponse sont nécessaires.
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1102:26)
+Error evaluating session: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:124:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1102:26)
+1:48:54 PM [express] POST /api/ecos/evaluate 500 in 179ms :: {"message":"Erreur lors de l'évaluation…
+⚠️ Insufficient conversation history for session 63 (0 messages)
+Error evaluating session: Error: Session ne contient pas assez d'échanges pour générer une évaluation. Au moins une question et une réponse sont nécessaires.
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1012:28)
+Error fetching session report: Error: Failed to evaluate session
+    at EvaluationService.evaluateSession (/home/runner/workspace/server/services/evaluation.service.ts:124:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1012:28)
+1:48:54 PM [express] GET /api/ecos/sessions/63/report 500 in 234ms :: {"message":"Erreur lors de la …

@@ -1,0 +1,39 @@
+chunk-RPCDYKBN.js?v=d51ca125:14032 The above error occurred in the <TrainingSessionsTab> component:
+
+    at TrainingSessionsTab (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.dev/src/components/ecos/TrainingSessionsTab.tsx?t=1749715041555:412:47)
+    at div
+    at https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-KYDO7B72.js?v=d51ca125:42:13
+    at Presence (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-YN3QL25T.js?v=d51ca125:24:11)
+    at https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…orkspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=d51ca125:385:13
+    at _c5 (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.dev/src/components/ui/tabs.tsx:72:12)
+    at div
+    at https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-KYDO7B72.js?v=d51ca125:42:13
+    at Provider (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=d51ca125:22:15)
+    at https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=d51ca125:263:7
+    at div
+    at div
+    at TeacherPage (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.dev/src/pages/teacher.tsx?t=1749715041555:491:24)
+    at Route (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d51ca125:323:16)
+    at Switch (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d51ca125:379:17)
+    at Router (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.dev/src/App.tsx?t=1749715041555&v=nXpPalt11CdW5KN11Ow6C:32:19)
+    at Provider (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=d51ca125:22:15)
+    at TooltipProvider (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d51ca125:59:5)
+    at QueryClientProvider (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d51ca125:2805:3)
+    at App (https://db9cad67-4bd2-450e-9bd3-90ae0aa7c234-00-opgw5kyhcv1q.spock.replit.dev/src/App.tsx?t=1749715041555&v=nXpPalt11CdW5KN11Ow6C:215:16)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError	@	chunk-RPCDYKBN.js?v=d51ca125:14032
+
+chunk-RPCDYKBN.js?v=d51ca125:9129 Uncaught ReferenceError: Users is not defined
+    at TrainingSessionsTab.tsx:400:30
+    at Array.map (<anonymous>)
+    at TrainingSessionsTab (TrainingSessionsTab.tsx:377:33)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=d51ca125:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=d51ca125:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=d51ca125:15924:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=d51ca125:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=d51ca125:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=d51ca125:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=d51ca125:19116:15)
+﻿

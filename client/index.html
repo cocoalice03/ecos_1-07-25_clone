@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Assistant de Cours | LearnWorlds</title>
+    <meta name="description" content="Assistant de cours alimenté par l'IA pour LearnWorlds. Posez des questions sur le contenu de vos cours et obtenez des réponses précises." />
+    <!-- Preload fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Assistant de Cours | LearnWorlds" />
+    <meta property="og:description" content="Chatbot intelligent pour répondre à vos questions sur le contenu des cours" />
+    <meta property="og:type" content="website" />
+
+    <!-- Early custom element conflict prevention -->
+    <script>
+      (function() {
+        console.log('🛡️ Early custom element protection active');
+
+        // Store the original define method immediately
+        const originalDefine = window.customElements.define;
+        const definedElements = new Set();
+
+        // Override as early as possible
+        window.customElements.define = function(name, constructor, options) {
+          if (window.customElements.get(name) || definedElements.has(name)) {
+            console.warn(`🚫 EARLY BLOCK: Custom element "${name}" already exists`);
+            return;
+          }
+
+          definedElements.add(name);
+
+          try {
+            return originalDefine.call(this, name, constructor, options);
+          } catch (error) {
+            definedElements.delete(name);
+            if (error.message && error.message.includes('already been defined')) {
+              console.warn(`🔄 EARLY CATCH: Element "${name}" was already defined`);
+              return;
+            }
+            throw error;
+          }
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- Custom element conflict prevention -->
+    <script>
+      // Prevent custom element redefinition errors
+      window.addEventListener('error', function(e) {
+        if (e.message && (e.message.includes('already been defined') || e.message.includes('custom element'))) {
+          console.warn('Custom element redefinition prevented:', e.message);
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      // Additional protection for custom elements
+      const originalDefine = window.customElements.define;
+      window.customElements.define = function(name, constructor, options) {
+        if (window.customElements.get(name)) {
+          console.warn(`Custom element ${name} already defined, skipping redefinition`);
+          return;
+        }
+        return originalDefine.call(this, name, constructor, options);
+      };
+    </script>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>

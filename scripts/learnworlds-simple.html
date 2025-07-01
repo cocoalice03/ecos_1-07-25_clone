@@ -1,0 +1,82 @@
+<!-- Script pour l'intégration LearnWorlds -->
+<script>
+  (function() {
+    // Configuration - À MODIFIER avec l'URL de votre application Replit
+    const API_URL = 'https://your-replit-app.replit.app/api/learnworlds/chat';
+    
+    // Attendre que le DOM soit complètement chargé
+    document.addEventListener('DOMContentLoaded', function() {
+      // Trouver l'élément d'entrée et le bouton d'envoi dans l'interface LearnWorlds
+      const inputField = document.querySelector('input[placeholder="Posez une question sur le cours..."]');
+      const sendButton = document.querySelector('button.lwc-chat-send-button, button.envoyer');
+      
+      if (!inputField || !sendButton) {
+        console.error("Impossible de trouver les éléments du chatbot LearnWorlds");
+        return;
+      }
+      
+      // Obtenir l'email de l'utilisateur
+      function getUserEmail() {
+        // Essayer d'obtenir à partir des variables LearnWorlds
+        if (typeof LW !== 'undefined' && LW.user && LW.user.email) {
+          return LW.user.email;
+        }
+        
+        if (typeof lwSharedVariables !== 'undefined' && lwSharedVariables.user && lwSharedVariables.user.email) {
+          return lwSharedVariables.user.email;
+        }
+        
+        // Fallback à un email par défaut pour les tests
+        return 'test@example.com';
+      }
+      
+      // Gérer l'envoi du message
+      function handleSendMessage() {
+        const query = inputField.value.trim();
+        if (!query) return;
+        
+        // Récupérer l'email de l'utilisateur
+        const email = getUserEmail();
+        
+        // Envoyer la requête à notre API
+        fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            query: query
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Réponse reçue:", data);
+          
+          // LearnWorlds devrait gérer l'affichage de la réponse automatiquement
+          // Si ce n'est pas le cas, vous pouvez essayer de l'injecter manuellement
+          
+          if (data.status === 'error') {
+            // Afficher un message d'erreur si nécessaire
+            console.error("Erreur:", data.message);
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors de l'envoi de la requête:", error);
+        });
+      }
+      
+      // Ajouter les écouteurs d'événements
+      sendButton.addEventListener('click', handleSendMessage);
+      
+      // Permettre l'envoi avec la touche Entrée
+      inputField.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          handleSendMessage();
+        }
+      });
+      
+      console.log("Intégration du chatbot initialisée avec succès");
+    });
+  })();
+</script>

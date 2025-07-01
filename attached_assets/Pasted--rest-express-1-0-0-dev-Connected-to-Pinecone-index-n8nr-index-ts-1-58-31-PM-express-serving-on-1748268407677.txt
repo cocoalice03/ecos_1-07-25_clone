@@ -1,0 +1,351 @@
+
+> rest-express@1.0.0 dev
+Connected to Pinecone index: n8nr/index.ts
+1:58:31 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 7 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+1:58:39 PM [express] POST /api/webhook 200 in 2247ms :: {"message":"Session created successfully","s…
+1:58:40 PM [express] POST /api/webhook 200 in 46ms :: {"message":"Session created successfully","ses…
+1:58:40 PM [express] GET /api/status 304 in 91ms :: {"email":"%3Femail=test@example.com","questionsU…
+1:58:40 PM [express] GET /api/history 304 in 249ms :: {"exchanges":[]}
+1:58:41 PM [express] POST /api/webhook 200 in 53ms :: {"message":"Session created successfully","ses…
+1:58:57 PM [express] POST /api/webhook 200 in 185ms :: {"message":"Session created successfully","se…
+1:58:57 PM [express] GET /api/history 304 in 46ms :: {"exchanges":[]}
+1:58:58 PM [express] GET /api/status 304 in 189ms :: {"email":"%3Femail=test@example.com","questions…
+Error getting embedding: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:51:24)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dca8c796ca468-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 13:59:07 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=6Ehc0n90F0riG_5DsSWvN4S3MX1C27SeUvDz6GcGphg-1748267947-1.0.1.1-Kart886vt12fhCyCB6w.GRrrmNkRlEpw59BmUMvpz4cNQCKkuVKOZWdtUuX6eZE2tXhYo_CJUmIoREdDsfcSyE1nokmk1qmyrbMtNTyQ54I; path=/; expires=Mon, 26-May-25 14:29:07 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=C3.T70_P2vt4yjhuJ3Yq7E5gpuw3mNd1DlEG335W4lk-1748267947025-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_344d007112eae5f3b7849da1a6ff82ec'
+  },
+  request_id: 'req_344d007112eae5f3b7849da1a6ff82ec',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error searching Pinecone: Error: Failed to generate embedding for query
+    at PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:60:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31)
+Error generating OpenAI response: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:38:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dca8d2b16a468-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 13:59:07 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=a16_I_GpB6nmtGcoS.r.t7iSC9vZJEYNgT7.XWkikAc-1748267947-1.0.1.1-Z93.FaNX789XI6FiM7BVRQ1gie_EWIdp8BplSAFqZzKvUG7Sn3FmyPvEj7KvxYWyMsiTCQLMzwdYZBo5f5r5GohSka4GpK19LXk2297LL2c; path=/; expires=Mon, 26-May-25 14:29:07 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=hHHvLHovpO.xU6aLTuFRMepS2Bfoe8OnL.drJlvcjo4-1748267947139-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_2aee46b200e2266349202b24f4392b6b'
+  },
+  request_id: 'req_2aee46b200e2266349202b24f4392b6b',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error processing question: Error: Impossible de générer une réponse. Service indisponible.
+    at OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:51:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24)
+1:59:07 PM [express] POST /api/ask 500 in 289ms :: {"message":"Failed to process your question. Plea…
+2:00:00 PM [express] POST /api/webhook 200 in 238ms :: {"message":"Session created successfully","se…
+2:04:39 PM [express] POST /api/webhook 200 in 701ms :: {"message":"Session created successfully","se…
+2:04:39 PM [express] GET /api/status 304 in 74ms :: {"email":"%3Femail=test@example.com","questionsU…
+2:04:39 PM [express] GET /api/history 304 in 245ms :: {"exchanges":[]}
+Error getting embedding: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:51:24)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd30a0a20eabc-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:04:54 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=AXy3XRzyvsjKM6fIOOe2N5Vx567It5j7HYMQlum33mc-1748268294-1.0.1.1-cEwmDdVE8_8gahQlTGVTTyVvPd1iv23Xw0GyQUqlAxbH2crxJOpdidP3vGkkzH52tPd.nu_9MpIw6qd.4.0Vy5U.JRTkZRuiKC_lIQbLdSY; path=/; expires=Mon, 26-May-25 14:34:54 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=ShjxUpju_xlPF6xMbiKuu8KP.qVQkBWKVd0dlaqgNig-1748268294791-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_7378bb5aabbe03df246b8a728d654d93'
+  },
+  request_id: 'req_7378bb5aabbe03df246b8a728d654d93',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error searching Pinecone: Error: Failed to generate embedding for query
+    at PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:60:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31)
+Error generating OpenAI response: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:38:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd30a8b2ceabc-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:04:54 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=saGCDeUyhpuJ6XhbxtwcaY__eSIT_Fse4Lt7Pz6f5kg-1748268294-1.0.1.1-H6j4hNwgCx3J7E781pY7cVIU.DquPcFfviyGrhKFuDyMw8c1_PprGOS3dctIWNxeDorUnvb22tp4ida.kFjqli6TQgBdxm1_y5ntL9RNaOE; path=/; expires=Mon, 26-May-25 14:34:54 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=F_.EyQW0hQYvuKsJBWmT3bAsfWq6hqCs6c45KfOh8wU-1748268294872-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_fa18fb3db7960dc97f4cf08f587cf8f6'
+  },
+  request_id: 'req_fa18fb3db7960dc97f4cf08f587cf8f6',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error processing question: Error: Impossible de générer une réponse. Service indisponible.
+    at OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:51:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24)
+2:04:54 PM [express] POST /api/ask 500 in 388ms :: {"message":"Failed to process your question. Plea…
+2:05:06 PM [express] POST /api/webhook 200 in 201ms :: {"message":"Session created successfully","se…
+2:05:06 PM [express] GET /api/status 304 in 50ms :: {"email":"%3Femail=test@example.com","questionsU…
+2:05:06 PM [express] GET /api/history 304 in 199ms :: {"exchanges":[]}
+Error getting embedding: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:51:24)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd3bd4d1feb5e-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:05:23 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=0FnqtxZmJrK8f.YVIXHBK8QBPylxqmChyKG_8dVjAG4-1748268323-1.0.1.1-XV377QKN5EhkQrrgD9hoAPAL5VHlZkQokZQZa.k9jeRaojAd1eDJcYyL_1CzAidOu_QpFlcj1M_T0d5TxsvP2EiXglkh0BGUK0cg1OOaAro; path=/; expires=Mon, 26-May-25 14:35:23 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=T8c.Zc7.b3Ra0AFOQngBF4cFYIUAEi_DwuwzvHc6zVs-1748268323465-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_f4fe68e0ca26bfed7fe1f1aac7d09c2f'
+  },
+  request_id: 'req_f4fe68e0ca26bfed7fe1f1aac7d09c2f',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error searching Pinecone: Error: Failed to generate embedding for query
+    at PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:60:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31)
+Error generating OpenAI response: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:38:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd3bdce0feb5e-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:05:23 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=2yaeQFirDzNtU5V40idm0NXkQyset.bxTa3I7.iybQQ-1748268323-1.0.1.1-2MsEV3VYZNW0cT99_6hlw32KqIFCOYzH8M1GqX44WbFJJ2Av8OCGbWNSRBIlaoepkGs4tRIOLe3WgTpL1ad54VlgdC6ncTtAQj8NpQxY.pU; path=/; expires=Mon, 26-May-25 14:35:23 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=KviXulc0YnoOVO61TU0xBUOEXjW_SeddtfsZdDlN1U0-1748268323547-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_43c00143ebc82b1fb67a5a5f5c076d93'
+  },
+  request_id: 'req_43c00143ebc82b1fb67a5a5f5c076d93',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error processing question: Error: Impossible de générer une réponse. Service indisponible.
+    at OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:51:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24)
+2:05:23 PM [express] POST /api/ask 500 in 410ms :: {"message":"Failed to process your question. Plea…
+2:05:31 PM [vite] hmr update /src/App.tsx?v=zt4ElGautgJ2rkSL0kl6g, /src/index.css?v=zt4ElGautgJ2rkSL0kl6g
+2:05:31 PM [express] POST /api/webhook 200 in 50ms :: {"message":"Session created successfully","ses…
+2:05:32 PM [express] POST /api/webhook 200 in 47ms :: {"message":"Session created successfully","ses…
+2:05:37 PM [vite] hmr update /src/App.tsx?v=zt4ElGautgJ2rkSL0kl6g, /src/index.css?v=zt4ElGautgJ2rkSL0kl6g (x2)
+2:05:39 PM [vite] ✨ new dependencies optimized: @radix-ui/react-label, @radix-ui/react-select, @radix-ui/react-tabs, @radix-ui/react-slot
+2:05:39 PM [vite] ✨ optimized dependencies changed. reloading
+2:05:43 PM [express] POST /api/webhook 200 in 244ms :: {"message":"Session created successfully","se…
+2:05:43 PM [express] POST /api/webhook 200 in 214ms :: {"message":"Session created successfully","se…
+2:05:43 PM [express] GET /api/history 304 in 47ms :: {"exchanges":[]}
+2:05:43 PM [express] GET /api/status 304 in 49ms :: {"email":"%3Femail=test@example.com","questionsU…
+2:06:03 PM [express] POST /api/webhook 200 in 207ms :: {"message":"Session created successfully","se…
+2:06:03 PM [express] GET /api/status 304 in 44ms :: {"email":"%3Femail=test@example.com","questionsU…
+2:06:03 PM [express] GET /api/history 304 in 171ms :: {"exchanges":[]}
+Error getting embedding: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:51:24)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd4e119dc2262-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:06:10 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=IKdfEOUTm3o.xO0tm.njjMB34dhJfdPWKDZDPvRLFiw-1748268370-1.0.1.1-dIPpecKXxyyoxwc6AZTj6p3sLT9ZwFd45FEY.sYsdY2i4quK69KBAhT3r8S.nZM_RqN2eXwA9ISGRY4iT4Vn1mJfMMxEZrU7EhQHAt3Z_xE; path=/; expires=Mon, 26-May-25 14:36:10 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=MJWYOmITUdEZ2sMMaFG.O0q47EAMLAQPRTjdaWMZ0tA-1748268370183-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_dca4351acab23a01334b1943c9f0ccb6'
+  },
+  request_id: 'req_dca4351acab23a01334b1943c9f0ccb6',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error searching Pinecone: Error: Failed to generate embedding for query
+    at PineconeService.getEmbedding (/home/runner/workspace/server/services/pinecone.service.ts:60:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PineconeService.searchRelevantContent (/home/runner/workspace/server/services/pinecone.service.ts:76:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:149:31)
+Error generating OpenAI response: AuthenticationError: 401 You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/core.ts:462:21)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/core.ts:526:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:38:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24) {
+  status: 401,
+  headers: {
+    'alt-svc': 'h3=":443"; ma=86400',
+    'cf-cache-status': 'DYNAMIC',
+    'cf-ray': '945dd4e1ba412262-ORD',
+    connection: 'keep-alive',
+    'content-length': '496',
+    'content-type': 'application/json; charset=utf-8',
+    date: 'Mon, 26 May 2025 14:06:10 GMT',
+    server: 'cloudflare',
+    'set-cookie': '__cf_bm=YqJyDxc6YRGTmnVhscwyLHFN_YEExkUPHm.JB5nBQDE-1748268370-1.0.1.1-z55FOwwQV2UwsLZb.p1xoueoUaqLj2PKszSj5lJsejH7DdQW6EVOm9VZFsdKuTRaaVAUvJJYx0X8q9GPniRg2aHAIu.wxFG94bTdi9zf_gI; path=/; expires=Mon, 26-May-25 14:36:10 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=d8GrTIfEcRLhqiTgRJffdttIj1b8uzwkCJCk5CBnRvE-1748268370343-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    vary: 'Origin',
+    'x-content-type-options': 'nosniff',
+    'x-request-id': 'req_68eab5a34067a8eb296e0f553560eb57'
+  },
+  request_id: 'req_68eab5a34067a8eb296e0f553560eb57',
+  error: {
+    message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",
+    type: 'invalid_request_error',
+    param: null,
+    code: null
+  },
+  code: null,
+  param: null,
+  type: 'invalid_request_error'
+}
+Error processing question: Error: Impossible de générer une réponse. Service indisponible.
+    at OpenAIService.generateResponse (/home/runner/workspace/server/services/openai.service.ts:51:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:152:24)
+2:06:10 PM [express] POST /api/ask 500 in 329ms :: {"message":"Failed to process your question. Plea…

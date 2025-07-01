@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistant de Cours LearnWorlds</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .chatbot-container {
+      max-width: 800px;
+      margin: 20px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+      background-color: #fff;
+    }
+    .chatbot-header {
+      background-color: #4f46e5;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+    }
+    .chatbot-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .chatbot-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background-color: #f9fafb;
+    }
+    .message {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background-color: #e9ecef;
+      color: #212529;
+      border-bottom-left-radius: 4px;
+    }
+    .user-message {
+      align-self: flex-end;
+      background-color: #4f46e5;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .chatbot-input {
+      padding: 15px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      background-color: #fff;
+    }
+    .chatbot-input input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .chatbot-input input:focus {
+      border-color: #4f46e5;
+    }
+    .chatbot-input button {
+      margin-left: 10px;
+      padding: 12px 20px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .chatbot-input button:hover {
+      background-color: #4338ca;
+    }
+    .status-bar {
+      padding: 8px 15px;
+      font-size: 0.8rem;
+      color: #6b7280;
+      background-color: #f3f4f6;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      align-self: flex-start;
+      background-color: #e9ecef;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #6b7280;
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: typing 1.5s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes typing {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-container">
+    <div class="chatbot-header">
+      <h2>Assistant de Cours</h2>
+    </div>
+    <div class="chatbot-messages" id="messages">
+      <div class="message bot-message">
+        Bonjour ! Je suis votre assistant de cours. Comment puis-je vous aider aujourd'hui ?
+      </div>
+    </div>
+    <div class="status-bar" id="status">
+      0 / 20 questions utilisées aujourd'hui
+    </div>
+    <div class="chatbot-input">
+      <input type="text" id="question-input" placeholder="Posez une question sur le cours...">
+      <button id="send-button">Envoyer</button>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const API_URL = 'https://academy.ceerrf.fr/course/arthrologie-du-membre-superieur';
+    let userEmail = '';
+    let isLoading = false;
+    let questionsLimit = 20;
+    let questionsUsed = 0;
+
+    // Éléments DOM
+    const messagesContainer = document.getElementById('messages');
+    const questionInput = document.getElementById('question-input');
+    const sendButton = document.getElementById('send-button');
+    const statusBar = document.getElementById('status');
+
+    // Obtenir l'email de l'utilisateur
+    function getUserEmail() {
+      // Pour les tests - à remplacer dans l'environnement de production
+      return prompt("Veuillez entrer votre adresse email pour utiliser le chatbot:", "");
+    }
+
+    // Initialiser le chatbot
+    function initChatbot() {
+      userEmail = getUserEmail();
+      
+      if (!userEmail || !userEmail.includes('@')) {
+        alert('Veuillez entrer une adresse email valide');
+        return;
+      }
+
+      // Initialiser la session
+      fetch(`${API_URL}/api/webhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail })
+      })
+      .then(response => response.json())
+      .then(() => {
+        // Récupérer l'historique des messages
+        return fetch(`${API_URL}/api/history?email=${encodeURIComponent(userEmail)}`);
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Afficher l'historique des messages
+        if (data.exchanges && data.exchanges.length > 0) {
+          // Nettoyer le conteneur de messages
+          messagesContainer.innerHTML = '';
+          
+          // Afficher les échanges
+          data.exchanges.forEach(exchange => {
+            addMessage(exchange.question, 'user');
+            addMessage(exchange.response, 'bot');
+          });
+        }
+        
+        // Récupérer le statut de l'utilisateur
+        return fetch(`${API_URL}/api/status?email=${encodeURIComponent(userEmail)}`);
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Mettre à jour le compteur
+        questionsUsed = data.questionsUsed;
+        questionsLimit = data.maxDailyQuestions;
+        updateStatusBar();
+        
+        // Configurer les écouteurs d'événements
+        questionInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && !isLoading && questionsUsed < questionsLimit) {
+            sendQuestion();
+          }
+        });
+        
+        sendButton.addEventListener('click', function() {
+          if (!isLoading && questionsUsed < questionsLimit) {
+            sendQuestion();
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Erreur d\'initialisation:', error);
+        addMessage('Erreur de connexion au serveur. Veuillez rafraîchir la page.', 'bot');
+      });
+    }
+
+    // Mettre à jour la barre de statut
+    function updateStatusBar() {
+      statusBar.textContent = `${questionsUsed} / ${questionsLimit} questions utilisées aujourd'hui`;
+      
+      if (questionsUsed >= questionsLimit) {
+        questionInput.disabled = true;
+        sendButton.disabled = true;
+        addMessage('Vous avez atteint votre limite quotidienne de questions. Revenez demain !', 'bot');
+      }
+    }
+
+    // Ajouter un message à la conversation
+    function addMessage(text, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+      messageElement.textContent = text;
+      
+      messagesContainer.appendChild(messageElement);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Afficher l'indicateur de frappe
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.id = 'typing-indicator';
+      indicator.classList.add('typing-indicator');
+      
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.classList.add('typing-dot');
+        indicator.appendChild(dot);
+      }
+      
+      messagesContainer.appendChild(indicator);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Cacher l'indicateur de frappe
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+
+    // Envoyer une question
+    function sendQuestion() {
+      const question = questionInput.value.trim();
+      
+      if (!question) return;
+      
+      // Désactiver l'entrée pendant le traitement
+      isLoading = true;
+      questionInput.disabled = true;
+      sendButton.disabled = true;
+      
+      // Afficher la question
+      addMessage(question, 'user');
+      questionInput.value = '';
+      
+      // Afficher l'indicateur de frappe
+      showTypingIndicator();
+      
+      // Envoyer la requête
+      fetch(`${API_URL}/api/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          question: question
+        })
+      })
+      .then(response => {
+        hideTypingIndicator();
+        
+        if (response.status === 429) {
+          questionsUsed = questionsLimit;
+          updateStatusBar();
+          throw new Error('limit_reached');
+        }
+        
+        if (!response.ok) {
+          throw new Error('Erreur de serveur');
+        }
+        
+        return response.json();
+      })
+      .then(data => {
+        // Afficher la réponse
+        addMessage(data.response, 'bot');
+        
+        // Mettre à jour le compteur
+        questionsUsed = data.questionsUsed;
+        updateStatusBar();
+      })
+      .catch(error => {
+        if (error.message !== 'limit_reached') {
+          console.error('Erreur:', error);
+          addMessage('Erreur lors de l\'envoi de votre question. Veuillez réessayer.', 'bot');
+        }
+      })
+      .finally(() => {
+        // Réactiver l'entrée si la limite n'est pas atteinte
+        isLoading = false;
+        if (questionsUsed < questionsLimit) {
+          questionInput.disabled = false;
+          sendButton.disabled = false;
+          questionInput.focus();
+        }
+      });
+    }
+
+    // Démarrer le chatbot
+    initChatbot();
+  </script>
+</body>
+</html>

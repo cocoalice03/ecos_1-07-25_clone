@@ -1,0 +1,26 @@
+[Log] 🛡️ Early custom element protection active (colombemadoungou@gmail.com, line 55)
+[Info] Successfully preconnected to https://fonts.gstatic.com/
+[Info] Successfully preconnected to https://fonts.googleapis.com/
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Warning] 🔥 Problematic element "vite-error-overlay" is already defined. Blocking further definitions. (customElementPrevention.ts, line 26)
+[Log] 🔍 Pre-existing custom elements: – Object (main.tsx, line 7)
+Object
+[Log] Detected email: – null (main.tsx, line 35)
+[Log] Using admin email for debugging: – "cherubindavid@gmail.com" (App.tsx, line 242)
+[Log] Fetching available scenarios for email: – "colombemadoungou@gmail.com" (student.tsx, line 42)
+[Log] Available scenarios response: – Object (student.tsx, line 44)
+Object
+[Log] Number of scenarios received: – 6 (student.tsx, line 45)
+[Log] Custom Elements Registry Analysis (customElementPrevention.ts, line 48)
+[Log] ✅ Element "autosize-textarea" is not defined (customElementPrevention.ts, line 55)
+[Warning] 🚨 Problematic element "vite-error-overlay" is defined: – class ErrorOverlay (customElementPrevention.ts, line 53)
+[Log] Script Sources Analysis (customElementPrevention.ts, line 61)
+[Log] 📄 Script 1: – "inline script" (customElementPrevention.ts, line 70)
+[Log] 📄 Script 2: – "inline script" (customElementPrevention.ts, line 70)
+[Warning] 🔍 Suspicious script 3: – "https://412afbb1-cb3a-4331-9670-f42c780efa27-00-38l1xp6e1pj24.kirk.replit.dev/@vite/client" (customElementPrevention.ts, line 68)
+[Log] 📄 Script 4: – "inline script" (customElementPrevention.ts, line 70)
+[Log] 📄 Script 5: – "inline script" (customElementPrevention.ts, line 70)
+[Warning] 🔍 Suspicious script 6: – "https://412afbb1-cb3a-4331-9670-f42c780efa27-00-38l1xp6e1pj24.kirk.replit.dev/src/main.tsx?v=REDEqiX8WLOwVMcbLZEKZ" (customElementPrevention.ts, line 68)
+[Log] 📄 Script 7: – "inline script" (customElementPrevention.ts, line 70)
+[Warning] 🔍 Suspicious script 8: – "https://replit.com/public/js/replit-dev-banner.js" (customElementPrevention.ts, line 68)

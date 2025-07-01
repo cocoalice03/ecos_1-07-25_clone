@@ -1,0 +1,37 @@
+<!-- Code d'intégration pour LearnWorlds -->
+<div id="chatbot-container" style="margin: 20px 0;">
+  <button id="chatbot-btn" style="
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  ">
+    💬 Ouvrir l'Assistant de Cours
+  </button>
+</div>
+
+<script>
+document.getElementById('chatbot-btn').onclick = function() {
+  // Récupérer l'email de l'utilisateur connecté
+  let userEmail = '';
+  
+  // Méthode 1: Demander à l'utilisateur (temporaire)
+  userEmail = prompt('Entrez votre email pour accéder au chatbot:');
+  
+  if (userEmail && userEmail.includes('@')) {
+    const chatbotUrl = window.location.origin;
+    
+    // Ouvrir dans un nouvel onglet
+    window.open(chatbotUrl, '_blank');
+  } else {
+    alert('Veuillez entrer une adresse email valide.');
+  }
+};
+</script>

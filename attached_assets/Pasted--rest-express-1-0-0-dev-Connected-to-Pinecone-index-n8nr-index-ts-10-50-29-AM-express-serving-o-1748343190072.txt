@@ -1,0 +1,58 @@
+
+> rest-express@1.0.0 dev
+Connected to Pinecone index: n8nr/index.ts
+10:50:29 AM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 7 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10:50:55 AM [express] POST /api/webhook 200 in 1ms :: {"message":"Session created successfully","sess…
+10:50:56 AM [express] GET /api/status 304 in 558ms :: {"email":"colombemadoungou@gmail.com","question…
+10:50:58 AM [express] GET /api/history 304 in 2200ms :: {"exchanges":[{"id":1,"email":"colombemadoung…
+10:51:00 AM [express] POST /api/webhook 200 in 1ms :: {"message":"Session created successfully","sess…
+10:51:00 AM [express] GET /api/admin/indexes 304 in 146ms :: {"indexes":["arthrologie-du-membre-super…
+10:51:02 AM [express] GET /api/admin/documents 304 in 2061ms :: {"sources":["blob"]}
+Switched to Pinecone index: arthrologie-du-membre-superieur
+10:51:06 AM [express] POST /api/admin/indexes/switch 200 in 3ms :: {"message":"Changement vers l'inde…
+10:51:07 AM [express] GET /api/admin/documents 200 in 197ms :: {"sources":[]}
+Error processing PDF: Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pdf-parse' imported from /home/runner/workspace/server/routes.ts
+    at packageResolve (node:internal/modules/esm/resolve:854:9)
+    at moduleResolve (node:internal/modules/esm/resolve:927:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+    at nextResolve (node:internal/modules/esm/hooks:868:28)
+    at resolveBase (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3212)
+    at resolveDirectory (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3584)
+    at resolveTsPaths (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4073)
+    at async resolve (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4441)
+    at async nextResolve (node:internal/modules/esm/hooks:868:22)
+    at async Hooks.resolve (node:internal/modules/esm/hooks:306:24) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+10:51:34 AM [express] POST /api/admin/upload-pdf 500 in 577ms :: {"message":"Erreur lors du traitemen…
+Error processing PDF: Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pdf-parse' imported from /home/runner/workspace/server/routes.ts
+    at packageResolve (node:internal/modules/esm/resolve:854:9)
+    at moduleResolve (node:internal/modules/esm/resolve:927:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+    at nextResolve (node:internal/modules/esm/hooks:868:28)
+    at resolveBase (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3212)
+    at resolveDirectory (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3584)
+    at resolveTsPaths (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4073)
+    at async resolve (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4441)
+    at async nextResolve (node:internal/modules/esm/hooks:868:22)
+    at async Hooks.resolve (node:internal/modules/esm/hooks:306:24) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+10:52:00 AM [express] POST /api/admin/upload-pdf 500 in 132ms :: {"message":"Erreur lors du traitemen…
+Error processing PDF: Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pdf-parse' imported from /home/runner/workspace/server/routes.ts
+    at packageResolve (node:internal/modules/esm/resolve:854:9)
+    at moduleResolve (node:internal/modules/esm/resolve:927:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+    at nextResolve (node:internal/modules/esm/hooks:868:28)
+    at resolveBase (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3212)
+    at resolveDirectory (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:3584)
+    at resolveTsPaths (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4073)
+    at async resolve (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1748343027923:2:4441)
+    at async nextResolve (node:internal/modules/esm/hooks:868:22)
+    at async Hooks.resolve (node:internal/modules/esm/hooks:306:24) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+10:52:45 AM [express] POST /api/admin/upload-pdf 500 in 672ms :: {"message":"Erreur lors du traitemen…

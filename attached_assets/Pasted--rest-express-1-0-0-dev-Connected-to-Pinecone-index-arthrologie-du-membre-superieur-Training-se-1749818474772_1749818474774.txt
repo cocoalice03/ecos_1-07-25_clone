@@ -1,0 +1,60 @@
+
+> rest-express@1.0.0 dev
+Connected to Pinecone index: arthrologie-du-membre-superieur
+✅ Training sessions tables created successfully
+12:40:09 PM [express] serving on port 5000
+🔄 GET / { query: {}, body: [], timestamp: '2025-06-13T12:40:10.158Z' }
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-06-13T12:40:10.543Z' }
+🚫 SECURITY: Blocked access to sensitive path: /@vite/client from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /@vite/client from 172.31.128.11 at 2025-06-13T12:40:10.544Z
+❌ Error response 404 for GET /@vite/client: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-06-13T12:40:10.547Z' }
+🔄 GET /src/main.tsx {
+  query: { v: 'mBiwtpsCnIbWycnpFh2WW' },
+  body: [],
+  timestamp: '2025-06-13T12:40:10.561Z'
+}
+🚫 SECURITY: Blocked access to sensitive path: /src/main.tsx from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /src/main.tsx from 172.31.128.11 at 2025-06-13T12:40:10.561Z
+❌ Error response 404 for GET /src/main.tsx: {"error":"Not Found","message":"The requested resource was not found on this server"}
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+🔄 GET / { query: {}, body: [], timestamp: '2025-06-13T12:40:54.308Z' }
+🔄 GET /student/colombemadoungou@gmail.com { query: {}, body: [], timestamp: '2025-06-13T12:40:54.406Z' }
+🔄 GET /src/main.tsx {
+  query: { v: 'l3fdNz077f5fy08l9MnPF' },
+  body: [],
+  timestamp: '2025-06-13T12:40:54.699Z'
+}
+🚫 SECURITY: Blocked access to sensitive path: /src/main.tsx from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /src/main.tsx from 172.31.128.11 at 2025-06-13T12:40:54.699Z
+❌ Error response 404 for GET /src/main.tsx: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-06-13T12:40:54.816Z' }
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-06-13T12:40:54.868Z' }
+🚫 SECURITY: Blocked access to sensitive path: /@vite/client from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /@vite/client from 172.31.128.11 at 2025-06-13T12:40:54.868Z
+❌ Error response 404 for GET /@vite/client: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-06-13T12:40:54.967Z' }
+🚫 SECURITY: Blocked access to sensitive path: /@vite/client from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /@vite/client from 172.31.128.11 at 2025-06-13T12:40:54.967Z
+❌ Error response 404 for GET /@vite/client: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /student/colombemadoungou@gmail.com { query: {}, body: [], timestamp: '2025-06-13T12:40:58.423Z' }
+🔄 GET /images/imagegpt.png { query: {}, body: [], timestamp: '2025-06-13T12:40:58.531Z' }
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-06-13T12:40:58.541Z' }
+🚫 SECURITY: Blocked access to sensitive path: /@vite/client from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /@vite/client from 172.31.128.11 at 2025-06-13T12:40:58.541Z
+❌ Error response 404 for GET /@vite/client: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /src/main.tsx {
+  query: { v: 'mdc8XJ04Fq0v0SdD9-WoU' },
+  body: [],
+  timestamp: '2025-06-13T12:40:58.716Z'
+}
+🚫 SECURITY: Blocked access to sensitive path: /src/main.tsx from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /src/main.tsx from 172.31.128.11 at 2025-06-13T12:40:58.716Z
+❌ Error response 404 for GET /src/main.tsx: {"error":"Not Found","message":"The requested resource was not found on this server"}
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-06-13T12:40:58.828Z' }
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-06-13T12:40:58.925Z' }
+🚫 SECURITY: Blocked access to sensitive path: /@vite/client from IP: 172.31.128.11
+⚠️ SECURITY ALERT: Attempt to access sensitive file /@vite/client from 172.31.128.11 at 2025-06-13T12:40:58.926Z
+❌ Error response 404 for GET /@vite/client: {"error":"Not Found","message":"The requested resource was not found on this server"}
