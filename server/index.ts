@@ -4,7 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { db } from "./db";
 import { addDiagnosticRoutes } from "./diagnostic-endpoint";
 import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
-import { createTrainingSessionsTables } from "./db";
+
 
 // Simplified environment validation
 function validateEnvironment() {
@@ -25,7 +25,7 @@ app.use(createDatabaseErrorHandler());
 // Health check endpoint
 app.get('/health', async (req: Request, res: Response) => {
   try {
-    await db.execute('SELECT 1 as test');
+    await db.listCollections(); // A simple check to see if we can communicate with Firestore
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -86,13 +86,9 @@ app.use((req, res, next) => {
   // Setup diagnostic routes
   addDiagnosticRoutes(app);
 
-  // Initialize database tables
-  try {
-    await createTrainingSessionsTables();
-    console.log('Database tables initialized');
-  } catch (error) {
-    console.error('Database initialization warning:', error instanceof Error ? error.message : String(error));
-  }
+  // Database initialization is now handled by Firebase Admin SDK.
+  // The previous SQL-based table creation is no longer needed.
+  console.log('Database connection managed by Firebase.');
 
   // Setup routes
   const server = await registerRoutes(app);
@@ -125,7 +121,7 @@ app.use((req, res, next) => {
   }
 
   // Start server with error handling
-  const port = 5000;
+  const port = 5001;
   const host = '0.0.0.0';
   
   server.on('error', (error: any) => {

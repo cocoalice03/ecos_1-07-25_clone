@@ -1,17 +1,10 @@
 import OpenAI from "openai";
+import { RAGContent } from '../types';
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "",
 });
-
-export interface RAGContent {
-  content: string;
-  metadata?: {
-    source?: string;
-    [key: string]: any;
-  };
-}
 
 export class OpenAIService {
   private systemPrompt = `You are an educational assistant for a LearnWorlds learning management system. Speak only in French.

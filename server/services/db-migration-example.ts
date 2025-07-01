@@ -86,12 +86,12 @@ const ecosSessionExample = {
   messages: [
     {
       role: 'user',
-      content: 'Message de l'utilisateur',
+      content: 'Message de l\'utilisateur',
       timestamp: new Date()
     },
     {
       role: 'assistant',
-      content: 'Réponse de l'assistant',
+      content: 'Réponse de l\'assistant',
       timestamp: new Date()
     }
   ]

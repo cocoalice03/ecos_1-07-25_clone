@@ -1,6 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
-import { RAGContent } from './openai.service';
+import { RAGContent } from '../types';
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
 const openai = new OpenAI({ 
@@ -382,6 +382,10 @@ export class PineconeService {
 
   async queryVectors(query: string, indexName: string, topK: number = 5): Promise<RAGContent[]> {
     try {
+      if (!this.pinecone) {
+        console.warn('Pinecone not available - returning empty results');
+        return [];
+      }
       // Get embedding for the question
       const embedding = await this.getEmbedding(query);
 
