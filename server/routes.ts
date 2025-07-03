@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Firestore-based student account creation or retrieval
   async function findOrCreateStudent(email: string): Promise<{ userId: string; isNewUser: boolean }> {
     const usersRef = db.collection('users');
-    const q = usersRef.where('email', '==', email).limit(1);
+    const q = usersRef.where('email', '==', email);
     const querySnapshot = await q.get();
 
     if (!querySnapshot.empty) {
@@ -45,29 +45,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     return { userId, isNewUser: true };
   }
-
-  // API route for auto-registration of students
-  app.post("/api/student/auto-register", async (req: Request, res: Response) => {
-    const schema = z.object({
-      email: z.string().email("Format d'email invalide"),
-    });
-
-    try {
-      const { email } = schema.parse(req.body);
-      const { userId, isNewUser } = await findOrCreateStudent(email);
-      res.status(200).json({ 
-        message: "Compte étudiant traité avec succès", 
-        userId, 
-        isNewUser 
-      });
-    } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Données invalides", errors: error.errors });
-      }
-      console.error("Error in /api/student/auto-register:", error);
-      res.status(500).json({ message: "Erreur interne du serveur" });
-    }
-  });
 
   // API route to create or verify a student account
   app.post("/api/student", async (req: Request, res: Response) => {
@@ -192,36 +169,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Firestore health check failed:', error);
       res.status(500).json({ status: 'error', message: 'Firestore connection failed.', error: error.message });
-    }
-  });
-
-  // Firebase diagnostic endpoint
-  app.get("/api/firebase/diagnostic", async (req: Request, res: Response) => {
-    try {
-      console.log('🔥 Running Firebase diagnostic...');
-      
-      // Test basic Firestore connection
-      const collections = await db.listCollections();
-      console.log('📂 Available collections:', collections.map(c => c.id));
-      
-      // Test basic read operation
-      const testDoc = await db.collection('ecos_scenarios').limit(1).get();
-      
-      res.status(200).json({ 
-        status: 'ok', 
-        message: 'Firebase connection is healthy',
-        collections: collections.map(c => c.id),
-        testRead: !testDoc.empty,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error: any) {
-      console.error('❌ Firebase diagnostic failed:', error);
-      res.status(500).json({ 
-        status: 'error', 
-        message: 'Firebase diagnostic failed', 
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
     }
   });
 
@@ -361,69 +308,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create ECOS session
-  app.post("/api/ecos/sessions", async (req: Request, res: Response) => {
-    const schema = z.object({
-      email: z.string().email("Format d'email invalide"),
-      scenarioId: z.union([z.string(), z.number()]).transform(val => String(val)),
-    });
-
-    try {
-      const { email, scenarioId } = schema.parse(req.body);
-      console.log('🚀 Creating ECOS session for:', email, 'scenario:', scenarioId);
-
-      // Import the service here to avoid circular dependencies
-      const { ecosService } = await import('./services/ecos.service');
-      
-      const sessionId = await ecosService.startSession(scenarioId, email);
-      
-      console.log('✅ Session created successfully with ID:', sessionId);
-      
-      // Return the session ID in the expected format
-      res.status(200).json({ 
-        sessionId: sessionId,
-        id: sessionId,
-        message: "Session créée avec succès"
-      });
-
-    } catch (error: any) {
-      console.error('❌ Error creating ECOS session:', error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Données invalides", errors: error.errors });
-      }
-      res.status(500).json({ message: "Erreur lors de la création de la session" });
-    }
-  });
-
-  // Get ECOS sessions for a student
-  app.get("/api/ecos/sessions", async (req: Request, res: Response) => {
-    const schema = z.object({
-      email: z.string().email("Format d'email invalide"),
-    });
-
-    try {
-      const { email } = schema.parse(req.query);
-      console.log('📋 Fetching ECOS sessions for:', email);
-
-      // Import the service here to avoid circular dependencies
-      const { ecosService } = await import('./services/ecos.service');
-      
-      const sessions = await ecosService.getStudentSessions(email);
-      
-      res.status(200).json({ 
-        sessions: sessions,
-        message: "Sessions récupérées avec succès"
-      });
-
-    } catch (error: any) {
-      console.error('❌ Error fetching ECOS sessions:', error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Données invalides", errors: error.errors });
-      }
-      res.status(500).json({ message: "Erreur lors de la récupération des sessions" });
-    }
-  });
-
   // Get available scenarios for a student
   app.get("/api/student/available-scenarios", async (req: Request, res: Response) => {
     const schema = z.object({ email: z.string().email() });
@@ -431,22 +315,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email } = schema.parse(req.query);
 
       if (isAdminAuthorized(email)) {
-        try {
-          const allScenariosSnapshot = await db.collection('ecos_scenarios').orderBy('createdAt').get();
-          const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          return res.status(200).json({ 
-            scenarios: allScenarios,
-            message: "Tous les scénarios disponibles (mode admin)"
-          });
-        } catch (error) {
-          // Fallback si orderBy n'est pas supporté (mode mock)
-          const allScenariosSnapshot = await db.collection('ecos_scenarios').get();
-          const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          return res.status(200).json({ 
-            scenarios: allScenarios,
-            message: "Tous les scénarios disponibles (mode admin - fallback)"
-          });
-        }
+        const allScenariosSnapshot = await db.collection('ecos_scenarios').orderBy('createdAt').get();
+        const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return res.status(200).json({ 
+          scenarios: allScenarios,
+          message: "Tous les scénarios disponibles (mode admin)"
+        });
       }
 
       const { userId } = await findOrCreateStudent(email);

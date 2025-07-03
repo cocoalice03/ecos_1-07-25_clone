@@ -17,8 +17,8 @@ interface StudentPageProps {
 }
 
 export default function StudentPage({ email }: StudentPageProps) {
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [viewingReport, setViewingReport] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
+  const [viewingReport, setViewingReport] = useState<number | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [accountCreated, setAccountCreated] = useState(false);
 
@@ -71,20 +71,12 @@ export default function StudentPage({ email }: StudentPageProps) {
     queryKey: ['student-scenarios', decodedEmail],
     queryFn: async () => {
       console.log('Fetching available scenarios for email:', decodedEmail);
-      try {
-        const response = await apiRequest('GET', `/api/student/available-scenarios?email=${encodeURIComponent(decodedEmail)}`);
-        console.log('Available scenarios response:', response);
-        console.log('Number of scenarios received:', response.scenarios?.length || 0);
-        return response;
-      } catch (error) {
-        console.error('Error fetching scenarios:', error);
-        // Return empty data structure to prevent crashes
-        return { scenarios: [], trainingSessions: [], message: 'Erreur lors du chargement des scénarios' };
-      }
+      const response = await apiRequest('GET', `/api/student/available-scenarios?email=${encodeURIComponent(decodedEmail)}`);
+      console.log('Available scenarios response:', response);
+      console.log('Number of scenarios received:', response.scenarios?.length || 0);
+      return response;
     },
-    enabled: !!decodedEmail && accountCreated,
-    retry: 3,
-    retryDelay: 1000,
+    enabled: !!decodedEmail,
   });
 
   const scenarios = studentData?.scenarios || [];
@@ -103,54 +95,15 @@ export default function StudentPage({ email }: StudentPageProps) {
   // Start session mutation
   const startSessionMutation = useMutation({
     mutationFn: async (scenarioId: number) => {
-      console.log('🚀 Starting session with decoded email:', decodedEmail, 'and scenario:', scenarioId);
-      
-      try {
-        const response = await apiRequest('POST', '/api/ecos/sessions', {
-          email: decodedEmail,
-          scenarioId
-        });
-        console.log('✅ Raw API response:', response);
-        return response;
-      } catch (error) {
-        console.error('❌ API request failed:', error);
-        throw error;
-      }
+      console.log('Starting session with decoded email:', decodedEmail, 'and scenario:', scenarioId);
+      return apiRequest('POST', '/api/ecos/sessions', {
+        email: decodedEmail,
+        scenarioId
+      });
     },
     onSuccess: (data) => {
-      console.log('✅ Session created successfully:', data);
-      console.log('📊 Data analysis:', {
-        type: typeof data,
-        keys: Object.keys(data),
-        fullData: data
-      });
-      
-      // Essayer différentes propriétés pour trouver l'ID de session
-      const sessionId = data.sessionId || data.id || data.session_id;
-      console.log('🔍 Extracted sessionId:', sessionId, 'type:', typeof sessionId);
-      
-      if (!sessionId) {
-        console.error('❌ No session ID found in response:', data);
-        alert('Erreur: ID de session non trouvé dans la réponse. Voir la console pour plus de détails.');
-        return;
-      }
-      
-      // Convertir en string si nécessaire
-      const sessionIdString = String(sessionId);
-      console.log('🎯 Setting activeSessionId to:', sessionIdString);
-      setActiveSessionId(sessionIdString);
+      setActiveSessionId(data.sessionId);
       refetchSessions();
-    },
-    onError: (error) => {
-      console.error('❌ Error starting session:', error);
-      console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      
-      // Afficher une erreur plus détaillée à l'utilisateur
-      alert(`Erreur lors du démarrage de la session: ${error.message || 'Erreur inconnue'}`);
     }
   });
 
@@ -183,7 +136,7 @@ export default function StudentPage({ email }: StudentPageProps) {
     }
   };
 
-  const handleViewReport = (sessionId: string) => {
+  const handleViewReport = (sessionId: number) => {
     setViewingReport(sessionId);
   };
 
@@ -227,7 +180,6 @@ export default function StudentPage({ email }: StudentPageProps) {
 
   // If in active session
   if (activeSessionId) {
-    console.log('Rendering PatientSimulator with sessionId:', activeSessionId, 'email:', decodedEmail);
     return (
       <div className="min-h-screen bg-gray-50">
         <PatientSimulator 
@@ -244,11 +196,6 @@ export default function StudentPage({ email }: StudentPageProps) {
     inProgressSessions: sessions?.filter((s: any) => s.status === 'in_progress').length || 0,
     availableScenarios: scenarios?.length || 0
   };
-
-  // Debug log pour vérifier l'état
-  console.log('Current activeSessionId:', activeSessionId);
-  console.log('Current viewingReport:', viewingReport);
-  console.log('Current showDiagnostic:', showDiagnostic);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -535,7 +482,7 @@ export default function StudentPage({ email }: StudentPageProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleViewReport(String(session.id))}
+                                onClick={() => handleViewReport(session.id)}
                               >
                                 <TrendingUp className="w-4 h-4 mr-1" />
                                 Voir Résultats
@@ -545,7 +492,7 @@ export default function StudentPage({ email }: StudentPageProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setActiveSessionId(String(session.id))}
+                                onClick={() => setActiveSessionId(session.id)}
                               >
                                 <Play className="w-4 h-4 mr-1" />
                                 Reprendre

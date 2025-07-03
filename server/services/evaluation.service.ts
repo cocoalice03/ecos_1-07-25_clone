@@ -1,7 +1,7 @@
 import { openaiService } from './openai.service';
 import { firestore as db } from '../firebase';
 import { EcosSession, EcosScenario, EcosMessage, EcosEvaluation, EcosReport } from '../types';
-import { firestore, initializeApp, credential } from 'firebase-admin';
+import { firestore } from 'firebase-admin';
 
 export class EvaluationService {
   async evaluateSession(sessionId: string): Promise<any> {
@@ -131,28 +131,28 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
     try {
       const sessionRef = db.collection('ecosSessions').doc(sessionId);
       const sessionDoc = await sessionRef.get();
-
+  
       if (!sessionDoc.exists) {
         console.error(`No session found with id: ${sessionId}`);
         return null;
       }
-
+  
       const session = { id: sessionDoc.id, ...sessionDoc.data() } as EcosSession;
-
+  
       // Fetch the associated scenario
       const scenarioRef = db.collection('ecosScenarios').doc(session.scenarioId);
       const scenarioDoc = await scenarioRef.get();
-
+  
       if (!scenarioDoc.exists) {
         console.error(`No scenario found with id: ${session.scenarioId}`);
         return null;
       }
-
+  
       const scenario = { id: scenarioDoc.id, ...scenarioDoc.data() } as EcosScenario;
-
+  
       // Fetch messages for the session
       const messages = await this.getCompleteSessionHistory(sessionId);
-
+  
       return {
         session,
         scenario,
@@ -183,7 +183,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
       const startIndex = evaluationText.indexOf('{');
       const endIndex = evaluationText.lastIndexOf('}') + 1;
       const jsonText = evaluationText.slice(startIndex, endIndex);
-
+      
       const parsed = JSON.parse(jsonText);
 
       // Basic validation
@@ -207,7 +207,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
           anamnese: this.extractComment(evaluationText, 'anamnese'),
           diagnostic: this.extractComment(evaluationText, 'diagnostic'),
           communication: this.extractComment(evaluationText, 'communication'),
-          examen_clinique: this.extractComment(evaluationText, 'diagnostic'),
+          examen_clinique: this.extractComment(evaluationText, 'examen_clinique'),
           prise_en_charge: this.extractComment(evaluationText, 'prise_en_charge'),
         },
         strengths: this.extractListItems(evaluationText, 'strengths'),
@@ -261,7 +261,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
           criterionId,
           score: score as number,
           feedback: evaluation.comments?.[criterionId] || '',
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: firestore.FieldValue.serverTimestamp(),
         });
       }
     }
@@ -294,7 +294,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
     await reportRef.set({
       ...report,
       sessionId,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: firestore.FieldValue.serverTimestamp(),
     });
 
     return report;
@@ -337,7 +337,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
         weaknesses: [], // No weaknesses for empty reports
         recommendations: [], // No recommendations for empty reports
         isInsufficientContent: true,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        timestamp: firestore.FieldValue.serverTimestamp(),
       });
 
       console.log(`✅ Empty session report saved successfully for session ${sessionId}`);
