@@ -21,26 +21,11 @@ export const db = getFirestore(app);
 // Initialiser Auth
 export const auth = getAuth(app);
 
-// En mode développement, utiliser les émulateurs Firebase
+// En mode développement sur Replit, ne pas utiliser les émulateurs Firebase
+// car ils causent des problèmes de contenu mixte (HTTP/HTTPS)
 if (import.meta.env.DEV) {
-  console.log('🔧 Mode développement : utilisation des émulateurs Firebase');
-  
-  // Connecter aux émulateurs seulement si pas déjà connectés
-  try {
-    // Utiliser l'émulateur Auth sur le port 9099
-    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-    console.log('✅ Émulateur Firebase Auth connecté');
-  } catch (error) {
-    console.log('ℹ️ Émulateur Firebase Auth déjà connecté ou non disponible');
-  }
-  
-  try {
-    // Utiliser l'émulateur Firestore sur le port 8080
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    console.log('✅ Émulateur Firebase Firestore connecté');
-  } catch (error) {
-    console.log('ℹ️ Émulateur Firebase Firestore déjà connecté ou non disponible');
-  }
+  console.log('🔧 Mode développement : Firebase configuré sans émulateurs');
+  console.log('ℹ️ Les émulateurs Firebase sont désactivés sur Replit pour éviter les erreurs de contenu mixte');
 } else {
   console.log('🔥 Mode production : utilisation des services Firebase');
 }
