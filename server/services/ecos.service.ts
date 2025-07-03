@@ -2,7 +2,7 @@ import { evaluationService } from './evaluation.service';
 import { pineconeService } from './pinecone.service';
 import { firestore as db } from '../firebase';
 import { EcosSession, EcosScenario, EcosMessage, TrainingSession, TrainingSessionStudent, TrainingSessionScenario } from '../types';
-import { firestore } from 'firebase-admin';
+import admin from 'firebase-admin';
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -10,7 +10,7 @@ const openai = new OpenAI({
 });
 
 // Helper to convert Firestore doc to a typed object
-function docToType<T>(doc: firestore.DocumentSnapshot): T {
+function docToType<T>(doc: admin.firestore.DocumentSnapshot): T {
     return { id: doc.id, ...doc.data() } as T;
 }
 
@@ -120,7 +120,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
       sessionId,
       role: 'user',
       content: studentQuery,
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     const patientMessageRef = messagesRef.doc();
@@ -128,7 +128,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
       sessionId,
       role: 'assistant',
       content: patientResponse,
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     await batch.commit();
@@ -136,7 +136,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
 
   async startSession(scenarioId: string, studentEmail: string): Promise<string> {
     // Find the active training session
-    const now = firestore.Timestamp.now();
+    const now = admin.firestore.Timestamp.now();
     const trainingSessionsRef = db.collection('training_sessions');
     const trainingSessionQuery = trainingSessionsRef
         .where('startDate', '<=', now)
@@ -166,7 +166,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
       studentEmail,
       status: 'in_progress',
       trainingSessionId,
-      startTime: firestore.FieldValue.serverTimestamp(),
+      startTime: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     console.log('✅ Session created with ID:', newSessionRef.id);
@@ -176,7 +176,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
   async endSession(sessionId: string): Promise<void> {
     await db.collection('ecos_sessions').doc(sessionId).update({ 
         status: 'completed',
-        endTime: firestore.FieldValue.serverTimestamp()
+        endTime: admin.firestore.FieldValue.serverTimestamp()
     });
 
     // Only trigger evaluation if there are meaningful exchanges
