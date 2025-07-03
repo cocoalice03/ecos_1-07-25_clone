@@ -110,8 +110,14 @@ export default function StudentPage({ email }: StudentPageProps) {
       });
     },
     onSuccess: (data) => {
-      setActiveSessionId(data.sessionId);
+      console.log('Session created successfully:', data);
+      const sessionId = data.sessionId || data.id;
+      console.log('Setting activeSessionId to:', sessionId);
+      setActiveSessionId(sessionId);
       refetchSessions();
+    },
+    onError: (error) => {
+      console.error('Error starting session:', error);
     }
   });
 
@@ -188,6 +194,7 @@ export default function StudentPage({ email }: StudentPageProps) {
 
   // If in active session
   if (activeSessionId) {
+    console.log('Rendering PatientSimulator with sessionId:', activeSessionId, 'email:', decodedEmail);
     return (
       <div className="min-h-screen bg-gray-50">
         <PatientSimulator 
@@ -204,6 +211,11 @@ export default function StudentPage({ email }: StudentPageProps) {
     inProgressSessions: sessions?.filter((s: any) => s.status === 'in_progress').length || 0,
     availableScenarios: scenarios?.length || 0
   };
+
+  // Debug log pour vérifier l'état
+  console.log('Current activeSessionId:', activeSessionId);
+  console.log('Current viewingReport:', viewingReport);
+  console.log('Current showDiagnostic:', showDiagnostic);
 
   return (
     <div className="min-h-screen bg-gray-50">
