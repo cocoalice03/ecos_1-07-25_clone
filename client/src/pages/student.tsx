@@ -17,8 +17,8 @@ interface StudentPageProps {
 }
 
 export default function StudentPage({ email }: StudentPageProps) {
-  const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
-  const [viewingReport, setViewingReport] = useState<number | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [viewingReport, setViewingReport] = useState<string | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [accountCreated, setAccountCreated] = useState(false);
 
@@ -111,9 +111,23 @@ export default function StudentPage({ email }: StudentPageProps) {
     },
     onSuccess: (data) => {
       console.log('Session created successfully:', data);
-      const sessionId = data.sessionId || data.id;
-      console.log('Setting activeSessionId to:', sessionId);
-      setActiveSessionId(sessionId);
+      console.log('Data type:', typeof data);
+      console.log('Data keys:', Object.keys(data));
+      
+      // Essayer différentes propriétés pour trouver l'ID de session
+      const sessionId = data.sessionId || data.id || data.session_id;
+      console.log('Extracted sessionId:', sessionId, 'type:', typeof sessionId);
+      
+      if (!sessionId) {
+        console.error('No session ID found in response:', data);
+        alert('Erreur: ID de session non trouvé dans la réponse');
+        return;
+      }
+      
+      // Convertir en string si nécessaire
+      const sessionIdString = String(sessionId);
+      console.log('Setting activeSessionId to:', sessionIdString);
+      setActiveSessionId(sessionIdString);
       refetchSessions();
     },
     onError: (error) => {
@@ -150,7 +164,7 @@ export default function StudentPage({ email }: StudentPageProps) {
     }
   };
 
-  const handleViewReport = (sessionId: number) => {
+  const handleViewReport = (sessionId: string) => {
     setViewingReport(sessionId);
   };
 
@@ -502,7 +516,7 @@ export default function StudentPage({ email }: StudentPageProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleViewReport(session.id)}
+                                onClick={() => handleViewReport(String(session.id))}
                               >
                                 <TrendingUp className="w-4 h-4 mr-1" />
                                 Voir Résultats
@@ -512,7 +526,7 @@ export default function StudentPage({ email }: StudentPageProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setActiveSessionId(session.id)}
+                                onClick={() => setActiveSessionId(String(session.id))}
                               >
                                 <Play className="w-4 h-4 mr-1" />
                                 Reprendre
