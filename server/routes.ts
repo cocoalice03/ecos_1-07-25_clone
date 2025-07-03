@@ -195,6 +195,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Firebase diagnostic endpoint
+  app.get("/api/firebase/diagnostic", async (req: Request, res: Response) => {
+    try {
+      console.log('🔥 Running Firebase diagnostic...');
+      
+      // Test basic Firestore connection
+      const collections = await db.listCollections();
+      console.log('📂 Available collections:', collections.map(c => c.id));
+      
+      // Test basic read operation
+      const testDoc = await db.collection('ecos_scenarios').limit(1).get();
+      
+      res.status(200).json({ 
+        status: 'ok', 
+        message: 'Firebase connection is healthy',
+        collections: collections.map(c => c.id),
+        testRead: !testDoc.empty,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error('❌ Firebase diagnostic failed:', error);
+      res.status(500).json({ 
+        status: 'error', 
+        message: 'Firebase diagnostic failed', 
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Update a training session
   app.put("/api/training-sessions/:id", async (req: Request, res: Response) => {
     try {
@@ -328,6 +358,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: error.message });
       }
       return res.status(500).json({ message: "Erreur lors de la suppression de la session de formation" });
+    }
+  });
+
+  // Create ECOS session
+  app.post("/api/ecos/sessions", async (req: Request, res: Response) => {
+    const schema = z.object({
+      email: z.string().email("Format d'email invalide"),
+      scenarioId: z.union([z.string(), z.number()]).transform(val => String(val)),
+    });
+
+    try {
+      const { email, scenarioId } = schema.parse(req.body);
+      console.log('🚀 Creating ECOS session for:', email, 'scenario:', scenarioId);
+
+      // Import the service here to avoid circular dependencies
+      const { ecosService } = await import('./services/ecos.service');
+      
+      const sessionId = await ecosService.startSession(scenarioId, email);
+      
+      console.log('✅ Session created successfully with ID:', sessionId);
+      
+      // Return the session ID in the expected format
+      res.status(200).json({ 
+        sessionId: sessionId,
+        id: sessionId,
+        message: "Session créée avec succès"
+      });
+
+    } catch (error: any) {
+      console.error('❌ Error creating ECOS session:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Données invalides", errors: error.errors });
+      }
+      res.status(500).json({ message: "Erreur lors de la création de la session" });
+    }
+  });
+
+  // Get ECOS sessions for a student
+  app.get("/api/ecos/sessions", async (req: Request, res: Response) => {
+    const schema = z.object({
+      email: z.string().email("Format d'email invalide"),
+    });
+
+    try {
+      const { email } = schema.parse(req.query);
+      console.log('📋 Fetching ECOS sessions for:', email);
+
+      // Import the service here to avoid circular dependencies
+      const { ecosService } = await import('./services/ecos.service');
+      
+      const sessions = await ecosService.getStudentSessions(email);
+      
+      res.status(200).json({ 
+        sessions: sessions,
+        message: "Sessions récupérées avec succès"
+      });
+
+    } catch (error: any) {
+      console.error('❌ Error fetching ECOS sessions:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Données invalides", errors: error.errors });
+      }
+      res.status(500).json({ message: "Erreur lors de la récupération des sessions" });
     }
   });
 

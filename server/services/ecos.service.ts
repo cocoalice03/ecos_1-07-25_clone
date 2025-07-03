@@ -169,6 +169,7 @@ RAPPEL CRITIQUE: Ce scénario concerne spécifiquement "${description}". Tu ne d
       startTime: firestore.FieldValue.serverTimestamp(),
     });
 
+    console.log('✅ Session created with ID:', newSessionRef.id);
     return newSessionRef.id;
   }
 

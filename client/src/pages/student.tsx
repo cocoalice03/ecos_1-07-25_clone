@@ -103,35 +103,54 @@ export default function StudentPage({ email }: StudentPageProps) {
   // Start session mutation
   const startSessionMutation = useMutation({
     mutationFn: async (scenarioId: number) => {
-      console.log('Starting session with decoded email:', decodedEmail, 'and scenario:', scenarioId);
-      return apiRequest('POST', '/api/ecos/sessions', {
-        email: decodedEmail,
-        scenarioId
-      });
+      console.log('🚀 Starting session with decoded email:', decodedEmail, 'and scenario:', scenarioId);
+      
+      try {
+        const response = await apiRequest('POST', '/api/ecos/sessions', {
+          email: decodedEmail,
+          scenarioId
+        });
+        console.log('✅ Raw API response:', response);
+        return response;
+      } catch (error) {
+        console.error('❌ API request failed:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
-      console.log('Session created successfully:', data);
-      console.log('Data type:', typeof data);
-      console.log('Data keys:', Object.keys(data));
+      console.log('✅ Session created successfully:', data);
+      console.log('📊 Data analysis:', {
+        type: typeof data,
+        keys: Object.keys(data),
+        fullData: data
+      });
       
       // Essayer différentes propriétés pour trouver l'ID de session
       const sessionId = data.sessionId || data.id || data.session_id;
-      console.log('Extracted sessionId:', sessionId, 'type:', typeof sessionId);
+      console.log('🔍 Extracted sessionId:', sessionId, 'type:', typeof sessionId);
       
       if (!sessionId) {
-        console.error('No session ID found in response:', data);
-        alert('Erreur: ID de session non trouvé dans la réponse');
+        console.error('❌ No session ID found in response:', data);
+        alert('Erreur: ID de session non trouvé dans la réponse. Voir la console pour plus de détails.');
         return;
       }
       
       // Convertir en string si nécessaire
       const sessionIdString = String(sessionId);
-      console.log('Setting activeSessionId to:', sessionIdString);
+      console.log('🎯 Setting activeSessionId to:', sessionIdString);
       setActiveSessionId(sessionIdString);
       refetchSessions();
     },
     onError: (error) => {
-      console.error('Error starting session:', error);
+      console.error('❌ Error starting session:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      // Afficher une erreur plus détaillée à l'utilisateur
+      alert(`Erreur lors du démarrage de la session: ${error.message || 'Erreur inconnue'}`);
     }
   });
 
