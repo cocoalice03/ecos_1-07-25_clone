@@ -71,12 +71,20 @@ export default function StudentPage({ email }: StudentPageProps) {
     queryKey: ['student-scenarios', decodedEmail],
     queryFn: async () => {
       console.log('Fetching available scenarios for email:', decodedEmail);
-      const response = await apiRequest('GET', `/api/student/available-scenarios?email=${encodeURIComponent(decodedEmail)}`);
-      console.log('Available scenarios response:', response);
-      console.log('Number of scenarios received:', response.scenarios?.length || 0);
-      return response;
+      try {
+        const response = await apiRequest('GET', `/api/student/available-scenarios?email=${encodeURIComponent(decodedEmail)}`);
+        console.log('Available scenarios response:', response);
+        console.log('Number of scenarios received:', response.scenarios?.length || 0);
+        return response;
+      } catch (error) {
+        console.error('Error fetching scenarios:', error);
+        // Return empty data structure to prevent crashes
+        return { scenarios: [], trainingSessions: [], message: 'Erreur lors du chargement des scénarios' };
+      }
     },
-    enabled: !!decodedEmail,
+    enabled: !!decodedEmail && accountCreated,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const scenarios = studentData?.scenarios || [];

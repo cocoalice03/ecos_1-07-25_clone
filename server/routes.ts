@@ -46,6 +46,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return { userId, isNewUser: true };
   }
 
+  // API route for auto-registration of students
+  app.post("/api/student/auto-register", async (req: Request, res: Response) => {
+    const schema = z.object({
+      email: z.string().email("Format d'email invalide"),
+    });
+
+    try {
+      const { email } = schema.parse(req.body);
+      const { userId, isNewUser } = await findOrCreateStudent(email);
+      res.status(200).json({ 
+        message: "Compte étudiant traité avec succès", 
+        userId, 
+        isNewUser 
+      });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Données invalides", errors: error.errors });
+      }
+      console.error("Error in /api/student/auto-register:", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  });
+
   // API route to create or verify a student account
   app.post("/api/student", async (req: Request, res: Response) => {
     const schema = z.object({
@@ -315,12 +338,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email } = schema.parse(req.query);
 
       if (isAdminAuthorized(email)) {
-        const allScenariosSnapshot = await db.collection('ecos_scenarios').orderBy('createdAt').get();
-        const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        return res.status(200).json({ 
-          scenarios: allScenarios,
-          message: "Tous les scénarios disponibles (mode admin)"
-        });
+        try {
+          const allScenariosSnapshot = await db.collection('ecos_scenarios').orderBy('createdAt').get();
+          const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          return res.status(200).json({ 
+            scenarios: allScenarios,
+            message: "Tous les scénarios disponibles (mode admin)"
+          });
+        } catch (error) {
+          // Fallback si orderBy n'est pas supporté (mode mock)
+          const allScenariosSnapshot = await db.collection('ecos_scenarios').get();
+          const allScenarios = allScenariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          return res.status(200).json({ 
+            scenarios: allScenarios,
+            message: "Tous les scénarios disponibles (mode admin - fallback)"
+          });
+        }
       }
 
       const { userId } = await findOrCreateStudent(email);
