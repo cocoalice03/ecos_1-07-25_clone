@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Firestore-based student account creation or retrieval
   async function findOrCreateStudent(email: string): Promise<{ userId: string; isNewUser: boolean }> {
     const usersRef = db.collection('users');
-    const q = usersRef.where('email', '==', email);
+    const q = usersRef.where('email', '==', email).limit(1);
     const querySnapshot = await q.get();
 
     if (!querySnapshot.empty) {

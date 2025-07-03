@@ -74,8 +74,21 @@ if (process.env.NODE_ENV === 'development') {
               }))
             });
           }
+          if (collectionName === 'users') {
+            // Simuler la recherche d'utilisateur par email
+            return Promise.resolve({ empty: true, docs: [] });
+          }
           return Promise.resolve({ empty: true, docs: [] });
         },
+        limit: (limitValue: number) => ({
+          get: () => {
+            if (collectionName === 'users') {
+              // Simuler la recherche d'utilisateur par email avec limite
+              return Promise.resolve({ empty: true, docs: [] });
+            }
+            return Promise.resolve({ empty: true, docs: [] });
+          }
+        }),
         orderBy: (field: string, direction?: string) => ({
           get: () => {
             if (collectionName === 'ecos_scenarios') {
