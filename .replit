@@ -11,7 +11,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Project"
+runButton = "Start Dev Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -34,6 +34,15 @@ waitForPort = 5000
 [[workflows.workflow]]
 name = "Start LearnWorlds RAG App"
 author = 23824528
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Start Dev Server"
+author = 40055004
 mode = "sequential"
 
 [[workflows.workflow.tasks]]
