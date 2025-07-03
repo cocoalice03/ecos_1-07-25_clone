@@ -121,7 +121,7 @@ app.use((req, res, next) => {
   }
 
   // Start server with error handling
-  const port = 5001;
+  const port = parseInt(process.env.PORT || '5000', 10);
   const host = '0.0.0.0';
   
   server.on('error', (error: any) => {
