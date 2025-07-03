@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getAnalytics } from 'firebase/analytics';
+// import { getAnalytics } from 'firebase/analytics'; // Désactivé temporairement
 
 // Configuration Firebase avec les vraies données du projet
 const firebaseConfig = {
@@ -24,19 +24,9 @@ export const db = getFirestore(app);
 // Initialiser Auth
 export const auth = getAuth(app);
 
-// Initialiser Analytics de manière conditionnelle
-let analytics: any = null;
-try {
-  // Analytics nécessite un environnement de navigateur et une configuration valide
-  if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
-    analytics = getAnalytics(app);
-    console.log('✅ Firebase Analytics initialisé');
-  }
-} catch (error) {
-  console.log('ℹ️ Firebase Analytics non initialisé:', error instanceof Error ? error.message : 'Configuration manquante');
-}
-
-export { analytics };
+// Firebase Analytics désactivé temporairement pour éviter l'erreur CONFIGURATION_NOT_FOUND
+// Analytics sera réactivé une fois la configuration résolu
+export const analytics = null;
 
 // En mode développement sur Replit, ne pas utiliser les émulateurs Firebase
 // car ils causent des problèmes de contenu mixte (HTTP/HTTPS)
