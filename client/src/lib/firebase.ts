@@ -45,4 +45,4 @@ if (import.meta.env.DEV) {
   console.log('🔥 Mode production : utilisation des services Firebase');
 }
 
-export default apppp;
+export default app;
