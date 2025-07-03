@@ -1,7 +1,7 @@
 import { openaiService } from './openai.service';
 import { firestore as db } from '../firebase';
 import { EcosSession, EcosScenario, EcosMessage, EcosEvaluation, EcosReport } from '../types';
-import { firestore } from 'firebase-admin';
+import { firestore, initializeApp, credential } from 'firebase-admin';
 
 export class EvaluationService {
   async evaluateSession(sessionId: string): Promise<any> {
@@ -261,7 +261,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
           criterionId,
           score: score as number,
           feedback: evaluation.comments?.[criterionId] || '',
-          createdAt: firestore.FieldValue.serverTimestamp(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
     }
@@ -294,7 +294,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
     await reportRef.set({
       ...report,
       sessionId,
-      createdAt: firestore.FieldValue.serverTimestamp(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     return report;
@@ -337,7 +337,7 @@ Retourne UNIQUEMENT ce JSON (scores de 0 à 4):
         weaknesses: [], // No weaknesses for empty reports
         recommendations: [], // No recommendations for empty reports
         isInsufficientContent: true,
-        timestamp: firestore.FieldValue.serverTimestamp(),
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       console.log(`✅ Empty session report saved successfully for session ${sessionId}`);
