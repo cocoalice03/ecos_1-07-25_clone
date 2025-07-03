@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 
-// Configuration Firebase avec valeurs de fallback pour le développement
+// Configuration Firebase avec émulateur pour le développement
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-api-key",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-project.firebaseapp.com",
@@ -11,8 +11,6 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef"
 };
-
-console.log('Firebase initialisé en mode développement');
 
 // Initialiser Firebase
 const app = initializeApp(firebaseConfig);
@@ -23,4 +21,28 @@ export const db = getFirestore(app);
 // Initialiser Auth
 export const auth = getAuth(app);
 
-export default app;
+// En mode développement, utiliser les émulateurs Firebase
+if (import.meta.env.DEV) {
+  console.log('🔧 Mode développement : utilisation des émulateurs Firebase');
+  
+  // Connecter aux émulateurs seulement si pas déjà connectés
+  try {
+    // Utiliser l'émulateur Auth sur le port 9099
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    console.log('✅ Émulateur Firebase Auth connecté');
+  } catch (error) {
+    console.log('ℹ️ Émulateur Firebase Auth déjà connecté ou non disponible');
+  }
+  
+  try {
+    // Utiliser l'émulateur Firestore sur le port 8080
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    console.log('✅ Émulateur Firebase Firestore connecté');
+  } catch (error) {
+    console.log('ℹ️ Émulateur Firebase Firestore déjà connecté ou non disponible');
+  }
+} else {
+  console.log('🔥 Mode production : utilisation des services Firebase');
+}
+
+export default apppp;
