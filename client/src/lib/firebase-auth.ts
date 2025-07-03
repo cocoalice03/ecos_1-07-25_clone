@@ -1,18 +1,9 @@
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import firebase, { auth } from './firebase';
+// Firebase Auth supprimé
+// Implémentez votre propre système d'authentification
 
-// Utiliser l'authentification Firebase déjà initialisée
-
-// Fonction simplifiée pour "connecter" un utilisateur par email
-// Cette version évite d'utiliser l'authentification Firebase directement
-// pour se concentrer sur la fonctionnalité principale
 export async function authenticateWithEmail(email: string) {
   try {
-    // Solution simple : stocker l'email dans localStorage
     localStorage.setItem('userEmail', email);
-    
-    // Simuler une authentification réussie
-    // Dans une implémentation complète, vous utiliseriez Firebase Auth correctement configuré
     return {
       success: true,
       email: email,
@@ -26,15 +17,12 @@ export async function authenticateWithEmail(email: string) {
   }
 }
 
-// Vérifier si l'utilisateur est déjà authentifié
 export function getStoredEmail() {
   return localStorage.getItem('userEmail');
 }
 
-// Déconnecter l'utilisateur
 export async function signOut() {
   try {
-    await auth.signOut();
     localStorage.removeItem('userEmail');
     return { success: true };
   } catch (error) {
@@ -42,5 +30,3 @@ export async function signOut() {
     return { success: false, error };
   }
 }
-
-export default auth;
