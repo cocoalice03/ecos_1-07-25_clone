@@ -1,0 +1,609 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+🔧 Mode développement : utilisation de la base de données mock
+Starting LearnWorlds RAG Application...
+Missing environment variables: DATABASE_URL, OPENAI_API_KEY, PINECONE_API_KEY
+Database connection managed by Firebase.
+Server started successfully
+Listening on http://0.0.0.0:5000
+Health check: http://0.0.0.0:5000/health
+Ready check: http://0.0.0.0:5000/ready
+Environment: development
+🔄 GET / { query: {}, body: [], timestamp: '2025-07-03T09:42:05.181Z' }
+🔄 GET /src/main.tsx {
+  query: { v: 'RnAbmZbU4WQ8nEa3KaetO' },
+  body: [],
+  timestamp: '2025-07-03T09:42:06.039Z'
+}
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-07-03T09:42:06.080Z' }
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-07-03T09:42:07.390Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs { query: {}, body: [], timestamp: '2025-07-03T09:42:07.391Z' }
+🔄 GET /src/index.css {
+  query: { v: 'RnAbmZbU4WQ8nEa3KaetO' },
+  body: [],
+  timestamp: '2025-07-03T09:42:07.484Z'
+}
+🔄 GET /src/utils/customElementPrevention.ts {
+  query: { v: 'RnAbmZbU4WQ8nEa3KaetO' },
+  body: [],
+  timestamp: '2025-07-03T09:42:07.487Z'
+}
+🔄 GET /src/App.tsx {
+  query: { v: 'RnAbmZbU4WQ8nEa3KaetO' },
+  body: [],
+  timestamp: '2025-07-03T09:42:07.493Z'
+}
+🔄 GET /src/lib/queryClient.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:07.805Z' }
+🔄 GET /src/components/ui/toaster.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.806Z' }
+🔄 GET /src/pages/not-found.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.809Z' }
+🔄 GET /src/components/ui/tooltip.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.810Z' }
+🔄 GET /src/pages/chat.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.840Z' }
+🔄 GET /src/pages/student.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.945Z' }
+🔄 GET /src/pages/diagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.950Z' }
+🔄 GET /src/lib/firebase-auth.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:07.951Z' }
+🔄 GET /src/pages/teacher.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:07.951Z' }
+🔄 GET /src/hooks/use-toast.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:07.984Z' }
+🔄 GET /src/components/ui/toast.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.087Z' }
+🔄 GET /src/components/ui/card.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.092Z' }
+🔄 GET /src/lib/utils.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:08.093Z' }
+🔄 GET /src/lib/api.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:08.093Z' }
+🔄 GET /src/components/chat/ChatArea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.127Z' }
+🔄 GET /src/pages/admin.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.212Z' }
+🔄 GET /src/components/modals/ErrorModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.234Z' }
+🔄 GET /src/components/layout/Sidebar.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.235Z' }
+🔄 GET /src/components/modals/LimitReachedModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.235Z' }
+🔄 GET /src/components/layout/MobileMenu.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.236Z' }
+🔄 GET /src/components/ui/badge.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.269Z' }
+🔄 GET /src/components/ui/button.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.360Z' }
+🔄 GET /src/components/ecos/EvaluationReport.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.377Z' }
+🔄 GET /src/components/debug/StudentDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.377Z' }
+🔄 GET /src/components/ecos/PatientSimulator.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.378Z' }
+🔄 GET /src/components/ui/tabs.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.379Z' }
+🔄 GET /src/components/debug/DeepDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.411Z' }
+🔄 GET /src/lib/firebase.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:08.500Z' }
+🔄 GET /src/components/ui/input.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.519Z' }
+🔄 GET /src/lib/firestore.service.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:08.519Z' }
+🔄 GET /src/components/debug/AuthDebugger.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.520Z' }
+🔄 GET /src/components/debug/CustomElementDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.520Z' }
+🔄 GET /src/components/ui/textarea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.553Z' }
+🔄 GET /src/components/layout/AdminButton.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.643Z' }
+🔄 GET /src/components/ui/select.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.660Z' }
+🔄 GET /src/components/ui/label.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.661Z' }
+🔄 GET /src/components/ecos/TrainingSessionsTab.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.661Z' }
+🔄 GET /src/components/chat/ChatMessage.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.662Z' }
+🔄 GET /src/components/chat/ChatInput.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.695Z' }
+🔄 GET /src/components/chat/DailyCounter.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.784Z' }
+🔄 GET /src/components/ui/progress.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.799Z' }
+🔄 GET /src/components/ui/checkbox.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:08.803Z' }
+🔄 GET /student/colombemadoungou%40gmail.com {
+  query: { scenario: '1' },
+  body: [],
+  timestamp: '2025-07-03T09:42:12.417Z'
+}
+🔄 GET /src/main.tsx {
+  query: { v: 'I2L_1UQ_YYFAeXUaK1ssY' },
+  body: [],
+  timestamp: '2025-07-03T09:42:12.852Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react_jsx-dev-runtime.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:12.999Z'
+}
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-07-03T09:42:13.041Z' }
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-07-03T09:42:13.042Z' }
+🔄 GET /src/utils/customElementPrevention.ts {
+  query: { v: 'I2L_1UQ_YYFAeXUaK1ssY' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.146Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-QCHXOAYK.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.300Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.454Z'
+}
+🔄 GET /src/App.tsx {
+  query: { v: 'I2L_1UQ_YYFAeXUaK1ssY' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.455Z'
+}
+🔄 GET /src/index.css {
+  query: { v: 'I2L_1UQ_YYFAeXUaK1ssY' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.459Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WOOG5QLI.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.468Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.601Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs { query: {}, body: [], timestamp: '2025-07-03T09:42:13.620Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.743Z'
+}
+🔄 GET /src/lib/queryClient.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:13.744Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.745Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:13.762Z'
+}
+🔄 GET /src/components/ui/toaster.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:13.885Z' }
+🔄 GET /src/components/ui/tooltip.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:13.890Z' }
+🔄 GET /src/pages/not-found.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:13.894Z' }
+🔄 GET /src/pages/chat.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.032Z' }
+🔄 GET /src/pages/admin.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.033Z' }
+🔄 GET /src/pages/teacher.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.037Z' }
+🔄 GET /src/pages/diagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.041Z' }
+🔄 GET /src/pages/student.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.042Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/lucide-react.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:14.180Z'
+}
+🔄 GET /src/lib/firebase-auth.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:14.187Z' }
+🔄 GET /src/hooks/use-toast.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:14.189Z' }
+🔄 GET /src/components/ui/toast.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.194Z' }
+🔄 GET /src/lib/utils.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:14.332Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:14.333Z'
+}
+🔄 GET /src/components/ui/card.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.336Z' }
+🔄 GET /src/lib/api.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:14.459Z' }
+🔄 GET /src/components/chat/ChatArea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.464Z' }
+🔄 GET /src/components/layout/Sidebar.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.474Z' }
+🔄 GET /src/components/modals/LimitReachedModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.478Z' }
+🔄 GET /src/components/layout/MobileMenu.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.479Z' }
+🔄 GET /src/components/modals/ErrorModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.601Z' }
+🔄 GET /src/components/debug/DeepDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.606Z' }
+🔄 GET /src/components/debug/AuthDebugger.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.619Z' }
+🔄 GET /src/components/debug/CustomElementDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.620Z' }
+🔄 GET /src/components/ui/button.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.625Z' }
+🔄 GET /src/components/ui/badge.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.743Z' }
+🔄 GET /src/components/ui/tabs.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.748Z' }
+🔄 GET /src/components/ecos/EvaluationReport.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.762Z' }
+🔄 GET /src/components/ecos/PatientSimulator.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.763Z' }
+🔄 GET /src/components/debug/StudentDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.768Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-KBTYAULA.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:14.881Z'
+}
+🔄 GET /src/lib/firebase.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:14.890Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-toast.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:14.898Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/class-variance-authority.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:14.906Z'
+}
+🔄 GET /src/components/ui/input.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.906Z' }
+🔄 GET /src/components/ui/label.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:14.914Z' }
+🔄 GET /src/components/ui/textarea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.023Z' }
+🔄 GET /src/components/ui/select.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.032Z' }
+🔄 GET /src/lib/firestore.service.ts { query: {}, body: [], timestamp: '2025-07-03T09:42:15.037Z' }
+🔄 GET /src/components/layout/AdminButton.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.047Z' }
+🔄 GET /src/components/ecos/TrainingSessionsTab.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.048Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/clsx.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.057Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/tailwind-merge.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.165Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXVMYYWC.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.175Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4DO6V6VF.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.188Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LXWIESXB.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.194Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXHEV2X6.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.195Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YN3QL25T.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.200Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P6AUOPGQ.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.308Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.317Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BOL2CCOG.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.331Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.336Z'
+}
+🔄 GET /src/components/chat/ChatMessage.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.337Z' }
+🔄 GET /src/components/chat/ChatInput.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.342Z' }
+🔄 GET /src/components/chat/DailyCounter.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.450Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-slot.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.460Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.473Z'
+}
+🔄 GET /src/components/ui/progress.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.479Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_app.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.484Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_firestore.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.484Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_auth.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.592Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TNY366QT.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.602Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-U7P2NEEE.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.615Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-label.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.625Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.626Z'
+}
+🔄 GET /src/components/ui/checkbox.tsx { query: {}, body: [], timestamp: '2025-07-03T09:42:15.739Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.744Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns_locale.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.757Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4RO2SXZU.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.767Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-progress.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.768Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OSKGZCZD.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.886Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UMWMWBIR.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.887Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43G6IMPT.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.910Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-checkbox.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:15.915Z'
+}
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-IIGUYIAY.js {
+  query: { v: '33aa6505' },
+  body: [],
+  timestamp: '2025-07-03T09:42:16.029Z'
+}
+🔄 GET /images/cahier.png { query: {}, body: [], timestamp: '2025-07-03T09:42:16.336Z' }
+🔄 GET /images/vraie.png { query: {}, body: [], timestamp: '2025-07-03T09:42:16.337Z' }
+🔄 GET /images/happy_student.jpg { query: {}, body: [], timestamp: '2025-07-03T09:42:16.338Z' }
+🔄 GET /images/horloge.png { query: {}, body: [], timestamp: '2025-07-03T09:42:16.339Z' }
+🔄 GET /api/ecos/sessions {
+  query: { email: 'colombemadoungou@gmail.com' },
+  body: [],
+  timestamp: '2025-07-03T09:42:16.345Z'
+}
+📋 Fetching ECOS sessions for: colombemadoungou@gmail.com
+🔄 POST /api/student/auto-register { query: {}, body: [ 'email' ], timestamp: '2025-07-03T09:42:16.360Z' }
+9:42:16 AM [express] POST /api/student/auto-register 200 in 2ms :: {"message":"Compte étudiant trait…
+🔄 POST /api/webhook { query: {}, body: [ 'email' ], timestamp: '2025-07-03T09:42:16.505Z' }
+9:42:16 AM [express] POST /api/webhook 200 in 159ms
+❌ Error fetching ECOS sessions: /home/runner/workspace/server/services/ecos.service.ts:5
+import { firestore } from 'firebase-admin';
+         ^
+
+SyntaxError: The requested module 'firebase-admin' does not provide an export named 'firestore'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:146:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:229:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:409:31)
+❌ Error response 500 for GET /api/ecos/sessions: {"message":"Erreur lors de la récupération des sessions"}
+9:42:16 AM [express] GET /api/ecos/sessions 500 in 355ms :: {"message":"Erreur lors de la récupérati…
+🔄 GET /api/student/available-scenarios {
+  query: { email: 'colombemadoungou@gmail.com' },
+  body: [],
+  timestamp: '2025-07-03T09:42:16.821Z'
+}
+9:42:16 AM [express] GET /api/student/available-scenarios 304 in 1ms :: {"scenarios":[{"id":"1","tit…
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.562Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-IIGUYIAY.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.563Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.563Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LXWIESXB.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.564Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react_jsx-dev-runtime.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.565Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OSKGZCZD.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.566Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-U7P2NEEE.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.713Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/class-variance-authority.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.714Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4RO2SXZU.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.718Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.718Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.722Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BOL2CCOG.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.723Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43G6IMPT.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.860Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXHEV2X6.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.861Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_auth.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.861Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/tailwind-merge.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.865Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.865Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YN3QL25T.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:25.878Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.007Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-toast.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.007Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXVMYYWC.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.016Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UMWMWBIR.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.021Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P6AUOPGQ.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.021Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4DO6V6VF.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.026Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.154Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-label.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.155Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TNY366QT.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.160Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.163Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-progress.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.168Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WOOG5QLI.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.169Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-checkbox.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.296Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-QCHXOAYK.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.301Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-KBTYAULA.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.301Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.306Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.317Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns_locale.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.317Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/lucide-react.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.440Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_firestore.js.map { query: {}, body: [], timestamp: '2025-07-03T09:42:26.443Z' }
+🔄 POST /api/ecos/sessions {
+  query: {},
+  body: [ 'email', 'scenarioId' ],
+  timestamp: '2025-07-03T09:42:27.458Z'
+}
+🚀 Creating ECOS session for: colombemadoungou@gmail.com scenario: 1
+❌ Error creating ECOS session: /home/runner/workspace/server/services/ecos.service.ts:5
+import { firestore } from 'firebase-admin';
+         ^
+
+SyntaxError: The requested module 'firebase-admin' does not provide an export named 'firestore'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:146:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:229:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:409:31)
+❌ Error response 500 for POST /api/ecos/sessions: {"message":"Erreur lors de la création de la session"}
+9:42:27 AM [express] POST /api/ecos/sessions 500 in 2ms :: {"message":"Erreur lors de la création de…
+🔄 GET /student/colombemadoungou%40gmail.com {
+  query: { scenario: '1' },
+  body: [],
+  timestamp: '2025-07-03T09:45:58.857Z'
+}
+🔄 GET /src/main.tsx {
+  query: { v: 'Lhe6mFOEADvz2IlHbm1Uj' },
+  body: [],
+  timestamp: '2025-07-03T09:45:59.303Z'
+}
+🔄 GET /src/App.tsx {
+  query: { v: 'Lhe6mFOEADvz2IlHbm1Uj' },
+  body: [],
+  timestamp: '2025-07-03T09:45:59.459Z'
+}
+🔄 GET /@vite/client { query: {}, body: [], timestamp: '2025-07-03T09:45:59.521Z' }
+🔄 GET /@react-refresh { query: {}, body: [], timestamp: '2025-07-03T09:45:59.526Z' }
+🔄 GET /src/lib/queryClient.ts { query: {}, body: [], timestamp: '2025-07-03T09:45:59.611Z' }
+🔄 GET /src/components/ui/tooltip.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.664Z' }
+🔄 GET /src/pages/chat.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.674Z' }
+🔄 GET /src/pages/not-found.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.753Z' }
+🔄 GET /src/pages/diagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.811Z' }
+🔄 GET /src/lib/firebase-auth.ts { query: {}, body: [], timestamp: '2025-07-03T09:45:59.820Z' }
+🔄 GET /src/pages/student.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.900Z' }
+🔄 GET /src/utils/customElementPrevention.ts {
+  query: { v: 'Lhe6mFOEADvz2IlHbm1Uj' },
+  body: [],
+  timestamp: '2025-07-03T09:45:59.904Z'
+}
+🔄 GET /src/index.css {
+  query: { v: 'Lhe6mFOEADvz2IlHbm1Uj' },
+  body: [],
+  timestamp: '2025-07-03T09:45:59.906Z'
+}
+🔄 GET /src/pages/admin.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.953Z' }
+🔄 GET /src/pages/teacher.tsx { query: {}, body: [], timestamp: '2025-07-03T09:45:59.968Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs { query: {}, body: [], timestamp: '2025-07-03T09:46:00.047Z' }
+🔄 GET /src/components/ui/toaster.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.052Z' }
+🔄 GET /src/lib/utils.ts { query: {}, body: [], timestamp: '2025-07-03T09:46:00.095Z' }
+🔄 GET /src/lib/api.ts { query: {}, body: [], timestamp: '2025-07-03T09:46:00.116Z' }
+🔄 GET /src/components/layout/MobileMenu.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.189Z' }
+🔄 GET /src/components/chat/ChatArea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.191Z' }
+🔄 GET /src/components/layout/Sidebar.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.195Z' }
+🔄 GET /src/components/modals/ErrorModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.237Z' }
+🔄 GET /src/components/modals/LimitReachedModal.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.261Z' }
+🔄 GET /src/components/ui/card.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.332Z' }
+🔄 GET /src/components/debug/DeepDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.336Z' }
+🔄 GET /src/components/debug/CustomElementDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.341Z' }
+🔄 GET /src/components/debug/AuthDebugger.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.384Z' }
+🔄 GET /src/lib/firebase.ts { query: {}, body: [], timestamp: '2025-07-03T09:46:00.408Z' }
+🔄 GET /src/components/ui/button.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.476Z' }
+🔄 GET /src/components/ui/badge.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.483Z' }
+🔄 GET /src/components/ui/tabs.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.484Z' }
+🔄 GET /src/components/ecos/PatientSimulator.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.488Z' }
+🔄 GET /src/components/ecos/EvaluationReport.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.531Z' }
+🔄 GET /src/components/debug/StudentDiagnostic.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.555Z' }
+🔄 GET /src/components/ui/label.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.621Z' }
+🔄 GET /src/components/ui/input.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.630Z' }
+🔄 GET /src/components/ui/select.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.631Z' }
+🔄 GET /src/hooks/use-toast.ts { query: {}, body: [], timestamp: '2025-07-03T09:46:00.636Z' }
+🔄 GET /src/components/ui/textarea.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.674Z' }
+🔄 GET /src/components/layout/AdminButton.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.702Z' }
+🔄 GET /src/lib/firestore.service.ts { query: {}, body: [], timestamp: '2025-07-03T09:46:00.768Z' }
+🔄 GET /src/components/ecos/TrainingSessionsTab.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.777Z' }
+🔄 GET /src/components/ui/toast.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.779Z' }
+🔄 GET /src/components/chat/DailyCounter.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.780Z' }
+🔄 GET /src/components/chat/ChatInput.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.820Z' }
+🔄 GET /src/components/chat/ChatMessage.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.849Z' }
+🔄 GET /src/components/ui/progress.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.915Z' }
+🔄 GET /src/components/ui/checkbox.tsx { query: {}, body: [], timestamp: '2025-07-03T09:46:00.933Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.199Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WOOG5QLI.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.201Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.202Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react_jsx-dev-runtime.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.205Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.207Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-QCHXOAYK.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.207Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-KBTYAULA.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.351Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.352Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.356Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.361Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TNY366QT.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.361Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P6AUOPGQ.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.365Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BOL2CCOG.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.498Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YN3QL25T.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.499Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LXWIESXB.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.503Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-U7P2NEEE.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.503Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-toast.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.507Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/class-variance-authority.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.508Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXHEV2X6.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.647Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/clsx.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.647Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4DO6V6VF.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.650Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/tailwind-merge.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.651Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-IIGUYIAY.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.661Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.661Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CXVMYYWC.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.792Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.796Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.816Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-slot.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.817Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/date-fns_locale.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.818Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/lucide-react.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.819Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-label.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.939Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UMWMWBIR.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.958Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4RO2SXZU.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.968Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43G6IMPT.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:01.977Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-select.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.015Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.039Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-checkbox.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.093Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-progress.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.104Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_app.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.114Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OSKGZCZD.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.119Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_auth.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.162Z' }
+🔄 GET /@fs/home/runner/workspace/node_modules/.vite/deps/firebase_firestore.js.map { query: {}, body: [], timestamp: '2025-07-03T09:46:02.186Z' }
+🔄 GET /images/horloge.png { query: {}, body: [], timestamp: '2025-07-03T09:46:02.238Z' }
+🔄 GET /images/vraie.png { query: {}, body: [], timestamp: '2025-07-03T09:46:02.247Z' }
+🔄 GET /images/cahier.png { query: {}, body: [], timestamp: '2025-07-03T09:46:02.256Z' }
+🔄 GET /images/happy_student.jpg { query: {}, body: [], timestamp: '2025-07-03T09:46:02.279Z' }
+🔄 POST /api/student/auto-register { query: {}, body: [ 'email' ], timestamp: '2025-07-03T09:46:02.317Z' }
+9:46:02 AM [express] POST /api/student/auto-register 200 in 2ms :: {"message":"Compte étudiant trait…
+🔄 GET /api/ecos/sessions {
+  query: { email: 'colombemadoungou@gmail.com' },
+  body: [],
+  timestamp: '2025-07-03T09:46:02.361Z'
+}
+📋 Fetching ECOS sessions for: colombemadoungou@gmail.com
+❌ Error fetching ECOS sessions: /home/runner/workspace/server/services/ecos.service.ts:5
+import { firestore } from 'firebase-admin';
+         ^
+
+SyntaxError: The requested module 'firebase-admin' does not provide an export named 'firestore'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:146:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:229:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:409:31)
+❌ Error response 500 for GET /api/ecos/sessions: {"message":"Erreur lors de la récupération des sessions"}
+9:46:02 AM [express] GET /api/ecos/sessions 500 in 2ms :: {"message":"Erreur lors de la récupération…
+🔄 POST /api/webhook { query: {}, body: [ 'email' ], timestamp: '2025-07-03T09:46:02.466Z' }
+9:46:02 AM [express] POST /api/webhook 200 in 5ms
+🔄 GET /api/student/available-scenarios {
+  query: { email: 'colombemadoungou@gmail.com' },
+  body: [],
+  timestamp: '2025-07-03T09:46:02.906Z'
+}
+9:46:02 AM [express] GET /api/student/available-scenarios 304 in 1ms :: {"scenarios":[{"id":"1","tit…
+🔄 GET /images/cahier.png { query: {}, body: [], timestamp: '2025-07-03T09:46:03.067Z' }
+🔄 POST /api/ecos/sessions {
+  query: {},
+  body: [ 'email', 'scenarioId' ],
+  timestamp: '2025-07-03T09:46:04.339Z'
+}
+🚀 Creating ECOS session for: colombemadoungou@gmail.com scenario: 1
+❌ Error creating ECOS session: /home/runner/workspace/server/services/ecos.service.ts:5
+import { firestore } from 'firebase-admin';
+         ^
+
+SyntaxError: The requested module 'firebase-admin' does not provide an export named 'firestore'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:146:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:229:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:409:31)
+❌ Error response 500 for POST /api/ecos/sessions: {"message":"Erreur lors de la création de la session"}
+9:46:04 AM [express] POST /api/ecos/sessions 500 in 2ms :: {"message":"Erreur lors de la création de…
