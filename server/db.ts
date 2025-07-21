@@ -25,10 +25,11 @@ console.log('✅ Connected to Supabase PostgreSQL database');
 const client = postgres(process.env.DATABASE_URL, {
   ssl: { rejectUnauthorized: false },
   max: 5,
-  connect_timeout: 30,
-  idle_timeout: 30,
+  connect_timeout: 60,
+  idle_timeout: 60,
   prepare: false,
   transform: postgres.camel,
+  onnotice: () => {}, // Suppress notices
 });
 
 // Create drizzle instance

@@ -106,21 +106,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route to test direct database connection and fetch scenarios
+  app.get("/api/admin/test-db", async (req: Request, res: Response) => {
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      const { alternativeConnectionService } = await import('./services/alternative-connection.service');
+      
+      console.log('🔧 Testing alternative connection methods...');
+      const result = await alternativeConnectionService.tryConnectionMethods();
+      
+      if (result.success) {
+        return res.status(200).json({ 
+          connected: true,
+          scenarios: result.scenarios,
+          count: result.scenarios?.length || 0,
+          attempts: result.attempts,
+          message: `Connexion réussie via méthodes alternatives - ${result.scenarios?.length || 0} scénarios trouvés`
+        });
+      } else {
+        return res.status(200).json({ 
+          connected: false,
+          scenarios: result.scenarios, // Structured fallback
+          count: result.scenarios?.length || 0,
+          attempts: result.attempts,
+          message: "Connexion impossible - utilisation de scénarios structurés de démonstration"
+        });
+      }
+    } catch (error: any) {
+      console.error("Error testing database:", error);
+      res.status(500).json({ 
+        message: "Erreur lors du test de la base de données",
+        error: error.message,
+        connected: false
+      });
+    }
+  });
+
   // Route to get available scenarios for students
   app.get("/api/student/available-scenarios", async (req: Request, res: Response) => {
     try {
-      let scenarios;
-      try {
-        scenarios = await scenarioSyncService.getAvailableScenarios();
-      } catch (dbError) {
-        console.log('⚠️ Database not available, using fallback scenarios');
-        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
-        scenarios = await fallbackScenariosService.getAvailableScenarios();
-      }
-      res.status(200).json({ scenarios });
+      const { alternativeConnectionService } = await import('./services/alternative-connection.service');
+      
+      console.log('🔧 Fetching student scenarios via alternative methods...');
+      const result = await alternativeConnectionService.tryConnectionMethods();
+      
+      // Always return scenarios, whether from database or structured fallback
+      res.status(200).json({ 
+        scenarios: result.scenarios || [],
+        connected: result.success,
+        source: result.success ? 'database' : 'structured_fallback'
+      });
+      
     } catch (error: any) {
-      console.error("Error fetching scenarios:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des scénarios" });
+      console.error("Error fetching student scenarios:", error);
+      
+      // Final fallback to ensure we always return scenarios  
+      const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+      const fallbackScenarios = await fallbackScenariosService.getAvailableScenarios();
+      
+      res.status(200).json({ 
+        scenarios: fallbackScenarios,
+        connected: false,
+        source: 'fallback_service',
+        error: error.message
+      });
     }
   });
 
@@ -133,18 +187,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      let scenarios;
-      try {
-        scenarios = await scenarioSyncService.getAvailableScenarios();
-      } catch (dbError) {
-        console.log('⚠️ Database not available, using fallback scenarios for teacher');
-        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
-        scenarios = await fallbackScenariosService.getAvailableScenarios();
-      }
-      res.status(200).json({ scenarios });
+      const { alternativeConnectionService } = await import('./services/alternative-connection.service');
+      
+      console.log('🔧 Fetching teacher scenarios via alternative methods...');
+      const result = await alternativeConnectionService.tryConnectionMethods();
+      
+      // Always return scenarios, whether from database or structured fallback
+      res.status(200).json({ 
+        scenarios: result.scenarios || [],
+        connected: result.success,
+        source: result.success ? 'database' : 'structured_fallback'
+      });
+      
     } catch (error: any) {
       console.error("Error fetching teacher scenarios:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des scénarios" });
+      
+      // Final fallback to ensure we always return scenarios
+      const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+      const fallbackScenarios = await fallbackScenariosService.getAvailableScenarios();
+      
+      res.status(200).json({ 
+        scenarios: fallbackScenarios,
+        connected: false,
+        source: 'fallback_service',
+        error: error.message
+      });
     }
   });
 

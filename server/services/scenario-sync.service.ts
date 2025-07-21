@@ -25,7 +25,7 @@ export class ScenarioSyncService {
       apiKey: process.env.PINECONE_API_KEY,
     });
     
-    this.indexName = process.env.PINECONE_INDEX_NAME || 'n8n-awbg3z6';
+    this.indexName = process.env.PINECONE_INDEX_NAME || 'arthrologie-du-membre-superieur';
     this.namespace = process.env.PINECONE_NAMESPACE || 'default';
   }
 
