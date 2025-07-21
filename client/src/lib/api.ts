@@ -79,7 +79,17 @@ export const teacherApi = {
       throw new Error('Échec de récupération des données du dashboard');
     }
     const data = await response.json();
-    console.log('API response data:', data);
+    console.log('API dashboard response:', data);
+    return data;
+  },
+
+  getScenarios: async (email: string) => {
+    const response = await fetch(`/api/teacher/scenarios?email=${encodeURIComponent(email)}`);
+    if (!response.ok) {
+      throw new Error('Échec de récupération des scénarios');
+    }
+    const data = await response.json();
+    console.log('API scenarios response:', data);
     return data;
   },
 
@@ -111,7 +121,7 @@ export const teacherApi = {
 
 import { FirestoreService } from './firestore.service';
 
-// Version mise à jour pour utiliser Firestore
+// Updated version to use Supabase API
 export const useDashboardData = (email: string) => {
   return useQuery({
     queryKey: ['dashboard-data', email],
@@ -119,8 +129,8 @@ export const useDashboardData = (email: string) => {
       console.log('🔄 Fetching dashboard data for:', email);
 
       try {
-        // Utiliser FirestoreService au lieu de l'API backend
-        const response = await FirestoreService.getDashboardData(email);
+        // Use new Supabase-based API endpoints
+        const response = await teacherApi.getDashboard(email);
         console.log('📊 Dashboard data loaded:', response);
         return response;
       } catch (error) {
@@ -165,5 +175,19 @@ export const useTeacherStudents = (email: string) => {
     },
     enabled: !!email,
     refetchInterval: 30000, // Refresh every 30 seconds
+  });
+};
+
+export const useTeacherScenarios = (email: string) => {
+  return useQuery({
+    queryKey: ['teacher-scenarios', email],
+    queryFn: async () => {
+      console.log('🔄 Fetching teacher scenarios for:', email);
+      const data = await teacherApi.getScenarios(email);
+      console.log('📊 Teacher scenarios loaded:', data);
+      return data.scenarios || [];
+    },
+    enabled: !!email,
+    retry: 1
   });
 };

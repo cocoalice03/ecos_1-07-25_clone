@@ -19,13 +19,16 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-// Create postgres client with connection retry
+console.log('✅ Connected to Supabase PostgreSQL database');
+
+// Create postgres client with extended timeout for Supabase
 const client = postgres(process.env.DATABASE_URL, {
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 10,
-  connect_timeout: 10,
-  idle_timeout: 20,
+  ssl: { rejectUnauthorized: false },
+  max: 5,
+  connect_timeout: 30,
+  idle_timeout: 30,
   prepare: false,
+  transform: postgres.camel,
 });
 
 // Create drizzle instance

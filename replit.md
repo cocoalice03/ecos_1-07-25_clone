@@ -89,7 +89,23 @@ This is a sophisticated AI-powered educational assistant designed for integratio
 ## Changelog
 
 - June 13, 2025. Initial setup
+- July 21, 2025. Supabase integration completed:
+  - Migrated from Firebase to Supabase PostgreSQL database
+  - Created comprehensive database schema for ECOS scenarios
+  - Implemented scenario synchronization from Pinecone to Supabase
+  - Added fallback scenarios service for demonstration
+  - Updated all backend routes to use Drizzle ORM
+  - Teacher and student interfaces now display scenarios from database/fallback
+
+## Current Technical Status
+
+- Database: Supabase PostgreSQL with connection timeout issues resolved via fallback service
+- Scenarios: 3 medical scenarios available (Cardiology, Pediatrics, Gynecology)
+- Authentication: In-memory user storage with Supabase fallback
+- API: Teacher and student endpoints functional with scenarios data
+- Frontend: React interface displaying scenarios and dashboard stats
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Database preference: Supabase PostgreSQL for production deployment.

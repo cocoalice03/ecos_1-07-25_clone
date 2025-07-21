@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, BookOpen, TrendingUp, Clock, Play, Pause, RotateCcw, Wand2, Calendar, UserPlus, CheckCircle } from "lucide-react";
-import { useDashboardData, useAvailableIndexes, useTeacherStudents } from '@/lib/api';
+import { useDashboardData, useAvailableIndexes, useTeacherStudents, useTeacherScenarios } from '@/lib/api';
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import TeacherAssistant from "@/components/ecos/TeacherAssistant";
 import { AdminButton } from "@/components/layout/AdminButton";
@@ -321,24 +321,8 @@ function TeacherPage({ email }: TeacherPageProps) {
   console.log('TeacherPage rendering with email:', email);
 
   const { data: dashboardData, error: dashboardError, isLoading: isDashboardLoading } = useDashboardData(email || '');
+  const { data: teacherScenarios, error: scenariosError, isLoading: isScenariosLoading } = useTeacherScenarios(email || '');
   const { data: assignedStudents, isLoading: isStudentsLoading } = useTeacherStudents(email || '');
-
-  // Service Firestore déjà importé en haut du fichier
-  // Fallback pour récupérer les scénarios si le dashboard échoue
-  const { data: fallbackScenarios } = useQuery({
-    queryKey: ['fallback-scenarios', email],
-    queryFn: async () => {
-      try {
-        // Utilisation de FirestoreService au lieu de l'API backend
-        const scenarios = await FirestoreService.getScenarios(email || '');
-        return scenarios || [];
-      } catch (error) {
-        console.error('Fallback scenarios fetch failed:', error);
-        return [];
-      }
-    },
-    enabled: !!email && (!!dashboardError || !dashboardData?.scenarios?.length),
-  });
 
   // Query pour récupérer les détails du rapport
   const { data: reportData, isLoading: isReportLoading } = useQuery({
@@ -350,28 +334,26 @@ function TeacherPage({ email }: TeacherPageProps) {
     enabled: !!viewingReport && !!email,
   });
 
-  // Check if we have actual errors vs just partial data
-  // La propriété partial est simulée dans les stats pour compatibilité
-  const hasRealError = dashboardError || (dashboardData?.stats?.partial === true && dashboardData?.scenarios?.length === 0);
-
   console.log('Dashboard data:', dashboardData);
+  console.log('Teacher scenarios:', teacherScenarios);
   console.log('Dashboard loading:', isDashboardLoading);
+  console.log('Scenarios loading:', isScenariosLoading);
   console.log('Dashboard error:', dashboardError);
+  console.log('Scenarios error:', scenariosError);
 
-  // Provide fallback data structure
-  const scenarios = dashboardData?.scenarios || fallbackScenarios || [];
+  // Use scenarios from dedicated API call
+  const scenarios = teacherScenarios || [];
   const sessions = dashboardData?.sessions || [];
 
-  console.log('Scenarios:', scenarios);
-  console.log('Sessions:', sessions);
-  console.log('Dashboard stats from API:', dashboardData?.stats);
+  console.log('Final scenarios for display:', scenarios);
+  console.log('Final sessions for display:', sessions);
 
-  // Use stats from API if available, otherwise calculate fallback
-  const stats = dashboardData?.stats || {
+  // Use stats from dashboard API
+  const stats = dashboardData || {
     totalScenarios: scenarios.length,
-    activeSessions: sessions.filter((s: any) => s.status === 'in_progress').length,
-    completedSessions: sessions.filter((s: any) => s.status === 'completed').length,
-    totalStudents: new Set(sessions.map((s: any) => s.student_id || s.studentEmail)).size
+    activeSessions: 0,
+    completedSessions: 0,
+    totalStudents: 0
   };
 
   console.log('Final stats for display:', stats);

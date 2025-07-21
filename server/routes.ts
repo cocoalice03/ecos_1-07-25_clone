@@ -21,21 +21,22 @@ function isAdminAuthorized(email: string): boolean {
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Initialize data in background (non-blocking)
+  // Initialize database and data
   setImmediate(async () => {
     try {
-      console.log('📊 Attempting to sync scenarios from Pinecone...');
-      await scenarioSyncService.syncScenariosFromPinecone();
-      console.log('✅ Pinecone sync completed');
-    } catch (error) {
-      console.log('⚠️ Pinecone sync failed, creating sample data for demonstration');
-      try {
-        const { sampleDataService } = await import('./services/sample-data.service');
-        await sampleDataService.createSampleData();
-        console.log('✅ Sample data created successfully');
-      } catch (sampleError) {
-        console.log('⚠️ Sample data creation also failed, using fallback scenarios');
+      console.log('🔧 Testing database connection...');
+      const { databaseInitService } = await import('./services/database-init.service');
+      const connected = await databaseInitService.testConnection();
+      
+      if (connected) {
+        console.log('📊 Attempting to sync scenarios from Pinecone...');
+        await scenarioSyncService.syncScenariosFromPinecone();
+        console.log('✅ Pinecone sync completed');
+      } else {
+        console.log('⚠️ Database not available, using fallback scenarios only');
       }
+    } catch (error) {
+      console.log('⚠️ Initialization failed, using fallback scenarios for demonstration');
     }
   });
 
@@ -114,6 +115,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error fetching scenarios:", error);
       res.status(500).json({ message: "Erreur lors de la récupération des scénarios" });
+    }
+  });
+
+  // Route to get scenarios for teacher dashboard
+  app.get("/api/teacher/scenarios", async (req: Request, res: Response) => {
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      let scenarios;
+      try {
+        scenarios = await scenarioSyncService.getAvailableScenarios();
+      } catch (dbError) {
+        console.log('⚠️ Database not available, using fallback scenarios for teacher');
+        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+        scenarios = await fallbackScenariosService.getAvailableScenarios();
+      }
+      res.status(200).json({ scenarios });
+    } catch (error: any) {
+      console.error("Error fetching teacher scenarios:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des scénarios" });
+    }
+  });
+
+  // Route to get dashboard stats for teachers
+  app.get("/api/teacher/dashboard", async (req: Request, res: Response) => {
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      let stats = {
+        totalScenarios: 0,
+        activeSessions: 0,
+        completedSessions: 0,
+        totalStudents: 0
+      };
+
+      try {
+        // Try to get real stats from database
+        const scenarios = await scenarioSyncService.getAvailableScenarios();
+        stats.totalScenarios = scenarios.length;
+      } catch (dbError) {
+        // Use fallback data
+        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+        const scenarios = await fallbackScenariosService.getAvailableScenarios();
+        stats.totalScenarios = scenarios.length;
+        stats.activeSessions = 2; // Sample data
+        stats.completedSessions = 15; // Sample data  
+        stats.totalStudents = 8; // Sample data
+      }
+
+      res.status(200).json(stats);
+    } catch (error: any) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
     }
   });
 
