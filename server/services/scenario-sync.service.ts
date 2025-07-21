@@ -106,8 +106,8 @@ export class ScenarioSyncService {
 
   async getAvailableScenarios(): Promise<any[]> {
     try {
-      const { simpleSupabaseService } = await import('./simple-supabase.service');
-      return await simpleSupabaseService.getScenarios();
+      const { alternativeSupabaseService } = await import('./alternative-supabase.service');
+      return await alternativeSupabaseService.getScenarios();
     } catch (error) {
       console.error('❌ Error fetching scenarios from Supabase:', error);
       throw error;

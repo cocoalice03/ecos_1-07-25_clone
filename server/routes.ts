@@ -115,12 +115,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { simpleSupabaseService } = await import('./services/simple-supabase.service');
+      const { alternativeSupabaseService } = await import('./services/alternative-supabase.service');
       
-      console.log('🔧 Testing Supabase connection...');
-      await simpleSupabaseService.testConnection();
+      console.log('🔧 Testing alternative Supabase connection...');
+      await alternativeSupabaseService.testConnection();
       
-      const scenarios = await simpleSupabaseService.getScenarios();
+      const scenarios = await alternativeSupabaseService.getScenarios();
       
       res.status(200).json({ 
         connected: true,
