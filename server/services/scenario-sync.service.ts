@@ -106,34 +106,20 @@ export class ScenarioSyncService {
 
   async getAvailableScenarios(): Promise<any[]> {
     try {
-      const scenarios = await db
-        .select({
-          id: ecosScenarios.id,
-          title: ecosScenarios.title,
-          description: ecosScenarios.description,
-          imageUrl: ecosScenarios.imageUrl,
-          createdBy: ecosScenarios.createdBy,
-          createdAt: ecosScenarios.createdAt
-        })
-        .from(ecosScenarios);
-
-      return scenarios;
+      const { simpleSupabaseService } = await import('./simple-supabase.service');
+      return await simpleSupabaseService.getScenarios();
     } catch (error) {
-      console.error('❌ Error fetching scenarios from database:', error);
+      console.error('❌ Error fetching scenarios from Supabase:', error);
       throw error;
     }
   }
 
   async getScenarioById(id: number): Promise<any | null> {
     try {
-      const scenarios = await db
-        .select()
-        .from(ecosScenarios)
-        .where(eq(ecosScenarios.id, id));
-
-      return scenarios[0] || null;
+      const { directSupabaseService } = await import('./direct-supabase.service');
+      return await directSupabaseService.getScenarioById(id);
     } catch (error) {
-      console.error('❌ Error fetching scenario by ID:', error);
+      console.error('❌ Error fetching scenario by ID from Supabase:', error);
       throw error;
     }
   }
