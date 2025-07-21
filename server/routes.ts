@@ -6,7 +6,13 @@ import { eq, and } from 'drizzle-orm';
 import { scenarioSyncService } from './services/scenario-sync.service';
 
 // Admin emails authorized to access admin features
-const ADMIN_EMAILS: string[] = ['cherubindavid@gmail.com', 'colombemadoungou@gmail.com', 'romain.guillevic@gmail.com', 'romainguillevic@gmail.com'];
+const ADMIN_EMAILS: string[] = [
+  'cherubindavid@gmail.com', 
+  'colombemadoungou@gmail.com', 
+  'colombemadoungou.com', // Accept both formats for debugging
+  'romain.guillevic@gmail.com', 
+  'romainguillevic@gmail.com'
+];
 
 // Middleware to check admin authorization
 function isAdminAuthorized(email: string): boolean {
