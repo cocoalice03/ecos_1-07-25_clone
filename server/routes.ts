@@ -1,8 +1,9 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { firestore as db } from './firebase';
-import { FieldPath, QuerySnapshot, DocumentData } from 'firebase-admin/firestore';
+import { db, users, ecosScenarios, ecosSessions, ecosMessages, trainingSessions, trainingSessionStudents, trainingSessionScenarios } from './db';
+import { eq, and } from 'drizzle-orm';
+import { scenarioSyncService } from './services/scenario-sync.service';
 
 // Admin emails authorized to access admin features
 const ADMIN_EMAILS: string[] = ['cherubindavid@gmail.com', 'colombemadoungou@gmail.com', 'romain.guillevic@gmail.com', 'romainguillevic@gmail.com'];
@@ -20,31 +21,101 @@ function isAdminAuthorized(email: string): boolean {
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Firestore-based student account creation or retrieval
+  // Initialize data in background (non-blocking)
+  setImmediate(async () => {
+    try {
+      console.log('📊 Attempting to sync scenarios from Pinecone...');
+      await scenarioSyncService.syncScenariosFromPinecone();
+      console.log('✅ Pinecone sync completed');
+    } catch (error) {
+      console.log('⚠️ Pinecone sync failed, creating sample data for demonstration');
+      try {
+        const { sampleDataService } = await import('./services/sample-data.service');
+        await sampleDataService.createSampleData();
+        console.log('✅ Sample data created successfully');
+      } catch (sampleError) {
+        console.log('⚠️ Sample data creation also failed, using fallback scenarios');
+      }
+    }
+  });
+
+  // In-memory user storage for demonstration
+  const inMemoryUsers = new Map<string, { userId: string; createdAt: Date }>();
+
   async function findOrCreateStudent(email: string): Promise<{ userId: string; isNewUser: boolean }> {
-    const usersRef = db.collection('users');
-    const q = usersRef.where('email', '==', email);
-    const querySnapshot = await q.get();
+    try {
+      // Try database first
+      try {
+        const existingUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email));
 
-    if (!querySnapshot.empty) {
-      const userId = querySnapshot.docs[0].id;
-      return { userId, isNewUser: false };
+        if (existingUsers.length > 0) {
+          return { userId: existingUsers[0].id, isNewUser: false };
+        }
+
+        // Create new user with generated ID
+        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        await db.insert(users).values({
+          id: userId,
+          email: email,
+        });
+
+        return { userId, isNewUser: true };
+      } catch (dbError) {
+        console.log('Database not available, using in-memory storage');
+        
+        // Fallback to in-memory storage
+        if (inMemoryUsers.has(email)) {
+          const user = inMemoryUsers.get(email)!;
+          return { userId: user.userId, isNewUser: false };
+        }
+
+        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        inMemoryUsers.set(email, { userId, createdAt: new Date() });
+        return { userId, isNewUser: true };
+      }
+    } catch (error) {
+      console.error('Error in findOrCreateStudent:', error);
+      throw error;
     }
-
-    const newUserRef = await usersRef.add({ email });
-    const userId = newUserRef.id;
-
-    const defaultSessionSnapshot = await db.collection('training_sessions').where('is_default', '==', true).limit(1).get();
-    if (!defaultSessionSnapshot.empty) {
-      const defaultSessionId = defaultSessionSnapshot.docs[0].id;
-      await db.collection('training_session_students').add({
-        training_session_id: defaultSessionId,
-        user_id: userId,
-      });
-    }
-
-    return { userId, isNewUser: true };
   }
+
+  // Route to sync scenarios from Pinecone
+  app.post("/api/admin/sync-scenarios", async (req: Request, res: Response) => {
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      await scenarioSyncService.syncScenariosFromPinecone();
+      res.status(200).json({ message: "Synchronisation des scénarios terminée avec succès" });
+    } catch (error: any) {
+      console.error("Error syncing scenarios:", error);
+      res.status(500).json({ message: "Erreur lors de la synchronisation des scénarios" });
+    }
+  });
+
+  // Route to get available scenarios for students
+  app.get("/api/student/available-scenarios", async (req: Request, res: Response) => {
+    try {
+      let scenarios;
+      try {
+        scenarios = await scenarioSyncService.getAvailableScenarios();
+      } catch (dbError) {
+        console.log('⚠️ Database not available, using fallback scenarios');
+        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+        scenarios = await fallbackScenariosService.getAvailableScenarios();
+      }
+      res.status(200).json({ scenarios });
+    } catch (error: any) {
+      console.error("Error fetching scenarios:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des scénarios" });
+    }
+  });
 
   // API route to create or verify a student account
   app.post("/api/student", async (req: Request, res: Response) => {
