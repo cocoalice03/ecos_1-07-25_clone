@@ -12,16 +12,16 @@ export class AlternativeSupabaseService {
     // Try with pg client directly using different connection approaches
     const connectionConfigs = [
       {
-        host: 'db.zateicubgktisdtnihiu.supabase.co',
+        host: process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co',
         port: 5432,
         database: 'postgres',
         user: 'postgres',
-        password: 'ceerrfbeaujon',
+        password: process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon',
         ssl: { rejectUnauthorized: false },
         connectionTimeoutMillis: 10000,
       },
       {
-        connectionString: 'postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres?sslmode=require',
+        connectionString: process.env.DATABASE_URL || 'postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres?sslmode=require',
         connectionTimeoutMillis: 10000,
       }
     ];

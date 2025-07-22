@@ -10,7 +10,8 @@ export class SimpleSupabaseService {
       console.log('🔧 Connecting to Supabase database...');
       
       // Direct connection with explicit configuration
-      this.sql = postgres('postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres', {
+      const connectionUrl = process.env.DATABASE_URL || 'postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres';
+      this.sql = postgres(connectionUrl, {
         ssl: { rejectUnauthorized: false },
         max: 5,
         connect_timeout: 60,

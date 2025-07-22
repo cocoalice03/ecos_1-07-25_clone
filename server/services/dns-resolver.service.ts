@@ -4,7 +4,7 @@ import { lookup } from 'dns';
 const dnsLookup = promisify(lookup);
 
 export class DNSResolverService {
-  private static readonly SUPABASE_DOMAIN = 'db.zateicubgktisdtnihiu.supabase.co';
+  private static readonly SUPABASE_DOMAIN = process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co';
   private static readonly BACKUP_IPS = [
     '54.236.146.234', // Supabase backup IP
     '34.194.6.46',    // Supabase backup IP 2

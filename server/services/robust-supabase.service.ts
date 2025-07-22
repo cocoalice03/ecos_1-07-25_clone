@@ -53,10 +53,12 @@ export class RobustSupabaseService {
   private async connectWithCustomDNS(): Promise<void> {
     // Try to resolve with custom DNS
     try {
-      const resolved = await dnsLookup('db.zateicubgktisdtnihiu.supabase.co', { family: 4 });
+      const host = process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co';
+      const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+      const resolved = await dnsLookup(host, { family: 4 });
       console.log(`🔍 Resolved to IPv4: ${resolved.address}`);
       
-      this.sql = postgres(`postgresql://postgres:ceerrfbeaujon@${resolved.address}:5432/postgres`, {
+      this.sql = postgres(`postgresql://postgres:${password}@${resolved.address}:5432/postgres`, {
         ssl: { rejectUnauthorized: false },
         max: 5,
         connect_timeout: 30,
@@ -69,7 +71,9 @@ export class RobustSupabaseService {
   
   private async connectWithIPv4(): Promise<void> {
     // Direct connection forcing IPv4
-    this.sql = postgres('postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres', {
+    const host = process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co';
+    const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+    this.sql = postgres(`postgresql://postgres:${password}@${host}:5432/postgres`, {
       ssl: { rejectUnauthorized: false },
       max: 5,
       connect_timeout: 30,
@@ -89,7 +93,8 @@ export class RobustSupabaseService {
     for (const ip of knownIPs) {
       try {
         console.log(`🔧 Trying IP: ${ip}`);
-        this.sql = postgres(`postgresql://postgres:ceerrfbeaujon@${ip}:5432/postgres`, {
+        const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+        this.sql = postgres(`postgresql://postgres:${password}@${ip}:5432/postgres`, {
           ssl: { rejectUnauthorized: false },
           max: 5,
           connect_timeout: 10,

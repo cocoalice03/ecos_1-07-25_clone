@@ -22,11 +22,11 @@ export class DirectSupabaseService {
         },
         {
           name: 'Hostname direct connection',
-          host: 'db.zateicubgktisdtnihiu.supabase.co',
+          host: process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co',
           port: 5432,
           database: 'postgres',
           username: 'postgres',
-          password: 'ceerrfbeaujon'
+          password: process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon'
         }
       ];
       
