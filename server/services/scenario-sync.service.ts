@@ -1,6 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { db, ecosScenarios } from '../db';
-import { eq } from 'drizzle-orm';
+import { SupabaseClientService } from './supabase-client.service';
 
 interface PineconeMetadata {
   title?: string;
@@ -15,6 +14,7 @@ export class ScenarioSyncService {
   private pinecone: Pinecone;
   private indexName: string;
   private namespace: string;
+  private dbService: SupabaseClientService;
 
   constructor() {
     if (!process.env.PINECONE_API_KEY) {
@@ -27,11 +27,14 @@ export class ScenarioSyncService {
     
     this.indexName = process.env.PINECONE_INDEX_NAME || 'arthrologie-du-membre-superieur';
     this.namespace = process.env.PINECONE_NAMESPACE || 'default';
+    this.dbService = new SupabaseClientService();
   }
 
   async syncScenariosFromPinecone(): Promise<void> {
     try {
       console.log('🔍 Synchronizing scenarios from Pinecone...');
+      
+      await this.dbService.connect();
       
       const index = this.pinecone.index(this.indexName);
       
@@ -61,39 +64,24 @@ export class ScenarioSyncService {
           continue;
         }
 
-        // Check if scenario already exists in Supabase
-        const existingScenarios = await db
-          .select()
-          .from(ecosScenarios)
-          .where(eq(ecosScenarios.pineconeIndex, match.id));
-
-        if (existingScenarios.length === 0) {
-          // Create new scenario
-          await db.insert(ecosScenarios).values({
+        try {
+          // Create scenario in Supabase
+          await this.dbService.createScenario({
             title: metadata.title,
             description: metadata.description,
             patientPrompt: metadata.patientPrompt,
             evaluationCriteria: metadata.evaluationCriteria || {},
-            pineconeIndex: match.id,
             imageUrl: metadata.imageUrl,
             createdBy: metadata.createdBy || 'system'
           });
           
           console.log(`✅ Created scenario: ${metadata.title}`);
-        } else {
-          // Update existing scenario
-          await db
-            .update(ecosScenarios)
-            .set({
-              title: metadata.title,
-              description: metadata.description,
-              patientPrompt: metadata.patientPrompt,
-              evaluationCriteria: metadata.evaluationCriteria || {},
-              imageUrl: metadata.imageUrl,
-            })
-            .where(eq(ecosScenarios.pineconeIndex, match.id));
-          
-          console.log(`🔄 Updated scenario: ${metadata.title}`);
+        } catch (error: any) {
+          if (error.message?.includes('duplicate')) {
+            console.log(`⚠️ Scenario already exists: ${metadata.title}`);
+          } else {
+            console.error(`❌ Error creating scenario ${metadata.title}:`, error.message);
+          }
         }
       }
 
@@ -106,18 +94,19 @@ export class ScenarioSyncService {
 
   async getAvailableScenarios(): Promise<any[]> {
     try {
-      const { alternativeSupabaseService } = await import('./alternative-supabase.service');
-      return await alternativeSupabaseService.getScenarios();
+      await this.dbService.connect();
+      return await this.dbService.getScenarios();
     } catch (error) {
       console.error('❌ Error fetching scenarios from Supabase:', error);
       throw error;
     }
   }
 
-  async getScenarioById(id: number): Promise<any | null> {
+  async getScenarioById(id: string): Promise<any | null> {
     try {
-      const { directSupabaseService } = await import('./direct-supabase.service');
-      return await directSupabaseService.getScenarioById(id);
+      await this.dbService.connect();
+      const scenarios = await this.dbService.getScenarios();
+      return scenarios.find(s => s.id === id) || null;
     } catch (error) {
       console.error('❌ Error fetching scenario by ID from Supabase:', error);
       throw error;

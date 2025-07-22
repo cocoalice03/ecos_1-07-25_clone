@@ -1,48 +1,67 @@
+import { createClient } from '@supabase/supabase-js';
 
-import { robustSupabaseService } from './server/services/robust-supabase.service.js';
-import { alternativeSupabaseService } from './server/services/alternative-supabase.service.js';
-import { directSupabaseService } from './server/services/direct-supabase.service.js';
-
-async function testAllConnections() {
-  console.log('🔧 Test complet de toutes les méthodes de connexion Supabase...\n');
+async function testSupabaseConnection() {
+  console.log('🔧 Testing Supabase connection...');
   
-  const services = [
-    { name: 'Robust Supabase', service: robustSupabaseService },
-    { name: 'Alternative Supabase', service: alternativeSupabaseService },
-    { name: 'Direct Supabase', service: directSupabaseService }
-  ];
+  let supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
   
-  for (const { name, service } of services) {
-    try {
-      console.log(`\n📡 Testing ${name}...`);
-      await service.testConnection();
-      console.log(`✅ ${name} - Connexion réussie!`);
-      
-      // Test de récupération des scénarios
-      const scenarios = await service.getScenarios();
-      console.log(`✅ ${name} - ${scenarios.length} scénarios récupérés`);
-      
-      return { success: true, service: name, scenarios };
-    } catch (error) {
-      console.log(`❌ ${name} - Échec:`, error.message);
+  // If SUPABASE_URL is a PostgreSQL URL, extract the project ID and construct the HTTP URL
+  if (supabaseUrl && supabaseUrl.startsWith('postgresql://')) {
+    const match = supabaseUrl.match(/db\.([^.]+)\.supabase\.co/);
+    if (match) {
+      const projectId = match[1];
+      supabaseUrl = `https://${projectId}.supabase.co`;
+      console.log('🔄 Converted PostgreSQL URL to Supabase HTTP URL:', supabaseUrl);
     }
   }
   
-  console.log('\n❌ Toutes les méthodes de connexion ont échoué');
-  return { success: false };
+  console.log('SUPABASE_URL exists:', !!supabaseUrl);
+  console.log('SUPABASE_KEY exists:', !!supabaseKey);
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Missing required environment variables');
+    return;
+  }
+  
+  try {
+    console.log('🔌 Creating Supabase client...');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Test basic connection
+    console.log('📊 Testing database connection...');
+    const { data, error } = await supabase
+      .from('ecos_scenarios')
+      .select('count')
+      .limit(1);
+    
+    if (error) {
+      console.error('❌ Database query error:', error.message);
+      
+      if (error.message.includes('does not exist')) {
+        console.log('⚠️ Table ecos_scenarios does not exist');
+        
+        // Try to list existing tables
+        const { data: tables, error: tablesError } = await supabase
+          .from('information_schema.tables')
+          .select('table_name')
+          .eq('table_schema', 'public')
+          .limit(10);
+        
+        if (tablesError) {
+          console.error('❌ Cannot list tables:', tablesError.message);
+        } else {
+          console.log('📋 Existing tables:', tables?.map(t => t.table_name).join(', '));
+        }
+      }
+    } else {
+      console.log('✅ Supabase connection successful!');
+      console.log('Data:', data);
+    }
+    
+  } catch (error) {
+    console.error('❌ Connection failed:', error.message);
+  }
 }
 
-testAllConnections()
-  .then(result => {
-    if (result.success) {
-      console.log(`\n🎉 Succès avec ${result.service}!`);
-    } else {
-      console.log('\n💡 Suggestions de dépannage:');
-      console.log('1. Vérifiez votre connexion Internet');
-      console.log('2. Vérifiez les credentials Supabase');
-      console.log('3. Contactez le support Supabase si le problème persiste');
-    }
-  })
-  .catch(error => {
-    console.error('Erreur lors du test:', error);
-  });
+testSupabaseConnection().catch(console.error);

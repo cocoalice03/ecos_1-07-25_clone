@@ -31,8 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setImmediate(async () => {
     try {
       console.log('🔧 Testing database connection...');
-      const { DirectUrlSupabaseService } = await import('./services/direct-url-supabase.service');
-      const dbService = new DirectUrlSupabaseService();
+      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const dbService = new SupabaseClientService();
       
       try {
         await dbService.connect();
@@ -301,15 +301,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email } = schema.parse(req.query);
       
-      // For now, return fallback scenarios since database connection is not available
-      const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
-      const scenarios = await fallbackScenariosService.getAvailableScenarios();
-      
-      res.status(200).json({ 
-        scenarios: scenarios.slice(0, 3), // Limit to first 3 for demo
-        training_sessions: [],
-        source: 'fallback'
-      });
+      // Use scenario sync service to get scenarios
+      try {
+        const scenarios = await scenarioSyncService.getAvailableScenarios();
+        
+        res.status(200).json({ 
+          scenarios: scenarios,
+          training_sessions: [],
+          source: 'database'
+        });
+      } catch (dbError: any) {
+        console.error('Database error:', dbError);
+        // Return empty array if database error
+        res.status(200).json({ 
+          scenarios: [],
+          training_sessions: [],
+          source: 'database',
+          error: 'Database connection issue'
+        });
+      }
 
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -323,8 +333,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin health check 
   app.get("/api/admin/health", async (req: Request, res: Response) => {
     try {
-      const { DirectUrlSupabaseService } = await import('./services/direct-url-supabase.service');
-      const dbService = new DirectUrlSupabaseService();
+      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const dbService = new SupabaseClientService();
       
       try {
         await dbService.connect();
