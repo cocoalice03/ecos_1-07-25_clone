@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Upload, Database, FileText, Search, Plus, Server, RefreshCw, Users } from "lucide-react";
+import { Trash2, Upload, Database, FileText, Search, Plus, Server, RefreshCw, Users, Activity } from "lucide-react";
 
 interface DocumentData {
   title: string;
@@ -118,7 +118,7 @@ export default function AdminPage() {
     },
     enabled: !!adminEmail,
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache
+    gcTime: 0, // Don't cache
   });
 
   // Upload document mutation
@@ -423,6 +423,14 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            <Button 
+              onClick={() => window.location.href = '/nursing-cases'}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Activity className="h-4 w-4" />
+              Cas Infirmiers
+            </Button>
             <Button 
               onClick={() => window.location.href = `/teacher/${adminEmail}`}
               variant="outline"

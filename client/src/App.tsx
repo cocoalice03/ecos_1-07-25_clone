@@ -10,6 +10,7 @@ import AdminPage from "@/pages/admin";
 import TeacherPage from "@/pages/teacher";
 import StudentPage from "@/pages/student";
 import DiagnosticPage from "@/pages/diagnostic";
+import NursingCasesPage from "@/pages/nursing-cases";
 import { apiRequest } from "@/lib/queryClient";
 import { MessageCircle } from "lucide-react";
 import { authenticateWithEmail, getStoredEmail } from "@/lib/firebase-auth";
@@ -27,6 +28,9 @@ function Router({ email }: { email: string | null }) {
       </Route>
       <Route path="/diagnostic">
         <DiagnosticPage />
+      </Route>
+      <Route path="/nursing-cases">
+        <NursingCasesPage />
       </Route>
       <Route path="/teacher/:email">
         {(params) => <TeacherPage email={params.email} />}

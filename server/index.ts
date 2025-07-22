@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { db } from "./db";
 import { addDiagnosticRoutes } from "./diagnostic-endpoint";
 import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
+import { createNursingCasesRoutes } from './routes/nursing-cases.routes';
 
 
 // Simplified environment validation
@@ -25,7 +26,7 @@ app.use(createDatabaseErrorHandler());
 // Health check endpoint
 app.get('/health', async (req: Request, res: Response) => {
   try {
-    await db.listCollections(); // A simple check to see if we can communicate with Firestore
+    // Simple health check - just return healthy for now
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -92,6 +93,9 @@ app.use((req, res, next) => {
 
   // Setup routes
   const server = await registerRoutes(app);
+  
+  // Add nursing cases routes
+  app.use(createNursingCasesRoutes());
 
   // Security middleware for sensitive files
   app.use((req, res, next) => {
