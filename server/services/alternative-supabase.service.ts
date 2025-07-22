@@ -3,6 +3,22 @@ import { Client } from 'pg';
 export class AlternativeSupabaseService {
   private client: Client | null = null;
   private isConnected: boolean = false;
+
+  private extractPasswordFromDatabaseUrl(): string {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error('DATABASE_URL not set');
+    const match = dbUrl.match(/postgresql:\/\/[^:]+:([^@]+)@/);
+    if (!match || !match[1]) throw new Error('Could not extract password from DATABASE_URL');
+    return match[1];
+  }
+
+  private extractHostFromDatabaseUrl(): string {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error('DATABASE_URL not set');
+    const match = dbUrl.match(/postgresql:\/\/[^@]+@([^:\/]+)/);
+    if (!match || !match[1]) throw new Error('Could not extract host from DATABASE_URL');
+    return match[1];
+  }
   
   async connect(): Promise<void> {
     if (this.isConnected && this.client) return;
@@ -12,16 +28,16 @@ export class AlternativeSupabaseService {
     // Try with pg client directly using different connection approaches
     const connectionConfigs = [
       {
-        host: process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co',
+        host: this.extractHostFromDatabaseUrl(),
         port: 5432,
         database: 'postgres',
         user: 'postgres',
-        password: process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon',
+        password: this.extractPasswordFromDatabaseUrl(),
         ssl: { rejectUnauthorized: false },
         connectionTimeoutMillis: 10000,
       },
       {
-        connectionString: process.env.DATABASE_URL || 'postgresql://postgres:ceerrfbeaujon@db.zateicubgktisdtnihiu.supabase.co:5432/postgres?sslmode=require',
+        connectionString: process.env.DATABASE_URL,
         connectionTimeoutMillis: 10000,
       }
     ];

@@ -50,11 +50,19 @@ export class RobustSupabaseService {
     throw new Error('All connection strategies failed');
   }
   
+  private extractPasswordFromDatabaseUrl(): string {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error('DATABASE_URL not set');
+    const match = dbUrl.match(/postgresql:\/\/[^:]+:([^@]+)@/);
+    if (!match || !match[1]) throw new Error('Could not extract password from DATABASE_URL');
+    return match[1];
+  }
+
   private async connectWithCustomDNS(): Promise<void> {
     // Try to resolve with custom DNS
     try {
-      const host = process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co';
-      const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+      const host = process.env.SUPABASE_DB_HOST || this.extractHostFromDatabaseUrl();
+      const password = this.extractPasswordFromDatabaseUrl();
       const resolved = await dnsLookup(host, { family: 4 });
       console.log(`🔍 Resolved to IPv4: ${resolved.address}`);
       
@@ -69,10 +77,18 @@ export class RobustSupabaseService {
     }
   }
   
+  private extractHostFromDatabaseUrl(): string {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error('DATABASE_URL not set');
+    const match = dbUrl.match(/postgresql:\/\/[^@]+@([^:\/]+)/);
+    if (!match || !match[1]) throw new Error('Could not extract host from DATABASE_URL');
+    return match[1];
+  }
+
   private async connectWithIPv4(): Promise<void> {
     // Direct connection forcing IPv4
-    const host = process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co';
-    const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+    const host = process.env.SUPABASE_DB_HOST || this.extractHostFromDatabaseUrl();
+    const password = this.extractPasswordFromDatabaseUrl();
     this.sql = postgres(`postgresql://postgres:${password}@${host}:5432/postgres`, {
       ssl: { rejectUnauthorized: false },
       max: 5,
@@ -93,7 +109,7 @@ export class RobustSupabaseService {
     for (const ip of knownIPs) {
       try {
         console.log(`🔧 Trying IP: ${ip}`);
-        const password = process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon';
+        const password = this.extractPasswordFromDatabaseUrl();
         this.sql = postgres(`postgresql://postgres:${password}@${ip}:5432/postgres`, {
           ssl: { rejectUnauthorized: false },
           max: 5,

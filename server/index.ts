@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { db } from "./db";
+import { db, users } from "./db";
 import { addDiagnosticRoutes } from "./diagnostic-endpoint";
 import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
 
@@ -25,7 +25,8 @@ app.use(createDatabaseErrorHandler());
 // Health check endpoint
 app.get('/health', async (req: Request, res: Response) => {
   try {
-    await db.listCollections(); // A simple check to see if we can communicate with Firestore
+    // Test database connection - simple query
+    const result = await db.select().from(users).limit(1);
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),

@@ -53,7 +53,7 @@ export class DirectSupabaseService {
             port: 5432,
             database: 'postgres',
             username: 'postgres',
-            password: 'ceerrfbeaujon',
+            password: extractPasswordFromDatabaseUrl(),
             ssl: { rejectUnauthorized: false },
             max: 10,
             connect_timeout: 30,

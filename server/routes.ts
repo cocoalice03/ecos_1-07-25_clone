@@ -31,14 +31,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setImmediate(async () => {
     try {
       console.log('🔧 Testing database connection...');
-      const { databaseInitService } = await import('./services/database-init.service');
-      const connected = await databaseInitService.testConnection();
+      const { DirectUrlSupabaseService } = await import('./services/direct-url-supabase.service');
+      const dbService = new DirectUrlSupabaseService();
       
-      if (connected) {
+      try {
+        await dbService.connect();
+        console.log('✅ Database connection successful!');
+        const scenarios = await dbService.getScenarios();
+        console.log(`✅ Found ${scenarios.length} scenarios in database`);
+        // Scenarios are now available in the database
+        
         console.log('📊 Attempting to sync scenarios from Pinecone...');
         await scenarioSyncService.syncScenariosFromPinecone();
         console.log('✅ Pinecone sync completed');
-      } else {
+      } catch (error: any) {
+        console.error('❌ Database connection test failed:', error.message);
         console.log('⚠️ Database not available, using fallback scenarios only');
       }
     } catch (error) {
@@ -316,12 +323,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin health check 
   app.get("/api/admin/health", async (req: Request, res: Response) => {
     try {
-      const { databaseInitService } = await import('./services/database-init.service');
-      const connected = await databaseInitService.testConnection();
+      const { DirectUrlSupabaseService } = await import('./services/direct-url-supabase.service');
+      const dbService = new DirectUrlSupabaseService();
       
-      if (connected) {
+      try {
+        await dbService.connect();
         res.status(200).json({ status: 'healthy', message: 'Database connection is working.' });
-      } else {
+      } catch (error) {
         res.status(500).json({ status: 'unhealthy', error: 'Database connection failed' });
       }
     } catch (error: any) {
