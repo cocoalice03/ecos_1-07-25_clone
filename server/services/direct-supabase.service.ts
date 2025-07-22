@@ -1,5 +1,17 @@
 import postgres from 'postgres';
 
+function extractHostFromDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL || '';
+  const match = url.match(/postgresql:\/\/[^@]+@([^:]+):/);
+  return match ? match[1] : 'localhost';
+}
+
+function extractPasswordFromDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL || '';
+  const match = url.match(/postgresql:\/\/postgres:([^@]+)@/);
+  return match ? match[1] : '';
+}
+
 export class DirectSupabaseService {
   private sql: any;
   private isInitialized: boolean = false;
@@ -22,11 +34,11 @@ export class DirectSupabaseService {
         },
         {
           name: 'Hostname direct connection',
-          host: process.env.SUPABASE_DB_HOST || 'db.zateicubgktisdtnihiu.supabase.co',
+          host: process.env.SUPABASE_DB_HOST || extractHostFromDatabaseUrl(),
           port: 5432,
           database: 'postgres',
           username: 'postgres',
-          password: process.env.SUPABASE_DB_PASSWORD || 'ceerrfbeaujon'
+          password: process.env.SUPABASE_DB_PASSWORD || extractPasswordFromDatabaseUrl()
         }
       ];
       
