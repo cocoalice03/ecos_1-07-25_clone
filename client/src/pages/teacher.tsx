@@ -128,11 +128,13 @@ function ScenarioCreationForm({ email, onSuccess, editingScenario, onCancelEdit 
       return;
     }
 
-    let criteria = undefined;
+    let criteriaString = undefined;
 
     if (formData.evaluationCriteria && formData.evaluationCriteria.trim()) {
       try {
-        criteria = JSON.parse(formData.evaluationCriteria);
+        // Parse to validate JSON format, then stringify for API
+        JSON.parse(formData.evaluationCriteria);
+        criteriaString = formData.evaluationCriteria;
       } catch (error) {
         alert("Erreur : Les critères d'évaluation doivent être au format JSON valide. Exemple : {\"anamnese\": 20, \"examen_physique\": 30}");
         return;
@@ -143,7 +145,7 @@ function ScenarioCreationForm({ email, onSuccess, editingScenario, onCancelEdit 
       title: formData.title,
       description: formData.description,
       patientPrompt: formData.patientPrompt || undefined,
-      evaluationCriteria: criteria,
+      evaluationCriteria: criteriaString,
       pineconeIndex: formData.pineconeIndex || undefined
     });
   };
