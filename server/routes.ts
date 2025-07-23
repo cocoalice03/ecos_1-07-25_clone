@@ -196,6 +196,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route to create a new scenario
+  app.post("/api/ecos/scenarios", async (req: Request, res: Response) => {
+    const { email, title, description, patientPrompt, evaluationCriteria, pineconeIndex } = req.body;
+    
+    if (!email || !isAdminAuthorized(email)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    if (!title || !description) {
+      return res.status(400).json({ message: "Titre et description requis" });
+    }
+
+    try {
+      // Parse and validate evaluation criteria if provided
+      let parsedCriteria = null;
+      if (evaluationCriteria) {
+        try {
+          parsedCriteria = JSON.parse(evaluationCriteria);
+        } catch (parseError) {
+          return res.status(400).json({ 
+            message: "Format JSON invalide pour les critères d'évaluation",
+            error: parseError.message 
+          });
+        }
+      }
+
+      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const dbService = new SupabaseClientService();
+      await dbService.connect();
+
+      const newScenario = await dbService.createScenario({
+        title,
+        description,
+        patientPrompt: patientPrompt || null,
+        evaluationCriteria: parsedCriteria,
+        imageUrl: null,
+        createdBy: email
+      });
+
+      res.status(200).json({ 
+        message: "Scénario créé avec succès",
+        scenario: newScenario
+      });
+
+    } catch (error: any) {
+      console.error("Error creating scenario:", error);
+      res.status(500).json({ 
+        message: "Erreur lors de la création du scénario",
+        error: error.message
+      });
+    }
+  });
+
+  // Route to update a scenario
+  app.put("/api/ecos/scenarios/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { email, title, description, patientPrompt, evaluationCriteria, pineconeIndex } = req.body;
+    
+    if (!email || !isAdminAuthorized(email)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      // Parse and validate evaluation criteria if provided
+      let parsedCriteria = null;
+      if (evaluationCriteria) {
+        try {
+          parsedCriteria = JSON.parse(evaluationCriteria);
+        } catch (parseError) {
+          return res.status(400).json({ 
+            message: "Format JSON invalide pour les critères d'évaluation",
+            error: parseError.message 
+          });
+        }
+      }
+
+      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const dbService = new SupabaseClientService();
+      await dbService.connect();
+
+      const updatedScenario = await dbService.updateScenario(id, {
+        title,
+        description,
+        patientPrompt: patientPrompt || null,
+        evaluationCriteria: parsedCriteria,
+        pineconeIndex: pineconeIndex || null
+      });
+
+      res.status(200).json({ 
+        message: "Scénario modifié avec succès",
+        scenario: updatedScenario
+      });
+
+    } catch (error: any) {
+      console.error("Error updating scenario:", error);
+      res.status(500).json({ 
+        message: "Erreur lors de la modification du scénario",
+        error: error.message
+      });
+    }
+  });
+
+  // Route to delete a scenario
+  app.delete("/api/ecos/scenarios/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const dbService = new SupabaseClientService();
+      await dbService.connect();
+
+      await dbService.deleteScenario(id);
+
+      res.status(200).json({ 
+        message: "Scénario supprimé avec succès"
+      });
+
+    } catch (error: any) {
+      console.error("Error deleting scenario:", error);
+      res.status(500).json({ 
+        message: "Erreur lors de la suppression du scénario",
+        error: error.message
+      });
+    }
+  });
+
   // Route to get dashboard stats for teachers
   app.get("/api/teacher/dashboard", async (req: Request, res: Response) => {
     const { email } = req.query;
