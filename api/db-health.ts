@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { ensureConnected } from './lib/db';
 
 function json(res: ServerResponse, status: number, data: any) {
   res.statusCode = status;
@@ -10,7 +9,8 @@ function json(res: ServerResponse, status: number, data: any) {
 export default async function handler(_req: IncomingMessage, res: ServerResponse) {
   const hasDatabaseUrl = Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0);
   try {
-    await ensureConnected();
+    const db = await import('./lib/db');
+    await db.ensureConnected();
     return json(res, 200, { ok: true, hasDatabaseUrl });
   } catch (e: any) {
     return json(res, 500, { ok: false, hasDatabaseUrl, error: e?.message || 'unknown' });
