@@ -17,8 +17,9 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
       connectionString,
       ssl: { rejectUnauthorized: false },
       max: 1,
-      idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 20_000,
+      connectionTimeoutMillis: 20_000,
+      keepAlive: true,
     });
     const client = await pool.connect();
     try {
