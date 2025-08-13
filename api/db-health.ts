@@ -13,6 +13,8 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     await db.ensureConnected();
     return json(res, 200, { ok: true, hasDatabaseUrl });
   } catch (e: any) {
-    return json(res, 500, { ok: false, hasDatabaseUrl, error: e?.message || 'unknown' });
+    const err = { name: e?.name, code: e?.code, message: e?.message || 'unknown' };
+    try { console.error('[api/db-health] error:', err); } catch {}
+    return json(res, 500, { ok: false, hasDatabaseUrl, ...err });
   }
 }
