@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { ensureConnected } from './lib/db';
 
 function json(res: ServerResponse, status: number, data: any) {
   res.statusCode = status;
@@ -10,7 +9,24 @@ function json(res: ServerResponse, status: number, data: any) {
 export default async function handler(_req: IncomingMessage, res: ServerResponse) {
   const hasDatabaseUrl = Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0);
   try {
-    await ensureConnected();
+    const connectionString = process.env.DATABASE_URL as string;
+    if (!connectionString) throw new Error('DATABASE_URL is not set');
+    const pgMod = await import('pg');
+    const { Pool } = (pgMod as any).default ?? pgMod;
+    const pool = new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+      max: 1,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 10_000,
+    });
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT 1');
+    } finally {
+      client.release();
+      await pool.end();
+    }
     return json(res, 200, { ok: true, hasDatabaseUrl });
   } catch (e: any) {
     const err = { name: e?.name, code: e?.code, message: e?.message || 'unknown' };
