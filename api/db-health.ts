@@ -8,10 +8,11 @@ function json(res: ServerResponse, status: number, data: any) {
 }
 
 export default async function handler(_req: IncomingMessage, res: ServerResponse) {
+  const hasDatabaseUrl = Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0);
   try {
     await ensureConnected();
-    return json(res, 200, { ok: true });
+    return json(res, 200, { ok: true, hasDatabaseUrl });
   } catch (e: any) {
-    return json(res, 500, { ok: false, error: e?.message || 'unknown' });
+    return json(res, 500, { ok: false, hasDatabaseUrl, error: e?.message || 'unknown' });
   }
 }
