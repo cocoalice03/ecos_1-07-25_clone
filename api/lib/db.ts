@@ -1,4 +1,6 @@
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
+import pg from 'pg';
+const { Pool: PgPool } = pg;
 
 let pool: Pool | null = null;
 
@@ -13,7 +15,7 @@ function getDatabaseUrl(): string {
 export function getPool(): Pool {
   if (!pool) {
     const connectionString = getDatabaseUrl();
-    pool = new Pool({
+    pool = new PgPool({
       connectionString,
       ssl: { rejectUnauthorized: false },
       max: 5,
