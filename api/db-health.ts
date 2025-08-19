@@ -15,11 +15,11 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     const { Pool } = (pgMod as any).default ?? pgMod;
     const pool = new Pool({
       connectionString,
-      ssl: { rejectUnauthorized: false },
+      ssl: {
+        rejectUnauthorized: false
+      },
       max: 1,
-      idleTimeoutMillis: 20_000,
-      connectionTimeoutMillis: 20_000,
-      keepAlive: true,
+      connectionTimeoutMillis: 10000,
     });
     const client = await pool.connect();
     try {

@@ -17,7 +17,9 @@ export function getPool(): Pool {
     const connectionString = getDatabaseUrl();
     pool = new PgPool({
       connectionString,
-      ssl: { rejectUnauthorized: false },
+      ssl: {
+        rejectUnauthorized: false
+      },
       max: 5,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 20_000,
