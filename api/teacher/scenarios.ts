@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { ensureConnected, getPool } from '../lib/db';
+import { ensureConnected, getPool } from ../lib/db.js;
 
 const ADMIN_EMAILS: string[] = [
   'cherubindavid@gmail.com',
