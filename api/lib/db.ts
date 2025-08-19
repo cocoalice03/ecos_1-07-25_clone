@@ -54,7 +54,7 @@ export function mapAggregatedRowToSession(row: AggregatedSessionRow) {
     id: row.id,
     title: row.title,
     description: row.description ?? undefined,
-    startDate: new Date(row.start_date).toISOString(),
+    startDate: new Date(row.start_date).row.start_date ? new Date(row.start_date).row.end_date ? new Date(row.end_date).toISOString() : '' : '',
     endDate: new Date(row.end_date).toISOString(),
     scenarios: Array.isArray(row.scenarios) ? row.scenarios : [],
     studentCount: row.student_count ?? 0,
