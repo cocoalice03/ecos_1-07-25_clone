@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { ensureConnected, getPool } from ../lib/db;
+import { sbFromReq, sbAdmin, requireAuthHeader } from '../_lib/supabase';
 
 const ADMIN_EMAILS: string[] = [
   'cherubindavid@gmail.com',
@@ -26,27 +26,30 @@ export default async function handler(req: IncomingMessage & { url?: string }, r
     const url = new URL(req.url || '/', 'http://localhost');
     const email = url.searchParams.get('email');
 
-    if (!isAdminAuthorized(email)) {
+    // Prefer user token; fallback to admin-only email using service role
+    const hasAuth = requireAuthHeader(req).ok;
+    const sb = hasAuth
+      ? sbFromReq(req)
+      : isAdminAuthorized(email)
+        ? sbAdmin()
+        : null;
+
+    if (!sb) {
       return json(res, 403, { message: 'Accès non autorisé' });
     }
 
-    await ensureConnected();
-    const pool = getPool();
+    const { data, error } = await sb
+      .from('ecos_scenarios')
+      .select('id,title,description')
+      .order('created_at', { ascending: false });
 
-    const { rows } = await pool.query(
-      `SELECT id, title, description FROM ecos_scenarios ORDER BY created_at DESC`
-    );
+    if (error) {
+      return json(res, 500, { message: 'Erreur lors de la récupération des scénarios', error: error.message });
+    }
 
-    return json(res, 200, {
-      scenarios: rows,
-      connected: true,
-      source: 'database',
-    });
+    return json(res, 200, { scenarios: data ?? [] });
   } catch (e: any) {
-    return json(res, 500, {
-      message: "Erreur de connexion à la base de données",
-      error: e?.message || 'unknown',
-      connected: false,
-    });
+    return json(res, 500, { message: 'Erreur lors de la récupération des scénarios', error: e?.message || 'unknown' });
   }
 }
+

@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { ensureConnected, getPool } from '../lib/db';
+import { sbFromReq, sbAdmin, requireAuthHeader } from '../_lib/supabase';
 
 const ADMIN_EMAILS: string[] = [
   'cherubindavid@gmail.com',
@@ -26,32 +26,46 @@ export default async function handler(req: IncomingMessage & { url?: string }, r
     const url = new URL(req.url || '/', 'http://localhost');
     const email = url.searchParams.get('email');
 
-    if (!isAdminAuthorized(email)) {
+    // Choose Supabase client: prefer user token; fallback to admin for known emails
+    const hasAuth = requireAuthHeader(req).ok;
+    const sb = hasAuth
+      ? sbFromReq(req)
+      : isAdminAuthorized(email)
+        ? sbAdmin()
+        : null;
+
+    if (!sb) {
       return json(res, 403, { message: 'Accès non autorisé' });
     }
 
-    await ensureConnected();
-    const pool = getPool();
+    const nowIso = new Date().toISOString();
 
-    const [scenariosCount, activeSessionsCount, completedSessionsCount, totalStudentsCount] = await Promise.all([
-      pool.query(`SELECT COUNT(*)::int AS count FROM ecos_scenarios`),
-      pool.query(`SELECT COUNT(*)::int AS count FROM training_sessions WHERE start_date <= NOW() AND end_date >= NOW()`),
-      pool.query(`SELECT COUNT(*)::int AS count FROM training_sessions WHERE end_date < NOW()`),
-      pool.query(`SELECT COUNT(DISTINCT student_email)::int AS count FROM training_session_students`),
+    const [scenariosHead, activeHead, completedHead, studentsList] = await Promise.all([
+      sb.from('ecos_scenarios').select('*', { count: 'exact', head: true }),
+      sb.from('training_sessions')
+        .select('*', { count: 'exact', head: true })
+        .lte('start_date', nowIso)
+        .gte('end_date', nowIso),
+      sb.from('training_sessions')
+        .select('*', { count: 'exact', head: true })
+        .lt('end_date', nowIso),
+      sb.from('training_session_students').select('student_email'),
     ]);
 
-    const totalScenarios = scenariosCount.rows[0]?.count ?? 0;
-    const activeSessions = activeSessionsCount.rows[0]?.count ?? 0;
-    const completedSessions = completedSessionsCount.rows[0]?.count ?? 0;
-    const totalStudents = totalStudentsCount.rows[0]?.count ?? 0;
+    if (scenariosHead.error || activeHead.error || completedHead.error || studentsList.error) {
+      const errMsg = scenariosHead.error?.message || activeHead.error?.message || completedHead.error?.message || studentsList.error?.message || 'unknown';
+      return json(res, 500, { message: 'Erreur lors de la récupération des statistiques', error: errMsg });
+    }
 
-    return json(res, 200, {
-      totalScenarios,
-      activeSessions,
-      completedSessions,
-      totalStudents,
-    });
+    const totalScenarios = scenariosHead.count ?? 0;
+    const activeSessions = activeHead.count ?? 0;
+    const completedSessions = completedHead.count ?? 0;
+    const emails = (studentsList.data ?? []).map((r: any) => r.student_email).filter(Boolean);
+    const totalStudents = Array.from(new Set(emails)).length;
+
+    return json(res, 200, { totalScenarios, activeSessions, completedSessions, totalStudents });
   } catch (e: any) {
     return json(res, 500, { message: 'Erreur lors de la récupération des statistiques', error: e?.message || 'unknown' });
   }
 }
+
