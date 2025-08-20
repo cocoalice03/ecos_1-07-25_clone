@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { getPool, ensureConnected, mapAggregatedRowToSession } from '../lib/db';
+import { sbFromReq, requireAuthHeader } from '../_lib/supabase';
 import { URL } from 'url';
 
 function json(res: ServerResponse, status: number, data: any) {
@@ -42,57 +42,50 @@ function getIdFromUrl(reqUrl?: string): number | null {
 }
 
 export default async function handler(req: IncomingMessage & { method?: string; url?: string }, res: ServerResponse) {
-  try {
-    await ensureConnected();
-  } catch (e: any) {
-    return json(res, 500, { message: 'Database connection failed', error: e.message });
-  }
-
   const method = (req.method || 'GET').toUpperCase();
-  const pool = getPool();
+  const auth = requireAuthHeader(req);
+  if (!auth.ok) return json(res, 401, { message: auth.message });
+  const sb = sbFromReq(req);
   const id = getIdFromUrl(req.url);
   if (!id) return json(res, 400, { message: 'Invalid id' });
 
   if (method === 'GET') {
     try {
-      const { rows } = await pool.query(
-        `WITH base AS (
-           SELECT 
-             ts.id,
-             ts.title,
-             ts.description,
-             ts.start_date,
-             ts.end_date,
-             COALESCE(
-               json_agg(DISTINCT jsonb_build_object('id', es.id, 'title', es.title, 'description', es.description))
-               FILTER (WHERE es.id IS NOT NULL), '[]'::json
-             ) AS scenarios,
-             (
-               SELECT COUNT(*)::int FROM training_session_students tss 
-               WHERE tss.training_session_id = ts.id
-             ) AS student_count
-           FROM training_sessions ts
-           LEFT JOIN training_session_scenarios tsc ON tsc.training_session_id = ts.id
-           LEFT JOIN ecos_scenarios es ON es.id = tsc.scenario_id
-           WHERE ts.id = $1
-           GROUP BY ts.id
-         )
-         SELECT 
-           b.*, 
-           COALESCE(
-             json_agg(jsonb_build_object('studentEmail', tss.student_email, 'assignedAt', tss.assigned_at))
-             FILTER (WHERE tss.id IS NOT NULL), '[]'::json
-           ) AS students
-         FROM base b
-         LEFT JOIN training_session_students tss ON tss.training_session_id = b.id
-         GROUP BY b.id, b.title, b.description, b.start_date, b.end_date, b.scenarios, b.student_count`,
-        [id]
-      );
-      if (rows.length === 0) return json(res, 404, { message: 'Not found' });
-      const base = mapAggregatedRowToSession(rows[0]);
+      // Base session
+      const { data: sess, error: sErr } = await sb
+        .from('training_sessions')
+        .select('id,title,description,start_date,end_date')
+        .eq('id', id)
+        .maybeSingle();
+      if (sErr) throw sErr;
+      if (!sess) return json(res, 404, { message: 'Not found' });
+
+      // Scenarios
+      const { data: tsc } = await sb
+        .from('training_session_scenarios')
+        .select('training_session_id, ecos_scenarios(id,title,description)')
+        .eq('training_session_id', id);
+      const scenarios = (tsc || [])
+        .map((r: any) => r?.ecos_scenarios)
+        .filter(Boolean)
+        .map((r: any) => ({ id: r.id, title: r.title, description: r.description }));
+
+      // Students list
+      const { data: tss } = await sb
+        .from('training_session_students')
+        .select('student_email, assigned_at')
+        .eq('training_session_id', id);
+      const students = (tss || []).map((r: any) => ({ studentEmail: r.student_email, assignedAt: r.assigned_at }));
+
       const trainingSession = {
-        ...base,
-        students: Array.isArray(rows[0].students) ? rows[0].students : [],
+        id: sess.id,
+        title: sess.title,
+        description: sess.description ?? undefined,
+        startDate: new Date(sess.start_date).toISOString(),
+        endDate: new Date(sess.end_date).toISOString(),
+        scenarios,
+        studentCount: students.length,
+        students,
       };
       return json(res, 200, { trainingSession });
     } catch (e: any) {
@@ -112,115 +105,109 @@ export default async function handler(req: IncomingMessage & { method?: string; 
         studentEmails,
       } = body || {};
 
-      // Start transaction
-      await pool.query('BEGIN');
-      try {
-        // Update main fields if provided
-        if (title !== undefined || description !== undefined || startDate !== undefined || endDate !== undefined) {
-          const updates: string[] = [];
-          const params: any[] = [];
-          let idx = 1;
-          if (title !== undefined) { updates.push(`title = $${idx++}`); params.push(title); }
-          if (description !== undefined) { updates.push(`description = $${idx++}`); params.push(description || null); }
-          if (startDate !== undefined) { updates.push(`start_date = $${idx++}`); params.push(new Date(startDate)); }
-          if (endDate !== undefined) { updates.push(`end_date = $${idx++}`); params.push(new Date(endDate)); }
-          if (updates.length > 0) {
-            params.push(id);
-            await pool.query(`UPDATE training_sessions SET ${updates.join(', ')} WHERE id = $${idx}` , params);
+      // Update main fields if provided
+      const updates: Record<string, any> = {};
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description || null;
+      if (startDate !== undefined) updates.start_date = new Date(startDate).toISOString();
+      if (endDate !== undefined) updates.end_date = new Date(endDate).toISOString();
+      if (Object.keys(updates).length > 0) {
+        const { error } = await sb
+          .from('training_sessions')
+          .update(updates)
+          .eq('id', id);
+        if (error) throw error;
+      }
+
+      // Update scenarios: replace set if provided
+      if (Array.isArray(scenarioIds)) {
+        const scenIds = scenarioIds.map((v: any) => Number(v)).filter((n: any) => Number.isInteger(n));
+        const { error: delErr } = await sb
+          .from('training_session_scenarios')
+          .delete()
+          .eq('training_session_id', id);
+        if (delErr) throw delErr;
+        if (scenIds.length > 0) {
+          const { error: insErr } = await sb
+            .from('training_session_scenarios')
+            .insert(scenIds.map((sid: number) => ({ training_session_id: id, scenario_id: sid })));
+          if (insErr) throw insErr;
+        }
+      }
+
+      // Update students if provided
+      if (Array.isArray(studentEmails)) {
+        const provided: string[] = studentEmails.map(String).map((s) => s.trim()).filter((s) => s.length > 0);
+        // Get existing
+        const { data: existingRows, error: exErr } = await sb
+          .from('training_session_students')
+          .select('student_email')
+          .eq('training_session_id', id);
+        if (exErr) throw exErr;
+        const existingSet = new Set((existingRows || []).map((r: any) => String(r.student_email)));
+
+        if (provided.length === 0) {
+          // Explicitly clear all students
+          const { error } = await sb
+            .from('training_session_students')
+            .delete()
+            .eq('training_session_id', id);
+          if (error) throw error;
+        } else if (provided.every((e) => !existingSet.has(e))) {
+          // Add-only: insert new ones; keep existing
+          const { error } = await sb
+            .from('training_session_students')
+            .insert(provided.map((em) => ({ training_session_id: id, student_email: em })));
+          if (error) throw error;
+        } else {
+          // Replace: set to exactly the provided list
+          // Delete those not in provided
+          const { error: delErr } = await sb
+            .from('training_session_students')
+            .delete()
+            .eq('training_session_id', id)
+            .not('student_email', 'in', provided);
+          if (delErr) throw delErr;
+          // Insert missing
+          const missing = provided.filter((e) => !existingSet.has(e));
+          if (missing.length > 0) {
+            const { error: insErr } = await sb
+              .from('training_session_students')
+              .insert(missing.map((em) => ({ training_session_id: id, student_email: em })));
+            if (insErr) throw insErr;
           }
         }
-
-        // Update scenarios: replace set if provided
-        if (Array.isArray(scenarioIds)) {
-          const scenIds = scenarioIds.map((v: any) => Number(v)).filter((n: any) => Number.isInteger(n));
-          await pool.query('DELETE FROM training_session_scenarios WHERE training_session_id = $1', [id]);
-          if (scenIds.length > 0) {
-            const values = scenIds.map((_, i) => `($1, $${i + 2})`).join(',');
-            await pool.query(
-              `INSERT INTO training_session_scenarios (training_session_id, scenario_id) VALUES ${values}`,
-              [id, ...scenIds]
-            );
-          }
-        }
-
-        // Update students if provided
-        if (Array.isArray(studentEmails)) {
-          const provided = studentEmails.map(String).map((s) => s.trim()).filter((s) => s.length > 0);
-          // Get existing
-          const { rows: existingRows } = await pool.query(
-            'SELECT student_email FROM training_session_students WHERE training_session_id = $1',
-            [id]
-          );
-          const existingSet = new Set(existingRows.map((r: any) => String(r.student_email)));
-
-          if (provided.length === 0) {
-            // Explicitly clear all students
-            await pool.query('DELETE FROM training_session_students WHERE training_session_id = $1', [id]);
-          } else if (provided.every((e) => !existingSet.has(e))) {
-            // Add-only: insert new ones; keep existing
-            const values = provided.map((_, i) => `($1, $${i + 2})`).join(',');
-            await pool.query(
-              `INSERT INTO training_session_students (training_session_id, student_email) VALUES ${values}`,
-              [id, ...provided]
-            );
-          } else {
-            // Replace: set to exactly the provided list
-            await pool.query('DELETE FROM training_session_students WHERE training_session_id = $1 AND student_email <> ALL($2::text[])', [id, provided]);
-            const missing = provided.filter((e) => !existingSet.has(e));
-            if (missing.length > 0) {
-              const values = missing.map((_, i) => `($1, $${i + 2})`).join(',');
-              await pool.query(
-                `INSERT INTO training_session_students (training_session_id, student_email) VALUES ${values}`,
-                [id, ...missing]
-              );
-            }
-          }
-        }
-
-        await pool.query('COMMIT');
-      } catch (err) {
-        await pool.query('ROLLBACK');
-        throw err;
       }
 
       // Return updated details
-      const { rows } = await pool.query(
-        `WITH base AS (
-           SELECT 
-             ts.id,
-             ts.title,
-             ts.description,
-             ts.start_date,
-             ts.end_date,
-             COALESCE(
-               json_agg(DISTINCT jsonb_build_object('id', es.id, 'title', es.title, 'description', es.description))
-               FILTER (WHERE es.id IS NOT NULL), '[]'::json
-             ) AS scenarios,
-             (
-               SELECT COUNT(*)::int FROM training_session_students tss 
-               WHERE tss.training_session_id = ts.id
-             ) AS student_count
-           FROM training_sessions ts
-           LEFT JOIN training_session_scenarios tsc ON tsc.training_session_id = ts.id
-           LEFT JOIN ecos_scenarios es ON es.id = tsc.scenario_id
-           WHERE ts.id = $1
-           GROUP BY ts.id
-         )
-         SELECT 
-           b.*, 
-           COALESCE(
-             json_agg(jsonb_build_object('studentEmail', tss.student_email, 'assignedAt', tss.assigned_at))
-             FILTER (WHERE tss.id IS NOT NULL), '[]'::json
-           ) AS students
-         FROM base b
-         LEFT JOIN training_session_students tss ON tss.training_session_id = b.id
-         GROUP BY b.id, b.title, b.description, b.start_date, b.end_date, b.scenarios, b.student_count`,
-        [id]
-      );
-      const base = mapAggregatedRowToSession(rows[0]);
+      const { data: sess } = await sb
+        .from('training_sessions')
+        .select('id,title,description,start_date,end_date')
+        .eq('id', id)
+        .maybeSingle();
+      const { data: tsc } = await sb
+        .from('training_session_scenarios')
+        .select('training_session_id, ecos_scenarios(id,title,description)')
+        .eq('training_session_id', id);
+      const scenarios = (tsc || [])
+        .map((r: any) => r?.ecos_scenarios)
+        .filter(Boolean)
+        .map((r: any) => ({ id: r.id, title: r.title, description: r.description }));
+      const { data: tss } = await sb
+        .from('training_session_students')
+        .select('student_email, assigned_at')
+        .eq('training_session_id', id);
+      const students = (tss || []).map((r: any) => ({ studentEmail: r.student_email, assignedAt: r.assigned_at }));
+
       const trainingSession = {
-        ...base,
-        students: Array.isArray(rows[0].students) ? rows[0].students : [],
+        id: sess?.id,
+        title: sess?.title,
+        description: sess?.description ?? undefined,
+        startDate: sess ? new Date(sess.start_date).toISOString() : undefined,
+        endDate: sess ? new Date(sess.end_date).toISOString() : undefined,
+        scenarios,
+        studentCount: students.length,
+        students,
       };
       return json(res, 200, { trainingSession });
     } catch (e: any) {
@@ -230,14 +217,23 @@ export default async function handler(req: IncomingMessage & { method?: string; 
 
   if (method === 'DELETE') {
     try {
-      await pool.query('BEGIN');
-      await pool.query('DELETE FROM training_session_students WHERE training_session_id = $1', [id]);
-      await pool.query('DELETE FROM training_session_scenarios WHERE training_session_id = $1', [id]);
-      await pool.query('DELETE FROM training_sessions WHERE id = $1', [id]);
-      await pool.query('COMMIT');
+      const { error: err1 } = await sb
+        .from('training_session_students')
+        .delete()
+        .eq('training_session_id', id);
+      if (err1) throw err1;
+      const { error: err2 } = await sb
+        .from('training_session_scenarios')
+        .delete()
+        .eq('training_session_id', id);
+      if (err2) throw err2;
+      const { error: err3 } = await sb
+        .from('training_sessions')
+        .delete()
+        .eq('id', id);
+      if (err3) throw err3;
       return json(res, 200, { success: true });
     } catch (e: any) {
-      await pool.query('ROLLBACK');
       return json(res, 500, { message: 'Failed to delete session', error: e.message });
     }
   }
