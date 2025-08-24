@@ -1,20 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { sbFromReq, sbAdmin, requireAuthHeader } from '../_lib/supabase';
 
-const ADMIN_EMAILS: string[] = [
-  'cherubindavid@gmail.com',
-  'colombemadoungou@gmail.com',
-  'colombemadoungou.com',
-  'romain.guillevic@gmail.com',
-  'romainguillevic@gmail.com',
-];
-
-function isAdminAuthorized(email: string | null): boolean {
-  if (!email) return false;
-  const norm = email.toLowerCase().trim();
-  return ADMIN_EMAILS.map(e => e.toLowerCase().trim()).includes(norm);
-}
-
 function json(res: ServerResponse, status: number, data: any) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
@@ -26,13 +12,29 @@ export default async function handler(req: IncomingMessage & { url?: string }, r
     const url = new URL(req.url || '/', 'http://localhost');
     const email = url.searchParams.get('email');
 
-    // Choose Supabase client: prefer user token; fallback to admin for known emails
-    const hasAuth = requireAuthHeader(req).ok;
-    const sb = hasAuth
-      ? sbFromReq(req)
-      : isAdminAuthorized(email)
-        ? sbAdmin()
-        : null;
+    // Helper: if no Authorization header, allow admin access only if the email belongs to a user with users.is_admin=true
+    async function getClient(): Promise<ReturnType<typeof sbFromReq> | ReturnType<typeof sbAdmin> | null> {
+      const hasAuth = requireAuthHeader(req).ok;
+      if (hasAuth) return sbFromReq(req);
+
+      // No auth header: check if the provided email is an admin
+      if (!email) return null;
+      const adminClient = sbAdmin();
+      const { data, error } = await adminClient
+        .from('users')
+        .select('is_admin')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (error) {
+        // Fail closed if user check fails
+        return null;
+      }
+      if (data?.is_admin === true) return adminClient;
+      return null;
+    }
+
+    const sb = await getClient();
 
     if (!sb) {
       return json(res, 403, { message: 'Accès non autorisé' });
