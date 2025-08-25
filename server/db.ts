@@ -1,6 +1,5 @@
 
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { connectionPool } from './database/connection-pool';
 import { 
   users, 
   sessions, 
@@ -15,41 +14,84 @@ import {
   trainingSessionScenarios
 } from '../shared/schema';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required');
-}
+/**
+ * Database Connection Manager
+ * 
+ * This module provides a robust database connection using a connection pool
+ * optimized for serverless environments with:
+ * 
+ * - Connection pooling with retry logic
+ * - Health monitoring and automatic reconnection
+ * - Performance metrics tracking
+ * - Graceful error handling and recovery
+ * - Optimal configuration for Vercel serverless functions
+ */
 
-console.log('✅ Connected to Supabase PostgreSQL database');
+// Get database instance through connection pool
+export const getDb = async () => {
+  return connectionPool.getDatabase();
+};
 
-// Create postgres client with extended timeout for Supabase
-const client = postgres(process.env.DATABASE_URL, {
-  ssl: { rejectUnauthorized: false },
-  max: 5,
-  connect_timeout: 60,
-  idle_timeout: 60,
-  prepare: false,
-  transform: postgres.camel,
-  onnotice: () => {}, // Suppress notices
-});
-
-// Create drizzle instance
-export const db = drizzle(client, {
-  schema: {
-    users,
-    sessions,
-    exchanges,
-    dailyCounters,
-    ecosScenarios,
-    ecosSessions,
-    ecosMessages,
-    ecosEvaluations,
-    trainingSessions,
-    trainingSessionStudents,
-    trainingSessionScenarios
+// Legacy compatibility - create a Proxy to maintain existing API
+export const db = new Proxy({} as any, {
+  get(target, prop) {
+    // For any property access, return a function that gets the db and calls the method
+    return async (...args: any[]) => {
+      const database = await getDb();
+      const method = database[prop];
+      if (typeof method === 'function') {
+        return method.apply(database, args);
+      }
+      return method;
+    };
+  },
+  
+  // Handle property checks
+  has(target, prop) {
+    return true; // Allow all property checks to pass
   }
 });
 
-console.log('✅ Connected to Supabase PostgreSQL database');
+// Database health check function
+export const checkDatabaseHealth = async () => {
+  try {
+    const healthStatus = await connectionPool.healthCheck();
+    return healthStatus;
+  } catch (error) {
+    console.error('Database health check failed:', error);
+    return {
+      status: 'unhealthy' as const,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      lastHealthCheck: new Date()
+    };
+  }
+};
+
+// Get connection pool metrics
+export const getDatabaseMetrics = () => {
+  return connectionPool.getMetrics();
+};
+
+// Test database connection
+export const testDatabaseConnection = async () => {
+  try {
+    const database = await getDb();
+    const result = await database.select().from(users).limit(1);
+    return {
+      success: true,
+      message: 'Database connection successful',
+      recordCount: result.length
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Database connection test failed:', errorMessage);
+    return {
+      success: false,
+      error: errorMessage,
+      message: 'Database connection failed'
+    };
+  }
+};
 
 // Export schema for use in other files
 export {
@@ -65,3 +107,6 @@ export {
   trainingSessionStudents,
   trainingSessionScenarios
 };
+
+// Export connection pool for advanced usage
+export { connectionPool };

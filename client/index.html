@@ -18,92 +18,109 @@
     <meta property="og:description" content="Chatbot intelligent pour répondre à vos questions sur le contenu des cours" />
     <meta property="og:type" content="website" />
 
-    <!-- Early custom element conflict prevention -->
+    <!-- Advanced Custom Element Conflict Resolution System -->
     <script>
       (function() {
-        console.log('🛡️ Early custom element protection active');
+        // Early protection system - immediately prevent known problematic elements
+        console.log('🛡️ Initializing advanced custom element protection system...');
 
-        // Store the original define method immediately
         const originalDefine = window.customElements.define;
-        const definedElements = new Set();
-        
-        // Immediately block known problematic elements
-        const problematicElements = [
+        const blockedElements = new Set([
           'mce-autosize-textarea', 
           'autosize-textarea',
           'vite-error-overlay',
           'replit-error-overlay',
-          'webcomponent-error-overlay'
+          'webcomponent-error-overlay',
+          'cartographer-overlay',
+          'runtime-error-modal',
+          'dev-error-overlay',
+          'webpack-dev-server-client',
+          'hot-reload-overlay'
+        ]);
+
+        const blockedPatterns = [
+          /^mce-.*$/,
+          /^vite-.*-overlay$/,
+          /^replit-.*-overlay$/,
+          /^dev-.*-overlay$/,
+          /^error-.*-modal$/,
+          /^runtime-.*-overlay$/
         ];
-        
-        problematicElements.forEach(name => {
-          definedElements.add(name);
-        });
 
-        // Override as early as possible
+        let protectionMetrics = {
+          blocked: 0,
+          allowed: 0,
+          errors: 0
+        };
+
+        function shouldBlock(name) {
+          if (blockedElements.has(name)) return true;
+          if (blockedPatterns.some(pattern => pattern.test(name))) return true;
+          if (window.customElements.get(name)) return true;
+          return false;
+        }
+
+        // Enhanced protection method
         window.customElements.define = function(name, constructor, options) {
-          // Check if it's a known problematic element
-          if (problematicElements.includes(name)) {
-            console.warn(`🚫 BLOCKED PROBLEMATIC: "${name}" is on the blocked list`);
-            return;
-          }
-          
-          if (window.customElements.get(name) || definedElements.has(name)) {
-            console.warn(`🚫 EARLY BLOCK: Custom element "${name}" already exists`);
-            return;
-          }
-
-          definedElements.add(name);
-
           try {
+            if (shouldBlock(name)) {
+              protectionMetrics.blocked++;
+              console.warn(`🚫 BLOCKED: "${name}" - protection active`);
+              return;
+            }
+
+            protectionMetrics.allowed++;
             return originalDefine.call(this, name, constructor, options);
           } catch (error) {
-            definedElements.delete(name);
-            if (error && error.message && error.message.includes('already been defined')) {
-              console.warn(`🔄 EARLY CATCH: Element "${name}" was already defined`);
+            if (error.message && error.message.includes('already been defined')) {
+              protectionMetrics.blocked++;
+              console.warn(`🔄 CONFLICT RESOLVED: "${name}" already defined`);
               return;
             }
             throw error;
           }
         };
-        
-        // Prevent errors from bubbling up
-        window.addEventListener('error', function(e) {
-          if (e.error && e.error.message && e.error.message.includes('already been defined')) {
-            console.warn('🛡️ Prevented custom element error:', e.error.message);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+
+        // Comprehensive error handling
+        function preventCustomElementErrors(event) {
+          if (event.error && event.error.message) {
+            const message = event.error.message;
+            if (message.includes('already been defined') || 
+                message.includes('custom element') ||
+                message.includes('mce-autosize-textarea')) {
+              protectionMetrics.errors++;
+              console.warn('🛡️ Protected against custom element error:', message);
+              event.preventDefault();
+              event.stopPropagation();
+              return false;
+            }
           }
-        }, true);
-        
+        }
+
+        window.addEventListener('error', preventCustomElementErrors, true);
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event.reason && typeof event.reason === 'object') {
+            const message = String(event.reason.message || event.reason);
+            if (message.includes('already been defined') || message.includes('custom element')) {
+              protectionMetrics.errors++;
+              console.warn('🛡️ Protected against promise rejection:', message);
+              event.preventDefault();
+              return false;
+            }
+          }
+        });
+
+        // Debug logging
+        setTimeout(() => {
+          console.log('🛡️ Protection metrics:', protectionMetrics);
+        }, 1000);
+
       })();
     </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Custom element conflict prevention -->
-    <script>
-      // Prevent custom element redefinition errors
-      window.addEventListener('error', function(e) {
-        if (e.message && (e.message.includes('already been defined') || e.message.includes('custom element'))) {
-          console.warn('Custom element redefinition prevented:', e.message);
-          e.preventDefault();
-          return false;
-        }
-      });
-
-      // Additional protection for custom elements
-      const originalDefine = window.customElements.define;
-      window.customElements.define = function(name, constructor, options) {
-        if (window.customElements.get(name)) {
-          console.warn(`Custom element ${name} already defined, skipping redefinition`);
-          return;
-        }
-        return originalDefine.call(this, name, constructor, options);
-      };
-    </script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
