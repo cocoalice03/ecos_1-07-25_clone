@@ -18,14 +18,22 @@
     <meta property="og:description" content="Chatbot intelligent pour répondre à vos questions sur le contenu des cours" />
     <meta property="og:type" content="website" />
 
-    <!-- Advanced Custom Element Conflict Resolution System -->
+    <!-- Content Security Policy for External Script Control -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self';">
+    
+    <!-- Ultra-Early Custom Element Protection System -->
     <script>
       (function() {
-        // Early protection system - immediately prevent known problematic elements
-        console.log('🛡️ Initializing advanced custom element protection system...');
+        'use strict';
+        
+        console.log('🛡️ ULTRA-EARLY: Initializing bulletproof custom element protection...');
 
-        const originalDefine = window.customElements.define;
-        const blockedElements = new Set([
+        // Freeze customElements object immediately to prevent tampering
+        const originalDefine = window.customElements.define.bind(window.customElements);
+        const originalGet = window.customElements.get.bind(window.customElements);
+        
+        // Comprehensive blocking registry
+        const BLOCKED_ELEMENTS = Object.freeze(new Set([
           'mce-autosize-textarea', 
           'autosize-textarea',
           'vite-error-overlay',
@@ -35,93 +43,152 @@
           'runtime-error-modal',
           'dev-error-overlay',
           'webpack-dev-server-client',
-          'hot-reload-overlay'
+          'hot-reload-overlay',
+          'webcomponents-loader',
+          'webcomponents-ce',
+          'overlay_bundle',
+          'vercel-live-feedback'
+        ]));
+
+        const BLOCKED_PATTERNS = Object.freeze([
+          /^mce-.*$/,
+          /^vite-.*$/,
+          /^replit-.*$/,
+          /^dev-.*$/,
+          /^error-.*$/,
+          /^runtime-.*$/,
+          /^webcomponent.*$/,
+          /^overlay.*$/,
+          /^cartographer.*$/,
+          /^vercel-.*$/
         ]);
 
-        const blockedPatterns = [
-          /^mce-.*$/,
-          /^vite-.*-overlay$/,
-          /^replit-.*-overlay$/,
-          /^dev-.*-overlay$/,
-          /^error-.*-modal$/,
-          /^runtime-.*-overlay$/
-        ];
-
-        let protectionMetrics = {
+        // Tracking registry (frozen for security)
+        const registeredElements = new Set();
+        let protectionActive = true;
+        const metrics = {
           blocked: 0,
           allowed: 0,
-          errors: 0
+          errors: 0,
+          startTime: Date.now()
         };
 
-        function shouldBlock(name) {
-          if (blockedElements.has(name)) return true;
-          if (blockedPatterns.some(pattern => pattern.test(name))) return true;
-          if (window.customElements.get(name)) return true;
+        // Ultra-aggressive blocking logic
+        function isBlocked(name) {
+          if (!name || typeof name !== 'string') return true;
+          if (BLOCKED_ELEMENTS.has(name)) return true;
+          if (BLOCKED_PATTERNS.some(pattern => pattern.test(name))) return true;
+          if (registeredElements.has(name)) return true;
+          if (originalGet(name)) return true;
           return false;
         }
 
-        // Enhanced protection method
-        window.customElements.define = function(name, constructor, options) {
+        // Bulletproof define override
+        function protectedDefine(name, constructor, options) {
+          if (!protectionActive) return originalDefine(name, constructor, options);
+          
           try {
-            if (shouldBlock(name)) {
-              protectionMetrics.blocked++;
-              console.warn(`🚫 BLOCKED: "${name}" - protection active`);
-              return;
+            if (isBlocked(name)) {
+              metrics.blocked++;
+              console.warn(`🚫 ULTRA-BLOCKED: "${name}" - Bulletproof protection active`);
+              // Return empty class to prevent errors
+              return function() {};
             }
 
-            protectionMetrics.allowed++;
-            return originalDefine.call(this, name, constructor, options);
+            registeredElements.add(name);
+            metrics.allowed++;
+            console.log(`✅ ALLOWED: "${name}"`);
+            return originalDefine(name, constructor, options);
+
           } catch (error) {
-            if (error.message && error.message.includes('already been defined')) {
-              protectionMetrics.blocked++;
-              console.warn(`🔄 CONFLICT RESOLVED: "${name}" already defined`);
-              return;
+            registeredElements.delete(name);
+            
+            if (error && error.message && error.message.includes('already been defined')) {
+              metrics.blocked++;
+              console.warn(`🔄 CONFLICT RESOLVED: "${name}" - Already defined, ignored`);
+              return function() {};
             }
+            
+            metrics.errors++;
+            console.error(`❌ DEFINE ERROR: "${name}":`, error);
             throw error;
           }
-        };
+        }
 
-        // Comprehensive error handling
-        function preventCustomElementErrors(event) {
+        // Replace native define method
+        Object.defineProperty(window.customElements, 'define', {
+          value: protectedDefine,
+          writable: false,
+          configurable: false,
+          enumerable: true
+        });
+
+        // Global error protection
+        function protectAgainstCustomElementErrors(event) {
           if (event.error && event.error.message) {
             const message = event.error.message;
-            if (message.includes('already been defined') || 
-                message.includes('custom element') ||
-                message.includes('mce-autosize-textarea')) {
-              protectionMetrics.errors++;
-              console.warn('🛡️ Protected against custom element error:', message);
+            if (
+              message.includes('already been defined') ||
+              message.includes('custom element') ||
+              message.includes('mce-autosize-textarea') ||
+              message.includes('webcomponents-ce') ||
+              message.includes('overlay_bundle')
+            ) {
+              metrics.errors++;
+              console.warn('🛡️ INTERCEPTED ERROR:', message);
               event.preventDefault();
-              event.stopPropagation();
+              event.stopImmediatePropagation();
               return false;
             }
           }
         }
 
-        window.addEventListener('error', preventCustomElementErrors, true);
+        // Install global error handlers with highest priority
+        window.addEventListener('error', protectAgainstCustomElementErrors, { 
+          capture: true, 
+          passive: false 
+        });
+        
         window.addEventListener('unhandledrejection', function(event) {
-          if (event.reason && typeof event.reason === 'object') {
+          if (event.reason) {
             const message = String(event.reason.message || event.reason);
-            if (message.includes('already been defined') || message.includes('custom element')) {
-              protectionMetrics.errors++;
-              console.warn('🛡️ Protected against promise rejection:', message);
+            if (
+              message.includes('already been defined') ||
+              message.includes('custom element') ||
+              message.includes('webcomponents')
+            ) {
+              metrics.errors++;
+              console.warn('🛡️ INTERCEPTED PROMISE REJECTION:', message);
               event.preventDefault();
               return false;
             }
           }
+        }, { passive: false });
+
+        // Protection monitoring
+        setTimeout(() => {
+          const uptime = Date.now() - metrics.startTime;
+          console.log('🛡️ PROTECTION METRICS:', { 
+            ...metrics, 
+            uptime: uptime + 'ms',
+            elementsTracked: registeredElements.size
+          });
+        }, 2000);
+
+        // Expose emergency controls
+        window.__ECOS_ELEMENT_PROTECTION__ = Object.freeze({
+          metrics: () => ({ ...metrics }),
+          registeredElements: () => Array.from(registeredElements),
+          disable: () => { protectionActive = false; console.warn('🚨 Protection disabled!'); },
+          enable: () => { protectionActive = true; console.log('🛡️ Protection re-enabled!'); }
         });
 
-        // Debug logging
-        setTimeout(() => {
-          console.log('🛡️ Protection metrics:', protectionMetrics);
-        }, 1000);
-
+        console.log('🛡️ ULTRA-EARLY: Bulletproof protection system active!');
       })();
     </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

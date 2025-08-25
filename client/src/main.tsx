@@ -1,24 +1,15 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { preventCustomElementConflicts, logCustomElements, detectCustomElementSources } from "./utils/customElementPrevention";
 
-// Initialize custom element conflict prevention IMMEDIATELY
-// This must happen before any other scripts that might define custom elements
-preventCustomElementConflicts();
+// Custom element protection is now handled by ultra-early HTML script
+// This ensures protection is active before ANY external scripts can run
 
-// Log what's already defined
-console.log('🔍 Pre-existing custom elements:', {
-  'vite-error-overlay': !!window.customElements.get('vite-error-overlay'),
-  'autosize-textarea': !!window.customElements.get('autosize-textarea'),
-  'replit-custom-element': !!window.customElements.get('replit-custom-element')
-});
-
-// Log diagnostic information
-setTimeout(() => {
-  logCustomElements();
-  detectCustomElementSources();
-}, 1000);
+// Log diagnostic information if protection system is available
+if (typeof window !== 'undefined' && window.__ECOS_ELEMENT_PROTECTION__) {
+  console.log('🔍 Protection system status:', window.__ECOS_ELEMENT_PROTECTION__.metrics());
+  console.log('🔍 Registered elements:', window.__ECOS_ELEMENT_PROTECTION__.registeredElements());
+}
 
 // URL params to extract email for authentication
 let email = null;
