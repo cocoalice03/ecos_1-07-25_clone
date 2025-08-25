@@ -12,8 +12,20 @@
       "dest": "/api/index.ts"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/favicon\\.(svg|ico)",
+      "dest": "/favicon.$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/dist/public/$1"
+      "dest": "/index.html"
     }
   ],
   "outputDirectory": "dist/public"
