@@ -12,7 +12,12 @@ import StudentPage from "@/pages/student";
 import DiagnosticPage from "@/pages/diagnostic";
 import { apiRequest } from "@/lib/queryClient";
 import { MessageCircle } from "lucide-react";
-import { authenticateWithEmail, getStoredEmail } from "@/lib/firebase-auth";
+// Firebase auth removed - using simple localStorage auth
+const authenticateWithEmail = (email: string) => {
+  localStorage.setItem('userEmail', email);
+  return { success: true, email };
+};
+const getStoredEmail = () => localStorage.getItem('userEmail');
 
 interface AppProps {
   initialEmail: string | null;

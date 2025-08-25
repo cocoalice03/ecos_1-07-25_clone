@@ -2,8 +2,13 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
+  "functions": {
+    "dist/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/:path*", "destination": "/" }
+    { "source": "/api/(.*)", "destination": "/dist/index.js" },
+    { "source": "/((?!api).*)", "destination": "/$1" }
   ]
 }

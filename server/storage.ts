@@ -1,11 +1,8 @@
 import { db } from "./db";
-import { firestore } from 'firebase-admin';
+// Firebase removed - using native Date types
 import { User, UpsertUser, Exchange, InsertExchange, DailyCounter, InsertCounter } from "./types";
 
-// Helper to convert Firestore doc to a typed object
-function docToType<T>(doc: firestore.DocumentSnapshot): T {
-    return { id: doc.id, ...doc.data() } as T;
-}
+// Firebase removed - helper function no longer needed
 
 // Storage interface with all required methods
 export interface IStorage {

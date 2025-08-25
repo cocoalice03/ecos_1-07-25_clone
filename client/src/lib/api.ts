@@ -119,7 +119,7 @@ export const teacherApi = {
   },
 };
 
-import { FirestoreService } from './firestore.service';
+// FirestoreService removed - using Supabase API instead
 
 // Updated version to use Supabase API
 export const useDashboardData = (email: string) => {

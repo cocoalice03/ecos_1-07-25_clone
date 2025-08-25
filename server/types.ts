@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+// Firebase removed - using native Date/string types
 
 export interface RAGContent {
   content: string;
@@ -22,8 +22,8 @@ export interface User {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
-  createdAt?: firestore.Timestamp;
-  updatedAt?: firestore.Timestamp;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type UpsertUser = Omit<User, 'id'>;
@@ -33,7 +33,7 @@ export interface Exchange {
   email: string;
   question: string;
   response: string;
-  timestamp: firestore.Timestamp;
+  timestamp: Date;
 }
 
 export type InsertExchange = Omit<Exchange, 'id'>;
@@ -47,7 +47,7 @@ export interface EcosScenario {
   pineconeIndex?: string;
   imageUrl?: string;
   createdBy: string;
-  createdAt?: firestore.Timestamp;
+  createdAt?: Date;
 }
 
 export interface EcosSession {
@@ -55,8 +55,8 @@ export interface EcosSession {
   scenarioId: string;
   studentEmail: string;
   trainingSessionId?: string;
-  startTime?: firestore.Timestamp;
-  endTime?: firestore.Timestamp;
+  startTime?: Date;
+  endTime?: Date;
   status: 'in_progress' | 'completed' | 'failed';
 }
 
@@ -65,24 +65,24 @@ export interface EcosMessage {
   sessionId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp?: firestore.Timestamp;
+  timestamp?: Date;
 }
 
 export interface TrainingSession {
     id: string;
     title: string;
     description?: string;
-    startDate: firestore.Timestamp;
-    endDate: firestore.Timestamp;
+    startDate: Date;
+    endDate: Date;
     createdBy: string;
-    createdAt?: firestore.Timestamp;
+    createdAt?: Date;
 }
 
 export interface TrainingSessionStudent {
     id: string;
     trainingSessionId: string;
     studentEmail: string;
-    assignedAt?: firestore.Timestamp;
+    assignedAt?: Date;
 }
 
 export interface TrainingSessionScenario {
@@ -96,7 +96,7 @@ export interface TrainingSessionScenario {
 export interface DailyCounter {
   id: string;
   email: string;
-  date: firestore.Timestamp;
+  date: Date;
   count: number;
 }
 
@@ -108,7 +108,7 @@ export interface EcosEvaluation {
   criterionId: string;
   score: number;
   feedback?: string;
-  createdAt?: firestore.Timestamp;
+  createdAt?: Date;
 }
 
 export interface EcosReport {
@@ -124,5 +124,5 @@ export interface EcosReport {
   scores?: any; // JSON object for scores
   globalScore?: number;
   feedback?: string;
-  timestamp?: firestore.Timestamp;
+  timestamp?: Date;
 }

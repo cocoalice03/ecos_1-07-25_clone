@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FirestoreService } from '../lib/firestore.service';
+// Firebase removed - using direct API calls
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
