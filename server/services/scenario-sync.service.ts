@@ -11,15 +11,25 @@ interface PineconeMetadata {
 }
 
 export class ScenarioSyncService {
-  private pinecone: Pinecone;
+  private pinecone: Pinecone | null;
   private indexName: string;
   private namespace: string;
   private dbService: SupabaseClientService;
+  private pineconeEnabled: boolean;
 
   constructor() {
+    this.dbService = new SupabaseClientService();
+    
     if (!process.env.PINECONE_API_KEY) {
-      throw new Error('PINECONE_API_KEY is required');
+      console.warn('⚠️  PINECONE_API_KEY not provided, Pinecone features will be disabled');
+      this.pinecone = null;
+      this.pineconeEnabled = false;
+      this.indexName = '';
+      this.namespace = '';
+      return;
     }
+    
+    this.pineconeEnabled = true;
     
     this.pinecone = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY,
@@ -31,6 +41,11 @@ export class ScenarioSyncService {
   }
 
   async syncScenariosFromPinecone(): Promise<void> {
+    if (!this.pineconeEnabled || !this.pinecone) {
+      console.log('⚠️ Pinecone not enabled, skipping sync');
+      return;
+    }
+    
     try {
       console.log('🔍 Synchronizing scenarios from Pinecone...');
       
