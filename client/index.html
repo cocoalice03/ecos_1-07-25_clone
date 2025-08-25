@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Assistant de Cours | LearnWorlds</title>
     <meta name="description" content="Assistant de cours alimenté par l'IA pour LearnWorlds. Posez des questions sur le contenu de vos cours et obtenez des réponses précises." />
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/images/teacher_professional.jpg">
     <!-- Preload fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,9 +26,28 @@
         // Store the original define method immediately
         const originalDefine = window.customElements.define;
         const definedElements = new Set();
+        
+        // Immediately block known problematic elements
+        const problematicElements = [
+          'mce-autosize-textarea', 
+          'autosize-textarea',
+          'vite-error-overlay',
+          'replit-error-overlay',
+          'webcomponent-error-overlay'
+        ];
+        
+        problematicElements.forEach(name => {
+          definedElements.add(name);
+        });
 
         // Override as early as possible
         window.customElements.define = function(name, constructor, options) {
+          // Check if it's a known problematic element
+          if (problematicElements.includes(name)) {
+            console.warn(`🚫 BLOCKED PROBLEMATIC: "${name}" is on the blocked list`);
+            return;
+          }
+          
           if (window.customElements.get(name) || definedElements.has(name)) {
             console.warn(`🚫 EARLY BLOCK: Custom element "${name}" already exists`);
             return;
@@ -37,13 +59,24 @@
             return originalDefine.call(this, name, constructor, options);
           } catch (error) {
             definedElements.delete(name);
-            if (error.message && error.message.includes('already been defined')) {
+            if (error && error.message && error.message.includes('already been defined')) {
               console.warn(`🔄 EARLY CATCH: Element "${name}" was already defined`);
               return;
             }
             throw error;
           }
         };
+        
+        // Prevent errors from bubbling up
+        window.addEventListener('error', function(e) {
+          if (e.error && e.error.message && e.error.message.includes('already been defined')) {
+            console.warn('🛡️ Prevented custom element error:', e.error.message);
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }, true);
+        
       })();
     </script>
   </head>

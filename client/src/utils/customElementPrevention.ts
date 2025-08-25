@@ -38,7 +38,13 @@ export function preventCustomElementConflicts() {
   };
   
   // Pre-emptively handle known problematic elements
-  const problematicElements = ['vite-error-overlay', 'autosize-textarea', 'mce-autosize-textarea'];
+  const problematicElements = [
+    'vite-error-overlay', 
+    'autosize-textarea', 
+    'mce-autosize-textarea',
+    'replit-error-overlay',
+    'webcomponent-error-overlay'
+  ];
   
   // Check if any problematic elements are already defined
   problematicElements.forEach(elementName => {
@@ -46,6 +52,11 @@ export function preventCustomElementConflicts() {
       console.debug(`🔥 Problematic element "${elementName}" is already defined. Blocking further definitions.`);
       definedElements.add(elementName);
     }
+  });
+  
+  // Immediately block known problematic elements from being defined again
+  problematicElements.forEach(elementName => {
+    definedElements.add(elementName);
   });
 
   // Enhanced error handling for custom element conflicts
