@@ -344,6 +344,29 @@
           protectionActive: true,
           timestamp: new Date().toISOString()
         });
+        
+        // NUCLEAR OPTION: Completely freeze customElements to prevent ANY external access
+        try {
+          Object.defineProperty(window, 'customElements', {
+            value: new Proxy(window.customElements, {
+              get(target, prop) {
+                if (prop === 'define') {
+                  return protectedDefine;
+                }
+                return target[prop];
+              },
+              set() {
+                console.warn('🚫 NUCLEAR BLOCK: Attempt to override customElements blocked');
+                return false;
+              }
+            }),
+            writable: false,
+            configurable: false
+          });
+          console.log('🚀 NUCLEAR PROTECTION: customElements completely locked down');
+        } catch (e) {
+          console.warn('⚠️ Could not apply nuclear protection:', e.message);
+        }
       })();
     </script>
   </head>
