@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Protection Test</title>
+    <script>
+        console.log('🧪 Testing custom element protection...');
+        
+        // Test if we can define a blocked element
+        try {
+            window.customElements.define('mce-autosize-textarea', class extends HTMLElement {
+                constructor() {
+                    super();
+                    console.log('❌ BAD: mce-autosize-textarea was allowed to register!');
+                }
+            });
+            console.log('❌ FAILED: Protection did not block mce-autosize-textarea');
+        } catch (error) {
+            console.log('✅ GOOD: Protection blocked mce-autosize-textarea', error.message);
+        }
+        
+        // Test protection metrics
+        setTimeout(() => {
+            if (window.__ECOS_ELEMENT_PROTECTION__) {
+                console.log('🛡️ Protection metrics:', window.__ECOS_ELEMENT_PROTECTION__.metrics());
+            } else {
+                console.log('❌ Protection system not found!');
+            }
+        }, 1000);
+    </script>
+</head>
+<body>
+    <h1>Custom Element Protection Test</h1>
+    <p>Check console for results</p>
+</body>
+</html>

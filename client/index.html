@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- IMMEDIATE: Custom Element Protection - Load FIRST -->
+    <script>
+      (function() {
+        'use strict';
+        console.log('🚨 IMMEDIATE PROTECTION: Blocking custom elements before ANY other script loads');
+        
+        // Store original method IMMEDIATELY
+        const originalDefine = window.customElements.define.bind(window.customElements);
+        
+        // IMMEDIATE block list
+        const BLOCKED = new Set(['mce-autosize-textarea', 'webcomponents-ce', 'autosize-textarea']);
+        
+        // Replace define method INSTANTLY
+        window.customElements.define = function(name, constructor, options) {
+          if (BLOCKED.has(name)) {
+            console.warn('🚫 IMMEDIATE BLOCK:', name);
+            return class extends HTMLElement {};
+          }
+          return originalDefine(name, constructor, options);
+        };
+        
+        console.log('✅ IMMEDIATE PROTECTION ACTIVE');
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Assistant de Cours | LearnWorlds</title>
