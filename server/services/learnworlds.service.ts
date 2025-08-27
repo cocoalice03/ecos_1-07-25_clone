@@ -1,6 +1,6 @@
-import { openaiService } from './openai.service';
-import { pineconeService } from './pinecone.service';
-import { storage } from '../storage';
+import { openaiService } from './openai.service.js';
+import { pineconeService } from './pinecone.service.js';
+import { storage } from '../storage.js';
 
 export class LearnWorldsService {
   // Max questions per day per user

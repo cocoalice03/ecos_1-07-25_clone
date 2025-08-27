@@ -1,5 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { SupabaseClientService } from './supabase-client.service';
+import { SupabaseClientService } from './supabase-client.service.js';
 
 interface PineconeMetadata {
   title?: string;

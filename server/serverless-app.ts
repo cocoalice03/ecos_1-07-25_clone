@@ -1,13 +1,13 @@
 import express, { type Express, type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { addDiagnosticRoutes } from "./diagnostic-endpoint";
-import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
-import { db, users, testDatabaseConnection, checkDatabaseHealth } from "./db";
+import { registerRoutes } from "./routes.js";
+import { addDiagnosticRoutes } from "./diagnostic-endpoint.js";
+import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware.js";
+import { db, users, testDatabaseConnection, checkDatabaseHealth } from "./db.js";
 import { 
   createMonitoringMiddleware, 
   createMonitoringRoutes, 
   createErrorTrackingMiddleware 
-} from "./middleware/monitoring.middleware";
+} from "./middleware/monitoring.middleware.js";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 interface ServerlessAppConfig {

@@ -1,9 +1,9 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { db, users, ecosScenarios, ecosSessions, ecosMessages, trainingSessions, trainingSessionStudents, trainingSessionScenarios } from './db';
+import { db, users, ecosScenarios, ecosSessions, ecosMessages, trainingSessions, trainingSessionStudents, trainingSessionScenarios } from './db.js';
 import { eq, and } from 'drizzle-orm';
-import { scenarioSyncService } from './services/scenario-sync.service';
+import { scenarioSyncService } from './services/scenario-sync.service.js';
 
 // Admin emails authorized to access admin features
 const ADMIN_EMAILS: string[] = [

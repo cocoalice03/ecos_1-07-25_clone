@@ -1,4 +1,4 @@
-import { openaiService } from './openai.service';
+import { openaiService } from './openai.service.js';
 
 // Firebase supprimé - utilisez PostgreSQL
 // import { Pool } from 'pg';

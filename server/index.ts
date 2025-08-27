@@ -1,9 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { db, users } from "./db";
-import { addDiagnosticRoutes } from "./diagnostic-endpoint";
-import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { db, users } from "./db.js";
+import { addDiagnosticRoutes } from "./diagnostic-endpoint.js";
+import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware.js";
 
 
 // Simplified environment validation

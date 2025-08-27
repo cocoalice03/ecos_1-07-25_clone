@@ -1,10 +1,10 @@
 import express from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic } from "./vite";
-import { addDiagnosticRoutes } from "./diagnostic-endpoint";
-import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware";
-import { createTrainingSessionsTables } from "./db";
-import { db } from "./db";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic } from "./vite.js";
+import { addDiagnosticRoutes } from "./diagnostic-endpoint.js";
+import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware.js";
+import { createTrainingSessionsTables } from "./db.js";
+import { db } from "./db.js";
 
 // Simple server startup for deployment
 async function startApplication() {

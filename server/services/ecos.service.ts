@@ -1,5 +1,5 @@
-import { evaluationService } from './evaluation.service';
-import { pineconeService } from './pinecone.service';
+import { evaluationService } from './evaluation.service.js';
+import { pineconeService } from './pinecone.service.js';
 // Firebase supprimé - utilisez PostgreSQL
 // import { Pool } from 'pg';
 

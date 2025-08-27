@@ -1,5 +1,5 @@
 
-import { connectionPool } from './database/connection-pool';
+import { connectionPool } from './database/connection-pool.js';
 import { 
   users, 
   sessions, 

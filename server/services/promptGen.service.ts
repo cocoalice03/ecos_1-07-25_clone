@@ -1,5 +1,5 @@
-import { openaiService } from './openai.service';
-import { pineconeService } from './pinecone.service';
+import { openaiService } from './openai.service.js';
+import { pineconeService } from './pinecone.service.js';
 
 export class PromptGenService {
   async generatePatientPrompt(teacherInput: string, contextDocs: string[] = []): Promise<string> {

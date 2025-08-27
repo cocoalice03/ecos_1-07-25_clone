@@ -1,6 +1,6 @@
-import { db } from "./db";
+import { db } from "./db.js";
 // Firebase removed - using native Date types
-import { User, UpsertUser, Exchange, InsertExchange, DailyCounter, InsertCounter } from "./types";
+import { User, UpsertUser, Exchange, InsertExchange, DailyCounter, InsertCounter } from "./types.js";
 
 // Firebase removed - helper function no longer needed
 
