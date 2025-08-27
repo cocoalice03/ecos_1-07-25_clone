@@ -1,5 +1,6 @@
 
 import { connectionPool } from './database/connection-pool.js';
+import { databaseCircuitBreaker, CircuitBreakerError } from './middleware/circuit-breaker.middleware.js';
 import { 
   users, 
   sessions, 
@@ -27,22 +28,39 @@ import {
  * - Optimal configuration for Vercel serverless functions
  */
 
-// Get database instance through connection pool
+// Get database instance through connection pool with circuit breaker protection
 export const getDb = async () => {
-  return connectionPool.getDatabase();
+  return databaseCircuitBreaker.execute(
+    async () => connectionPool.getDatabase(),
+    async () => {
+      throw new Error('Database circuit breaker is open - service temporarily unavailable');
+    }
+  );
 };
 
-// Legacy compatibility - create a Proxy to maintain existing API
+// Legacy compatibility - create a Proxy to maintain existing API with circuit breaker protection
 export const db = new Proxy({} as any, {
   get(target, prop) {
     // For any property access, return a function that gets the db and calls the method
     return async (...args: any[]) => {
-      const database = await getDb();
-      const method = database[prop];
-      if (typeof method === 'function') {
-        return method.apply(database, args);
+      try {
+        return await databaseCircuitBreaker.execute(
+          async () => {
+            const database = await connectionPool.getDatabase();
+            const method = database[prop];
+            if (typeof method === 'function') {
+              return method.apply(database, args);
+            }
+            return method;
+          }
+        );
+      } catch (error) {
+        if (error instanceof CircuitBreakerError) {
+          console.warn(`Database operation ${String(prop)} blocked by circuit breaker:`, error.message);
+          throw error;
+        }
+        throw error;
       }
-      return method;
     };
   },
   
@@ -52,17 +70,31 @@ export const db = new Proxy({} as any, {
   }
 });
 
-// Database health check function
+// Database health check function with circuit breaker protection
 export const checkDatabaseHealth = async () => {
   try {
-    const healthStatus = await connectionPool.healthCheck();
-    return healthStatus;
+    return await databaseCircuitBreaker.execute(
+      async () => {
+        const healthStatus = await connectionPool.healthCheck();
+        return healthStatus;
+      },
+      async () => {
+        const circuitStatus = databaseCircuitBreaker.getStatus();
+        return {
+          status: 'circuit-open' as const,
+          error: `Circuit breaker is ${circuitStatus.state}`,
+          lastHealthCheck: new Date(),
+          circuitBreaker: circuitStatus
+        };
+      }
+    );
   } catch (error) {
     console.error('Database health check failed:', error);
     return {
       status: 'unhealthy' as const,
       error: error instanceof Error ? error.message : 'Unknown error',
-      lastHealthCheck: new Date()
+      lastHealthCheck: new Date(),
+      circuitBreaker: databaseCircuitBreaker.getStatus()
     };
   }
 };

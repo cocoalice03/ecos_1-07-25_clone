@@ -616,7 +616,9 @@ function TeacherPage({ email }: TeacherPageProps) {
             <Card className="border-0 shadow-sm bg-white">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <div>
-                  <CardTitle className="text-lg font-semibold text-gray-900">Gestion des Scénarios</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">
+                    Gestion des Scénarios ({scenarios.length} scénarios)
+                  </CardTitle>
                   <CardDescription className="text-sm text-gray-500 mt-1">Créez et gérez vos scénarios ECOS</CardDescription>
                 </div>
                 <Button 
@@ -628,6 +630,15 @@ function TeacherPage({ email }: TeacherPageProps) {
                 </Button>
               </CardHeader>
               <CardContent>
+                {/* Debug information */}
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Debug Info:</strong> API returned {scenarios.length} scenarios. IDs: {scenarios.map((s: any) => s.id).join(', ')}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Source: {teacherScenarios?.source || 'database'} | Connected: {teacherScenarios?.connected ? 'Yes' : 'No'}
+                  </p>
+                </div>
                 {scenarios.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {scenarios.map((scenario: any) => (

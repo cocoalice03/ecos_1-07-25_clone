@@ -1,9 +1,22 @@
+// Load environment variables first
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
-import { db, users } from "./db.js";
+import { db, users, checkDatabaseHealth } from "./db.js";
 import { addDiagnosticRoutes } from "./diagnostic-endpoint.js";
 import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware.js";
+import { databaseCircuitBreaker } from "./middleware/circuit-breaker.middleware.js";
+import { generalRateLimit, rateLimitStatus } from "./middleware/rate-limit.middleware.js";
+import { 
+  errorHandler, 
+  addRequestId, 
+  handleError, 
+  notFoundHandler, 
+  setupGlobalErrorHandling 
+} from "./middleware/error-handler.middleware.js";
 
 
 // Simplified environment validation
@@ -15,38 +28,113 @@ function validateEnvironment() {
 }
 
 const app = express();
+
+// Setup global error handling
+setupGlobalErrorHandling();
+
+// Add request ID tracking
+app.use(addRequestId());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add rate limiting (apply to all routes)
+app.use(generalRateLimit.middleware());
 
 // Add debug middleware
 app.use(createDebugMiddleware());
 app.use(createDatabaseErrorHandler());
 
-// Health check endpoint
+// Health check endpoint with robust error handling
 app.get('/health', async (req: Request, res: Response) => {
+  const healthStatus = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      database: 'unknown',
+      server: 'healthy'
+    }
+  };
+
   try {
-    // Test database connection - simple query
-    const result = await db.select().from(users).limit(1);
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
+    // Use the centralized health check function
+    const dbHealthPromise = checkDatabaseHealth();
+
+    const timeoutPromise = new Promise<any>((resolve) => {
+      setTimeout(() => resolve({ status: 'timeout', error: 'Database health check timeout' }), 5000);
     });
+
+    // Race between database check and timeout
+    const dbHealth = await Promise.race([dbHealthPromise, timeoutPromise]);
+    healthStatus.services.database = dbHealth.status;
+
+    // Include circuit breaker info if available
+    if (dbHealth.circuitBreaker) {
+      healthStatus.services.circuitBreaker = dbHealth.circuitBreaker.state;
+    }
+
+    // Overall health determination - server can be healthy even if DB is down (graceful degradation)
+    if (dbHealth.status === 'unhealthy' || dbHealth.status === 'timeout') {
+      healthStatus.status = 'degraded';
+    }
+
+    // Always return 200 for health endpoint to prevent load balancer issues
+    res.status(200).json(healthStatus);
   } catch (error) {
-    res.status(503).json({
-      status: 'unhealthy',
-      error: error instanceof Error ? error.message : 'Unknown error'
+    // Never let the health check crash the server
+    console.error('Health check error:', error);
+    res.status(200).json({
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      services: {
+        database: 'error',
+        server: 'healthy'
+      },
+      error: error instanceof Error ? error.message : 'Unknown health check error'
     });
   }
 });
 
-// Ready endpoint
+// Ready endpoint - indicates server is ready to receive requests
 app.get('/ready', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'ready',
-    timestamp: new Date().toISOString()
-  });
+  try {
+    res.status(200).json({
+      status: 'ready',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: process.env.npm_package_version || '1.0.0'
+    });
+  } catch (error) {
+    // Even readiness check should not crash
+    console.error('Ready check error:', error);
+    res.status(503).json({
+      status: 'not-ready',
+      timestamp: new Date().toISOString(),
+      error: 'Server not ready'
+    });
+  }
 });
+
+// Circuit breaker status endpoint for monitoring
+app.get('/circuit-breaker', (req: Request, res: Response) => {
+  try {
+    const status = databaseCircuitBreaker.getStatus();
+    res.status(200).json({
+      circuitBreaker: status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get circuit breaker status',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Rate limiter status endpoint
+app.get('/rate-limit-status', rateLimitStatus());
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -106,20 +194,21 @@ app.use((req, res, next) => {
     next();
   });
 
-  // Error handler
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    console.error(`Server Error [${status}]:`, message);
-    res.status(status).json({ message });
-  });
-
-  // Setup frontend serving
+  // Setup frontend serving BEFORE error handlers
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
+
+  // Error handler health check endpoint
+  app.get('/error-handler-status', errorHandler.healthCheck());
+
+  // 404 handler for undefined routes (only for non-frontend routes)
+  app.use('/api', notFoundHandler());
+
+  // Main error handler (must be last middleware)
+  app.use(handleError());
 
   // Start server with error handling
   const port = parseInt(process.env.PORT || '5000', 10);

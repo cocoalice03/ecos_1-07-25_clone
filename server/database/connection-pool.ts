@@ -70,6 +70,7 @@ class ServerlessConnectionPool {
 
   private validateEnvironment(): void {
     if (!process.env.DATABASE_URL) {
+      console.warn('DATABASE_URL environment variable not found - database features will be disabled');
       throw new Error('DATABASE_URL environment variable is required');
     }
 
@@ -77,6 +78,7 @@ class ServerlessConnectionPool {
     try {
       new URL(process.env.DATABASE_URL);
     } catch (error) {
+      console.error('Invalid DATABASE_URL format:', process.env.DATABASE_URL);
       throw new Error('DATABASE_URL is not a valid URL');
     }
   }
@@ -220,9 +222,14 @@ class ServerlessConnectionPool {
         this.db = null;
         this.isConnected = false;
 
-        // Wait before retry (except on last attempt)
+        // Exponential backoff with jitter for better retry distribution
         if (attempt < this.config.retryAttempts) {
-          await new Promise(resolve => setTimeout(resolve, this.config.retryDelay * attempt));
+          const baseDelay = this.config.retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+          const jitter = Math.random() * 1000; // Add up to 1 second jitter
+          const delay = baseDelay + jitter;
+          
+          console.log(`⏳ Retrying connection in ${Math.round(delay)}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
@@ -232,13 +239,28 @@ class ServerlessConnectionPool {
   }
 
   async getDatabase(): Promise<any> {
-    await this.connect();
-    
-    if (!this.db) {
-      throw new Error('Database not initialized');
+    try {
+      await this.connect();
+      
+      if (!this.db) {
+        throw new Error('Database not initialized after connection attempt');
+      }
+      
+      return this.db;
+    } catch (error) {
+      this.metrics.connectionErrors++;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+      
+      console.error('Failed to get database connection:', errorMessage);
+      
+      // Reset connection state on failure to allow recovery
+      this.isConnected = false;
+      this.client = null;
+      this.db = null;
+      this.connectionPromise = null;
+      
+      throw new Error(`Database unavailable: ${errorMessage}`);
     }
-    
-    return this.db;
   }
 
   async healthCheck(): Promise<HealthMetrics & { status: 'healthy' | 'unhealthy' }> {
