@@ -178,13 +178,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       console.log('🔧 Fetching teacher scenarios from database only...');
-      const scenarios = await scenarioSyncService.getAvailableScenarios();
       
-      res.status(200).json({ 
-        scenarios,
-        connected: true,
-        source: 'database'
-      });
+      try {
+        const scenarios = await scenarioSyncService.getAvailableScenarios();
+        
+        res.status(200).json({ 
+          scenarios,
+          connected: true,
+          source: 'database'
+        });
+      } catch (dbError: any) {
+        console.error('Database error for teacher scenarios:', dbError);
+        // Fallback to empty scenarios list with fallback service
+        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service.js');
+        const scenarios = await fallbackScenariosService.getAvailableScenarios();
+        
+        res.status(200).json({ 
+          scenarios,
+          connected: false,
+          source: 'fallback',
+          message: 'Using fallback data due to database connection issue'
+        });
+      }
       
     } catch (error: any) {
       console.error("Error fetching teacher scenarios:", error);
@@ -347,9 +362,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Try to get real stats from database
         const scenarios = await scenarioSyncService.getAvailableScenarios();
         stats.totalScenarios = scenarios.length;
+        
+        // Try to get session stats from database if possible
+        try {
+          const { SupabaseClientService } = await import('./services/supabase-client.service.js');
+          const dbService = new SupabaseClientService();
+          await dbService.connect();
+          
+          // Note: These would need proper implementation based on your database schema
+          stats.activeSessions = 0; // Placeholder - implement based on your session tracking
+          stats.completedSessions = 0; // Placeholder - implement based on your session tracking
+          stats.totalStudents = 0; // Placeholder - implement based on your student tracking
+        } catch (sessionError) {
+          console.log('Session stats not available, using defaults');
+        }
+        
       } catch (dbError) {
+        console.error('Database error for dashboard stats:', dbError);
         // Use fallback data
-        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service');
+        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service.js');
         const scenarios = await fallbackScenariosService.getAvailableScenarios();
         stats.totalScenarios = scenarios.length;
         stats.activeSessions = 2; // Sample data
@@ -476,6 +507,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Health check failed:', error);
       res.status(500).json({ status: 'error', message: 'Health check failed.', error: error.message });
+    }
+  });
+
+  // Route to get students for teacher dashboard
+  app.get("/api/teacher/students", async (req: Request, res: Response) => {
+    const { email } = req.query;
+    
+    if (!email || !isAdminAuthorized(email as string)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    try {
+      console.log('🔧 Fetching teacher students...');
+      
+      // For now, return empty array as student management isn't fully implemented
+      // This should be expanded when student-teacher relationships are implemented
+      const students = [];
+      
+      res.status(200).json({ 
+        students,
+        message: "Student list retrieved successfully",
+        connected: true
+      });
+      
+    } catch (error: any) {
+      console.error("Error fetching teacher students:", error);
+      res.status(500).json({ 
+        message: "Erreur lors de la récupération des étudiants",
+        error: error.message
+      });
     }
   });
 
