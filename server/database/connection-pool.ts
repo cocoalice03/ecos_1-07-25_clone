@@ -94,8 +94,8 @@ class ServerlessConnectionPool {
       idle_timeout: this.config.idleTimeout,
       connect_timeout: this.config.connectTimeout,
       
-      // SSL configuration for Supabase
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      // SSL configuration for Supabase (required for all environments)
+      ssl: { rejectUnauthorized: false },
       
       // Performance optimizations
       prepare: false, // Disable prepared statements for better serverless performance
