@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { db, users, ecosScenarios, ecosSessions, ecosMessages, trainingSessions, trainingSessionStudents, trainingSessionScenarios } from './db.js';
+import { users, ecosScenarios, ecosSessions, ecosMessages, trainingSessions, trainingSessionStudents, trainingSessionScenarios } from './db.js';
+import { unifiedDb } from './services/unified-database.service.js';
 import { eq, and } from 'drizzle-orm';
 import { scenarioSyncService } from './services/scenario-sync.service.js';
 import { 
@@ -35,31 +36,8 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Initialize database and data
-  setImmediate(async () => {
-    try {
-      console.log('🔧 Testing database connection...');
-      const { SupabaseClientService } = await import('./services/supabase-client.service');
-      const dbService = new SupabaseClientService();
-      
-      try {
-        await dbService.connect();
-        console.log('✅ Database connection successful!');
-        const scenarios = await dbService.getScenarios();
-        console.log(`✅ Found ${scenarios.length} scenarios in database`);
-        // Scenarios are now available in the database
-        
-        console.log('📊 Attempting to sync scenarios from Pinecone...');
-        await scenarioSyncService.syncScenariosFromPinecone();
-        console.log('✅ Pinecone sync completed');
-      } catch (error: any) {
-        console.error('❌ Database connection test failed:', error.message);
-        console.log('⚠️ Database not available, using fallback scenarios only');
-      }
-    } catch (error) {
-      console.log('⚠️ Initialization failed, using fallback scenarios for demonstration');
-    }
-  });
+  // Database initialization is now handled by startup sequencer
+  // No async initialization needed here - all handled by UnifiedDatabaseService
 
   // In-memory user storage for demonstration
   const inMemoryUsers = new Map<string, { userId: string; createdAt: Date }>();
@@ -223,36 +201,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { email } = req.query;
 
     try {
-      console.log('🔧 Fetching teacher scenarios from database only...');
+      console.log('🔧 Fetching teacher scenarios using unified database...');
       
-      try {
-        const scenarios = await scenarioSyncService.getAvailableScenarios();
-        
-        res.status(200).json({ 
-          scenarios,
-          connected: true,
-          source: 'database'
-        });
-      } catch (dbError: any) {
-        console.error('Database error for teacher scenarios:', dbError);
-        // Fallback to empty scenarios list with fallback service
-        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service.js');
-        const scenarios = await fallbackScenariosService.getAvailableScenarios();
-        
-        res.status(200).json({ 
-          scenarios,
-          connected: false,
-          source: 'fallback',
-          message: 'Using fallback data due to database connection issue'
-        });
-      }
+      const scenarios = await unifiedDb.getScenarios();
+      
+      res.status(200).json({ 
+        scenarios,
+        connected: true,
+        source: 'unified-database'
+      });
       
     } catch (error: any) {
       console.error("Error fetching teacher scenarios:", error);
-      res.status(500).json({ 
-        message: "Erreur de connexion à la base de données",
-        error: error.message,
-        connected: false
+      
+      // Fallback response
+      res.status(200).json({ 
+        scenarios: [],
+        connected: false,
+        source: 'error-fallback',
+        message: 'Service temporarily unavailable',
+        error: error.message
       });
     }
   });
@@ -393,47 +361,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { email } = req.query;
 
     try {
-      let stats = {
-        totalScenarios: 0,
-        activeSessions: 0,
-        completedSessions: 0,
-        totalStudents: 0
-      };
-
-      try {
-        // Try to get real stats from database
-        const scenarios = await scenarioSyncService.getAvailableScenarios();
-        stats.totalScenarios = scenarios.length;
-        
-        // Try to get session stats from database if possible
-        try {
-          const { SupabaseClientService } = await import('./services/supabase-client.service.js');
-          const dbService = new SupabaseClientService();
-          await dbService.connect();
-          
-          // Note: These would need proper implementation based on your database schema
-          stats.activeSessions = 0; // Placeholder - implement based on your session tracking
-          stats.completedSessions = 0; // Placeholder - implement based on your session tracking
-          stats.totalStudents = 0; // Placeholder - implement based on your student tracking
-        } catch (sessionError) {
-          console.log('Session stats not available, using defaults');
-        }
-        
-      } catch (dbError) {
-        console.error('Database error for dashboard stats:', dbError);
-        // Use fallback data
-        const { fallbackScenariosService } = await import('./services/fallback-scenarios.service.js');
-        const scenarios = await fallbackScenariosService.getAvailableScenarios();
-        stats.totalScenarios = scenarios.length;
-        stats.activeSessions = 2; // Sample data
-        stats.completedSessions = 15; // Sample data  
-        stats.totalStudents = 8; // Sample data
-      }
+      console.log('🔧 Fetching teacher dashboard using unified database...');
+      
+      const stats = await unifiedDb.getDashboardStats();
 
       res.status(200).json(stats);
     } catch (error: any) {
       console.error("Error fetching dashboard stats:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+      
+      // Fallback response
+      res.status(200).json({
+        totalScenarios: 0,
+        activeSessions: 0,
+        completedSessions: 0,
+        totalStudents: 0,
+        message: "Service temporarily unavailable"
+      });
     }
   });
 
@@ -557,11 +500,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { email } = req.query;
 
     try {
-      console.log('🔧 Fetching teacher students...');
+      console.log('🔧 Fetching teacher students using unified database...');
       
-      // For now, return empty array as student management isn't fully implemented
-      // This should be expanded when student-teacher relationships are implemented
-      const students = [];
+      const students = await unifiedDb.getStudents();
       
       res.status(200).json({ 
         students,
@@ -571,8 +512,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error: any) {
       console.error("Error fetching teacher students:", error);
-      res.status(500).json({ 
-        message: "Erreur lors de la récupération des étudiants",
+      res.status(200).json({ 
+        students: [],
+        message: "Service temporarily unavailable",
+        connected: false,
         error: error.message
       });
     }

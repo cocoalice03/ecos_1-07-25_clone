@@ -1,3 +1,7 @@
+// DEPRECATED: This connection pool has been replaced by UnifiedDatabaseService
+// This file is kept for reference but should not be used
+console.warn('⚠️ connection-pool.ts is DEPRECATED - use UnifiedDatabaseService instead');
+
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres, { type Sql } from 'postgres';
 import { 

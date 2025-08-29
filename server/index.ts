@@ -5,7 +5,7 @@ dotenv.config();
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
-import { db, users, checkDatabaseHealth } from "./db.js";
+import { checkDatabaseHealth } from "./db.js";
 import { addDiagnosticRoutes } from "./diagnostic-endpoint.js";
 import { createDebugMiddleware, createDatabaseErrorHandler } from "./debug.middleware.js";
 import { databaseCircuitBreaker } from "./middleware/circuit-breaker.middleware.js";
@@ -17,6 +17,8 @@ import {
   notFoundHandler, 
   setupGlobalErrorHandling 
 } from "./middleware/error-handler.middleware.js";
+import { startupSequencer } from "./services/startup-sequencer.service.js";
+import { createReadinessGate, addReadinessHeaders } from "./middleware/readiness-gate.middleware.js";
 
 
 // Simplified environment validation
@@ -37,6 +39,12 @@ app.use(addRequestId());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add readiness gate (blocks API requests until services ready)
+app.use(createReadinessGate());
+
+// Add readiness headers to responses
+app.use(addReadinessHeaders);
 
 // Add rate limiting (apply to all routes)
 app.use(generalRateLimit.middleware());
@@ -69,10 +77,8 @@ app.get('/health', async (req: Request, res: Response) => {
     const dbHealth = await Promise.race([dbHealthPromise, timeoutPromise]);
     healthStatus.services.database = dbHealth.status;
 
-    // Include circuit breaker info if available
-    if (dbHealth.circuitBreaker) {
-      healthStatus.services.circuitBreaker = dbHealth.circuitBreaker.state;
-    }
+    // Include uptime info
+    healthStatus.uptime = Date.now() - new Date().getTime();
 
     // Overall health determination - server can be healthy even if DB is down (graceful degradation)
     if (dbHealth.status === 'unhealthy' || dbHealth.status === 'timeout') {
@@ -100,12 +106,24 @@ app.get('/health', async (req: Request, res: Response) => {
 // Ready endpoint - indicates server is ready to receive requests
 app.get('/ready', (req: Request, res: Response) => {
   try {
-    res.status(200).json({
-      status: 'ready',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      version: process.env.npm_package_version || '1.0.0'
-    });
+    const readinessStatus = startupSequencer.getReadinessStatus();
+    
+    if (readinessStatus.ready) {
+      res.status(200).json({
+        status: 'ready',
+        timestamp: new Date().toISOString(),
+        processUptime: process.uptime(),
+        version: process.env.npm_package_version || '1.0.0',
+        ...readinessStatus
+      });
+    } else {
+      res.status(503).json({
+        status: 'not-ready',
+        timestamp: new Date().toISOString(),
+        message: 'Services are still initializing',
+        ...readinessStatus
+      });
+    }
   } catch (error) {
     // Even readiness check should not crash
     console.error('Ready check error:', error);
@@ -167,7 +185,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  console.log('Starting LearnWorlds RAG Application...');
+  console.log('Starting ECOS-Infirmier Application...');
   
   // Validate environment
   validateEnvironment();
@@ -175,9 +193,15 @@ app.use((req, res, next) => {
   // Setup diagnostic routes
   addDiagnosticRoutes(app);
 
-  // Database initialization is now handled by Firebase Admin SDK.
-  // The previous SQL-based table creation is no longer needed.
-  console.log('Database connection managed by Firebase.');
+  // Initialize services in sequence (CRITICAL for stability)
+  console.log('🚀 Initializing services sequentially...');
+  try {
+    await startupSequencer.waitForReady(30000); // 30 second timeout
+    console.log('✅ All services ready - server can now accept requests');
+  } catch (error: any) {
+    console.warn('⚠️ Service initialization incomplete:', error.message);
+    console.log('⚠️ Server will start in degraded mode');
+  }
 
   // Setup routes
   const server = await registerRoutes(app);

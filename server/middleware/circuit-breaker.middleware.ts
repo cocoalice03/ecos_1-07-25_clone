@@ -28,15 +28,32 @@ export class DatabaseCircuitBreaker {
 
   constructor(options: Partial<CircuitBreakerOptions> = {}) {
     this.options = {
-      failureThreshold: 5,
-      recoveryTimeMs: 60000, // 1 minute
-      monitoringPeriodMs: 120000, // 2 minutes
-      expectedFailureRate: 0.5,
+      failureThreshold: 15, // Increased from 5 to reduce false positives
+      recoveryTimeMs: 30000, // Reduced from 60s to 30s for faster recovery
+      monitoringPeriodMs: 180000, // Increased to 3 minutes for better stability
+      expectedFailureRate: 0.7, // Increased tolerance from 0.5 to 0.7
       ...options
     };
+    
+    // Grace period during startup - disable circuit breaker for first 60 seconds
+    this.startupGracePeriod = 60000;
+    this.startupTime = Date.now();
   }
+  
+  private startupGracePeriod: number;
+  private startupTime: number;
 
   async execute<T>(operation: () => Promise<T>, fallback?: () => Promise<T>): Promise<T> {
+    // During startup grace period, allow all requests
+    if (Date.now() - this.startupTime < this.startupGracePeriod) {
+      try {
+        return await operation();
+      } catch (error) {
+        console.log('⚠️ Startup grace period - ignoring failure for circuit breaker');
+        throw error;
+      }
+    }
+    
     if (this.state === CircuitBreakerState.OPEN) {
       if (this.shouldAttemptReset()) {
         this.state = CircuitBreakerState.HALF_OPEN;

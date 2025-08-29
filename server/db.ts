@@ -1,6 +1,5 @@
 
-import { connectionPool } from './database/connection-pool.js';
-import { databaseCircuitBreaker, CircuitBreakerError } from './middleware/circuit-breaker.middleware.js';
+import { unifiedDb } from './services/unified-database.service.js';
 import { 
   users, 
   sessions, 
@@ -16,103 +15,62 @@ import {
 } from '../shared/schema';
 
 /**
- * Database Connection Manager
+ * Database Connection Manager - SIMPLIFIED
  * 
- * This module provides a robust database connection using a connection pool
- * optimized for serverless environments with:
- * 
- * - Connection pooling with retry logic
- * - Health monitoring and automatic reconnection
- * - Performance metrics tracking
- * - Graceful error handling and recovery
- * - Optimal configuration for Vercel serverless functions
+ * Now uses UnifiedDatabaseService for all operations.
+ * No more connection pooling conflicts or race conditions.
  */
 
-// Get database instance through connection pool with circuit breaker protection
+// Legacy compatibility - redirect to unified service
 export const getDb = async () => {
-  return databaseCircuitBreaker.execute(
-    async () => connectionPool.getDatabase(),
-    async () => {
-      throw new Error('Database circuit breaker is open - service temporarily unavailable');
-    }
-  );
+  throw new Error('getDb() is deprecated - use unifiedDb directly');
 };
 
-// Legacy compatibility - create a Proxy to maintain existing API with circuit breaker protection
+// Legacy db proxy - deprecated, will throw errors to force migration
 export const db = new Proxy({} as any, {
   get(target, prop) {
-    // For any property access, return a function that gets the db and calls the method
     return async (...args: any[]) => {
-      try {
-        return await databaseCircuitBreaker.execute(
-          async () => {
-            const database = await connectionPool.getDatabase();
-            const method = database[prop];
-            if (typeof method === 'function') {
-              return method.apply(database, args);
-            }
-            return method;
-          }
-        );
-      } catch (error) {
-        if (error instanceof CircuitBreakerError) {
-          console.warn(`Database operation ${String(prop)} blocked by circuit breaker:`, error.message);
-          throw error;
-        }
-        throw error;
-      }
+      throw new Error(`db.${String(prop)}() is deprecated - use unifiedDb methods directly`);
     };
   },
   
-  // Handle property checks
   has(target, prop) {
-    return true; // Allow all property checks to pass
+    return true;
   }
 });
 
-// Database health check function with circuit breaker protection
+// Database health check using unified service
 export const checkDatabaseHealth = async () => {
   try {
-    return await databaseCircuitBreaker.execute(
-      async () => {
-        const healthStatus = await connectionPool.healthCheck();
-        return healthStatus;
-      },
-      async () => {
-        const circuitStatus = databaseCircuitBreaker.getStatus();
-        return {
-          status: 'circuit-open' as const,
-          error: `Circuit breaker is ${circuitStatus.state}`,
-          lastHealthCheck: new Date(),
-          circuitBreaker: circuitStatus
-        };
-      }
-    );
+    const health = await unifiedDb.healthCheck();
+    return {
+      healthStatus: health.status === 'healthy' ? 'healthy' as const : 'unhealthy' as const,
+      ...health
+    };
   } catch (error) {
     console.error('Database health check failed:', error);
     return {
       status: 'unhealthy' as const,
       error: error instanceof Error ? error.message : 'Unknown error',
-      lastHealthCheck: new Date(),
-      circuitBreaker: databaseCircuitBreaker.getStatus()
+      lastHealthCheck: new Date()
     };
   }
 };
 
-// Get connection pool metrics
+// Get database metrics from unified service
 export const getDatabaseMetrics = () => {
-  return connectionPool.getMetrics();
+  return unifiedDb.getMetrics();
 };
 
-// Test database connection
+// Test database connection using unified service
 export const testDatabaseConnection = async () => {
   try {
-    const database = await getDb();
-    const result = await database.select().from(users).limit(1);
+    await unifiedDb.initialize();
+    const scenarios = await unifiedDb.getScenarios();
     return {
       success: true,
       message: 'Database connection successful',
-      recordCount: result.length
+      recordCount: scenarios.length
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -140,5 +98,5 @@ export {
   trainingSessionScenarios
 };
 
-// Export connection pool for advanced usage
-export { connectionPool };
+// Export unified database for advanced usage
+export { unifiedDb };
