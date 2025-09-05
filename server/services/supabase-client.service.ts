@@ -32,12 +32,12 @@ export class SupabaseClientService {
 
       // Test the connection
       const { data, error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .select('count')
         .limit(1);
 
       if (error && error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('⚠️ Table ecos_scenarios does not exist, creating it...');
+        console.log('⚠️ Table scenarios does not exist, creating it...');
         await this.createTables();
       } else if (error) {
         throw error;
@@ -52,10 +52,10 @@ export class SupabaseClientService {
   }
 
   private async createTables(): Promise<void> {
-    // Create ecos_scenarios table if it doesn't exist
+    // Create scenarios table if it doesn't exist
     const { error } = await this.supabase.rpc('exec_sql', {
       sql: `
-        CREATE TABLE IF NOT EXISTS ecos_scenarios (
+        CREATE TABLE IF NOT EXISTS scenarios (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           title TEXT NOT NULL,
           description TEXT,
@@ -78,7 +78,7 @@ export class SupabaseClientService {
 
     try {
       const { data, error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -103,7 +103,7 @@ export class SupabaseClientService {
 
     try {
       const { data, error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .insert({
           title: scenarioData.title,
           description: scenarioData.description,
@@ -139,7 +139,7 @@ export class SupabaseClientService {
       if (updates.imageUrl !== undefined) updateData.image_url = updates.imageUrl;
 
       const { data, error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .update(updateData)
         .eq('id', id)
         .select()
@@ -159,7 +159,7 @@ export class SupabaseClientService {
 
     try {
       const { error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .delete()
         .eq('id', id);
 

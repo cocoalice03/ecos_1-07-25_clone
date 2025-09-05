@@ -101,7 +101,7 @@ export class UnifiedDatabaseService {
     try {
       // Simple health check query
       const { error } = await this.supabase
-        .from('ecos_scenarios')
+        .from('scenarios')
         .select('id')
         .limit(1);
         
@@ -141,7 +141,7 @@ export class UnifiedDatabaseService {
       const client = await this.getClient();
       
       const { data, error } = await client
-        .from('ecos_scenarios')
+        .from('scenarios')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -168,17 +168,11 @@ export class UnifiedDatabaseService {
     try {
       const client = await this.getClient();
       
-      // Get scenarios count
-      const { data: scenarios, error: scenariosError } = await client
-        .from('ecos_scenarios')
-        .select('id', { count: 'exact', head: true });
-        
-      let totalScenarios = 0;
-      if (!scenariosError) {
-        totalScenarios = scenarios || 0;
-      } else if (!scenariosError.message.includes('does not exist')) {
-        console.warn('Error counting scenarios:', scenariosError.message);
-      }
+      // Get scenarios count using the same method as getScenarios()
+      const scenarios = await this.getScenarios();
+      const totalScenarios = scenarios.length;
+
+      console.log(`📊 Dashboard stats: ${totalScenarios} scenarios found`);
 
       // For now, return basic stats - expand as needed
       return {
@@ -241,7 +235,7 @@ export class UnifiedDatabaseService {
     const client = await this.getClient();
     
     const { data, error } = await client
-      .from('ecos_scenarios')
+      .from('scenarios')
       .insert({
         title: scenarioData.title,
         description: scenarioData.description,
@@ -274,7 +268,7 @@ export class UnifiedDatabaseService {
     if (updates.imageUrl !== undefined) updateData.image_url = updates.imageUrl;
 
     const { data, error } = await client
-      .from('ecos_scenarios')
+      .from('scenarios')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -291,7 +285,7 @@ export class UnifiedDatabaseService {
     const client = await this.getClient();
     
     const { error } = await client
-      .from('ecos_scenarios')
+      .from('scenarios')
       .delete()
       .eq('id', id);
 

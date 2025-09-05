@@ -13,7 +13,11 @@
     "health:check": "node scripts/deployment-validator.js --health-check",
     "rollback:deployment": "node scripts/deployment-validator.js --rollback",
     "pre-deploy": "npm run check && npm run build",
-    "post-deploy": "npm run validate:deployment"
+    "post-deploy": "npm run validate:deployment",
+    "deploy:production": "./scripts/deploy-production.sh",
+    "validate:env": "node scripts/validate-env.js",
+    "test:local": "npm run validate:env && PORT=5002 npm run dev & sleep 10 && curl -f http://localhost:5002/api/health && curl -f http://localhost:5002/api/ecos/scenarios && kill %1",
+    "deploy:safe": "npm run validate:env && npm run check && npm run deploy:production"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

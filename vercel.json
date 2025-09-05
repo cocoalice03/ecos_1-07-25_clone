@@ -5,10 +5,26 @@
   "framework": null,
   "functions": {
     "api/index.js": {
-      "runtime": "@vercel/node@5.3.13"
+      "runtime": "@vercel/node@5.3.13",
+      "maxDuration": 30
+    },
+    "api/scenarios.js": {
+      "runtime": "@vercel/node@5.3.13",
+      "maxDuration": 30
     }
   },
+  "env": {
+    "NODE_ENV": "production"
+  },
   "rewrites": [
+    {
+      "source": "/api/ecos/scenarios",
+      "destination": "/api/scenarios.js"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/index.js"
+    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
@@ -19,6 +35,27 @@
     }
   ],
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [
