@@ -574,26 +574,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Get available scenarios for a student (disabled for now)
-  app.get("/api/student/available-scenarios", async (req: Request, res: Response) => {
-    return res.status(501).json({ 
-      message: "Fonctionnalité temporairement désactivée",
-      details: "Cette fonctionnalité sera réactivée une fois la base de données connectée"
-    });
-  });
 
   // ECOS Core Functionality Endpoints
 
-  // Start a new ECOS session
-  app.post("/api/ecos/sessions", ecosSessionRateLimit.middleware(), validateContentType(), validateRequestSize(), validateCreateEcosSession, async (req: ValidatedRequest, res: Response) => {
-    const { email } = req.query;
-    
-    if (!email || !isAdminAuthorized(email as string)) {
-      return res.status(403).json({ message: "Accès non autorisé" });
-    }
+  // Get ECOS sessions for a student
+  app.get("/api/ecos/sessions", async (req: Request, res: Response) => {
     try {
       const { email } = req.query;
-      const { scenarioId, studentEmail } = req.validatedBody || req.body;
+      
+      if (!email) {
+        return res.status(400).json({ 
+          error: "Email is required",
+          code: "MISSING_EMAIL"
+        });
+      }
+
+      // Return empty array for now since database operations are disabled
+      // In a real implementation, this would query the database for sessions by email
+      res.status(200).json({
+        sessions: [],
+        message: 'Sessions retrieved successfully'
+      });
+    } catch (error) {
+      console.error('Error getting ECOS sessions:', error);
+      res.status(500).json({
+        error: 'Failed to get ECOS sessions',
+        code: 'SESSIONS_GET_FAILED'
+      });
+    }
+  });
+
+  // Start a new ECOS session
+  app.post("/api/ecos/sessions", ecosSessionRateLimit.middleware(), validateContentType(), validateRequestSize(), validateCreateEcosSession, async (req: ValidatedRequest, res: Response) => {
+    try {
+      const { studentEmail, scenarioId } = req.validatedBody || req.body;
+      
+      if (!studentEmail || !scenarioId) {
+        return res.status(400).json({ 
+          error: "StudentEmail and scenarioId are required",
+          code: "MISSING_REQUIRED_FIELDS"
+        });
+      }
 
       // Generate session ID
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -609,8 +630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({
         sessionId,
         scenarioId,
-        studentEmail: studentEmail || email,
-        teacherEmail: email,
+        studentEmail,
         status: 'active',
         startTime: new Date(),
         message: 'ECOS session created successfully'

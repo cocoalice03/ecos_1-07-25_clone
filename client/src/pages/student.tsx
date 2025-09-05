@@ -97,8 +97,8 @@ export default function StudentPage({ email }: StudentPageProps) {
     mutationFn: async (scenarioId: number) => {
       console.log('Starting session with decoded email:', decodedEmail, 'and scenario:', scenarioId);
       return apiRequest('POST', '/api/ecos/sessions', {
-        email: decodedEmail,
-        scenarioId
+        studentEmail: decodedEmail,
+        scenarioId: scenarioId.toString()
       });
     },
     onSuccess: (data) => {
