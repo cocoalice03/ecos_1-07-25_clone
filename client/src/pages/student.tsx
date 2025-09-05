@@ -369,7 +369,10 @@ export default function StudentPage({ email }: StudentPageProps) {
                     {scenarios?.map((scenario: any) => (
                       <div key={scenario.id} className="feature-card feature-card-overlay">
                         {/* Photo panoramique en haut */}
-                        <div className="relative">
+                        <div 
+                          className="relative cursor-pointer" 
+                          onClick={() => handleStartSession(scenario.id)}
+                        >
                           {scenario.id === 1 ? (
                             <img 
                               src="/images/douleur_thoracique.png"
