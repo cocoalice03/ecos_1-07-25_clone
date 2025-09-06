@@ -104,6 +104,7 @@ function ScenarioCreationForm({ email, onSuccess, editingScenario, onCancelEdit 
       return apiRequest('POST', '/api/ecos/generate-criteria', {
         email,
         description: formData.criteriaText,
+        scenarioDescription: formData.criteriaText,
       });
     },
     onSuccess: (data) => {

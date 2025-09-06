@@ -11,6 +11,10 @@
     "api/scenarios.js": {
       "runtime": "@vercel/node@5.3.13",
       "maxDuration": 30
+    },
+    "api/generate-criteria.js": {
+      "runtime": "@vercel/node@5.3.13",
+      "maxDuration": 30
     }
   },
   "env": {
@@ -20,6 +24,10 @@
     {
       "source": "/api/ecos/scenarios",
       "destination": "/api/scenarios.js"
+    },
+    {
+      "source": "/api/ecos/generate-criteria",
+      "destination": "/api/generate-criteria.js"
     },
     {
       "source": "/api/health",

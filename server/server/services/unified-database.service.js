@@ -1,0 +1,271 @@
+import { createClient } from '@supabase/supabase-js';
+/**
+ * Unified Database Service
+ *
+ * Single point of access for all database operations.
+ * Uses Supabase REST API exclusively for stability.
+ * Eliminates connection pooling conflicts and race conditions.
+ */
+export class UnifiedDatabaseService {
+    supabase = null;
+    isInitialized = false;
+    initializationPromise = null;
+    metrics;
+    startupTime;
+    constructor() {
+        this.startupTime = new Date();
+        this.metrics = {
+            connectionAttempts: 0,
+            successfulConnections: 0,
+            failedConnections: 0,
+            lastConnectionTime: new Date(),
+            isHealthy: false,
+            responseTime: 0
+        };
+    }
+    /**
+     * Initialize the database service (called once)
+     */
+    async initialize() {
+        if (this.isInitialized)
+            return;
+        if (this.initializationPromise) {
+            return this.initializationPromise;
+        }
+        this.initializationPromise = this._performInitialization();
+        return this.initializationPromise;
+    }
+    async _performInitialization() {
+        this.metrics.connectionAttempts++;
+        const startTime = Date.now();
+        try {
+            console.log('🔧 Initializing Unified Database Service...');
+            let supabaseUrl = process.env.SUPABASE_URL;
+            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+            if (!supabaseUrl || !supabaseKey) {
+                throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
+            }
+            // Convert PostgreSQL URL to HTTP URL if needed
+            if (supabaseUrl.startsWith('postgresql://')) {
+                const match = supabaseUrl.match(/db\.([^.]+)\.supabase\.co/);
+                if (match) {
+                    const projectId = match[1];
+                    supabaseUrl = `https://${projectId}.supabase.co`;
+                    console.log('🔄 Converted to Supabase HTTP URL');
+                }
+            }
+            this.supabase = createClient(supabaseUrl, supabaseKey);
+            // Test connection with health check
+            await this._performHealthCheck();
+            this.isInitialized = true;
+            this.metrics.successfulConnections++;
+            this.metrics.responseTime = Date.now() - startTime;
+            this.metrics.isHealthy = true;
+            this.metrics.lastConnectionTime = new Date();
+            console.log('✅ Unified Database Service initialized successfully');
+        }
+        catch (error) {
+            this.metrics.failedConnections++;
+            this.metrics.isHealthy = false;
+            console.error('❌ Database service initialization failed:', error.message);
+            throw error;
+        }
+        finally {
+            this.initializationPromise = null;
+        }
+    }
+    async _performHealthCheck() {
+        const startTime = Date.now();
+        try {
+            // Simple health check query
+            const { error } = await this.supabase
+                .from('scenarios')
+                .select('id')
+                .limit(1);
+            if (error && !error.message.includes('does not exist')) {
+                throw error;
+            }
+            this.metrics.responseTime = Date.now() - startTime;
+            console.log(`✅ Health check passed (${this.metrics.responseTime}ms)`);
+        }
+        catch (error) {
+            console.warn('⚠️ Health check warning:', error.message);
+            // Don't throw for table existence issues
+            if (!error.message.includes('does not exist')) {
+                throw error;
+            }
+        }
+    }
+    /**
+     * Get database client (ensures initialization)
+     */
+    async getClient() {
+        await this.initialize();
+        if (!this.supabase) {
+            throw new Error('Database service not initialized');
+        }
+        return this.supabase;
+    }
+    /**
+     * Get all scenarios
+     */
+    async getScenarios() {
+        try {
+            const client = await this.getClient();
+            const { data, error } = await client
+                .from('scenarios')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                if (error.message.includes('does not exist')) {
+                    console.log('⚠️ Scenarios table does not exist, returning empty array');
+                    return [];
+                }
+                throw error;
+            }
+            console.log(`✅ Retrieved ${data?.length || 0} scenarios`);
+            return data || [];
+        }
+        catch (error) {
+            console.error('❌ Error fetching scenarios:', error.message);
+            throw error;
+        }
+    }
+    /**
+     * Get dashboard statistics
+     */
+    async getDashboardStats() {
+        try {
+            const client = await this.getClient();
+            // Get scenarios count using the same method as getScenarios()
+            const scenarios = await this.getScenarios();
+            const totalScenarios = scenarios.length;
+            console.log(`📊 Dashboard stats: ${totalScenarios} scenarios found`);
+            // For now, return basic stats - expand as needed
+            return {
+                totalScenarios,
+                activeSessions: 0,
+                completedSessions: 0,
+                totalStudents: 0
+            };
+        }
+        catch (error) {
+            console.error('❌ Error fetching dashboard stats:', error.message);
+            return {
+                totalScenarios: 0,
+                activeSessions: 0,
+                completedSessions: 0,
+                totalStudents: 0
+            };
+        }
+    }
+    /**
+     * Get students (placeholder for future implementation)
+     */
+    async getStudents() {
+        try {
+            const client = await this.getClient();
+            // For now, return empty array - implement based on your needs
+            return [];
+        }
+        catch (error) {
+            console.error('❌ Error fetching students:', error.message);
+            return [];
+        }
+    }
+    /**
+     * Health check method
+     */
+    async healthCheck() {
+        try {
+            await this._performHealthCheck();
+            return {
+                status: 'healthy',
+                metrics: { ...this.metrics },
+                uptime: Date.now() - this.startupTime.getTime()
+            };
+        }
+        catch (error) {
+            return {
+                status: 'unhealthy',
+                metrics: { ...this.metrics, isHealthy: false },
+                uptime: Date.now() - this.startupTime.getTime()
+            };
+        }
+    }
+    /**
+     * Create a new scenario
+     */
+    async createScenario(scenarioData) {
+        const client = await this.getClient();
+        const { data, error } = await client
+            .from('scenarios')
+            .insert({
+            title: scenarioData.title,
+            description: scenarioData.description,
+            patient_prompt: scenarioData.patientPrompt,
+            evaluation_criteria: scenarioData.evaluationCriteria,
+            image_url: scenarioData.imageUrl || null,
+            created_by: scenarioData.createdBy,
+        })
+            .select()
+            .single();
+        if (error)
+            throw error;
+        return data;
+    }
+    /**
+     * Update scenario
+     */
+    async updateScenario(id, updates) {
+        const client = await this.getClient();
+        const updateData = {
+            updated_at: new Date().toISOString()
+        };
+        if (updates.title)
+            updateData.title = updates.title;
+        if (updates.description !== undefined)
+            updateData.description = updates.description;
+        if (updates.patientPrompt)
+            updateData.patient_prompt = updates.patientPrompt;
+        if (updates.evaluationCriteria)
+            updateData.evaluation_criteria = updates.evaluationCriteria;
+        if (updates.imageUrl !== undefined)
+            updateData.image_url = updates.imageUrl;
+        const { data, error } = await client
+            .from('scenarios')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+        if (error)
+            throw error;
+        return data;
+    }
+    /**
+     * Delete scenario
+     */
+    async deleteScenario(id) {
+        const client = await this.getClient();
+        const { error } = await client
+            .from('scenarios')
+            .delete()
+            .eq('id', id);
+        if (error)
+            throw error;
+    }
+    /**
+     * Get metrics for monitoring
+     */
+    getMetrics() {
+        return { ...this.metrics };
+    }
+    /**
+     * Check if service is ready
+     */
+    isReady() {
+        return this.isInitialized && this.metrics.isHealthy;
+    }
+}
+// Export singleton instance
+export const unifiedDb = new UnifiedDatabaseService();
