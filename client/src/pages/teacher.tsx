@@ -28,9 +28,9 @@ function ScenarioCreationForm({ email, onSuccess, editingScenario, onCancelEdit 
   const [formData, setFormData] = useState({
     title: editingScenario?.title || "",
     description: editingScenario?.description || "",
-    patientPrompt: editingScenario?.patientPrompt || "",
-    evaluationCriteria: editingScenario?.evaluationCriteria ? JSON.stringify(editingScenario.evaluationCriteria, null, 2) : "",
-    pineconeIndex: editingScenario?.pineconeIndex || "",
+    patientPrompt: editingScenario?.patient_prompt || editingScenario?.patientPrompt || "",
+    evaluationCriteria: (editingScenario?.evaluation_criteria || editingScenario?.evaluationCriteria) ? JSON.stringify(editingScenario.evaluation_criteria || editingScenario.evaluationCriteria, null, 2) : "",
+    pineconeIndex: editingScenario?.pinecone_index || editingScenario?.pineconeIndex || "",
     criteriaText: editingScenario?.criteriaText || ""
   });
 
@@ -40,9 +40,9 @@ function ScenarioCreationForm({ email, onSuccess, editingScenario, onCancelEdit 
       setFormData({
         title: editingScenario.title || "",
         description: editingScenario.description || "",
-        patientPrompt: editingScenario.patientPrompt || "",
-        evaluationCriteria: editingScenario.evaluationCriteria ? JSON.stringify(editingScenario.evaluationCriteria, null, 2) : "",
-        pineconeIndex: editingScenario.pineconeIndex || "",
+        patientPrompt: editingScenario.patient_prompt || editingScenario.patientPrompt || "",
+        evaluationCriteria: (editingScenario.evaluation_criteria || editingScenario.evaluationCriteria) ? JSON.stringify(editingScenario.evaluation_criteria || editingScenario.evaluationCriteria, null, 2) : "",
+        pineconeIndex: editingScenario.pinecone_index || editingScenario.pineconeIndex || "",
         criteriaText: editingScenario?.criteriaText || ""
       });
     }
