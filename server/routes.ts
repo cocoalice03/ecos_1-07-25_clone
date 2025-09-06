@@ -280,7 +280,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
       const dbService = new SupabaseClientService();
       await dbService.connect();
 
@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
       const dbService = new SupabaseClientService();
       await dbService.connect();
 
@@ -366,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
       const dbService = new SupabaseClientService();
       await dbService.connect();
 
@@ -380,6 +380,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error deleting scenario:", error);
       res.status(500).json({ 
         message: "Erreur lors de la suppression du scénario",
+        error: error.message
+      });
+    }
+  });
+
+  // Route to generate evaluation criteria for a scenario
+  app.post("/api/ecos/generate-criteria", async (req: Request, res: Response) => {
+    const { email, scenarioDescription } = req.body;
+    
+    if (!email || !isAdminAuthorized(email)) {
+      return res.status(403).json({ message: "Accès non autorisé" });
+    }
+
+    if (!scenarioDescription) {
+      return res.status(400).json({ message: "Description du scénario requise" });
+    }
+
+    try {
+      const { promptGenService } = await import('./services/promptGen.service.js');
+      
+      const criteria = await promptGenService.generateEvaluationCriteria(scenarioDescription);
+      
+      res.status(200).json({ 
+        message: "Critères d'évaluation générés avec succès",
+        criteria
+      });
+
+    } catch (error: any) {
+      console.error("Error generating evaluation criteria:", error);
+      res.status(500).json({ 
+        message: "Erreur lors de la génération des critères d'évaluation",
         error: error.message
       });
     }
@@ -422,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { pineconeService } = await import('./services/pinecone.service');
+      const { pineconeService } = await import('./services/pinecone.service.js');
       console.log('🔄 Fetching Pinecone indexes...');
       
       const indexes = await pineconeService.listIndexes();
@@ -540,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin health check 
   app.get("/api/admin/health", async (req: Request, res: Response) => {
     try {
-      const { SupabaseClientService } = await import('./services/supabase-client.service');
+      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
       const dbService = new SupabaseClientService();
       
       try {
