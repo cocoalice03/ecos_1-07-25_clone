@@ -101,15 +101,21 @@ export class VirtualPatientService {
       const scenario = scenarios.find(s => s.id === scenarioId);
       
       if (scenario?.patient_prompt) {
+        console.log(`✅ Using scenario-specific patient prompt for scenario ${scenarioId}`);
         return scenario.patient_prompt;
       }
       
-      console.log(`⚠️ No patient prompt found for scenario ${scenarioId}, using default`);
-      return this.getDefaultPatientPrompt();
+      console.error(`❌ No patient prompt found for scenario ${scenarioId}. This should not happen in production.`);
+      throw new Error(`Missing patient prompt for scenario ${scenarioId}. Please ensure scenario has proper patient_prompt in database.`);
       
     } catch (error) {
       console.error('❌ Error fetching scenario prompt:', error);
-      return this.getDefaultPatientPrompt();
+      // Only use default prompt as absolute fallback in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Using default prompt in development mode');
+        return this.getDefaultPatientPrompt();
+      }
+      throw error;
     }
   }
 
@@ -215,7 +221,7 @@ IMPORTANT: Utilise les informations de l'historique pour maintenir la continuit�
   private getDefaultPatientPrompt(): string {
     return `Tu es un patient qui consulte pour un problème de santé. Tu es légèrement anxieux mais coopératif. 
 Tu réponds honnêtement aux questions médicales mais tu ne donnes des détails que si on te pose des questions spécifiques. 
-Tu as une douleur thoracique qui t'inquiète et tu espères que ce n'est pas grave.
+Tu as des symptômes qui t'inquiètent et tu espères obtenir des réponses et de l'aide.
 Tu arrives avec tes propres préoccupations et questions sur ton état de santé.`;
   }
 

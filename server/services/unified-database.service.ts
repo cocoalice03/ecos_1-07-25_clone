@@ -142,7 +142,17 @@ export class UnifiedDatabaseService {
       
       const { data, error } = await client
         .from('scenarios')
-        .select('*')
+        .select(`
+          id,
+          title,
+          description,
+          patient_prompt,
+          evaluation_criteria,
+          image_url,
+          created_by,
+          created_at,
+          updated_at
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -154,7 +164,15 @@ export class UnifiedDatabaseService {
       }
 
       console.log(`✅ Retrieved ${data?.length || 0} scenarios`);
-      return data || [];
+      
+      // Map database column names to expected property names
+      const mappedData = (data || []).map(scenario => ({
+        ...scenario,
+        patient_prompt: scenario.patient_prompt || null,
+        evaluation_criteria: scenario.evaluation_criteria || null
+      }));
+      
+      return mappedData;
     } catch (error: any) {
       console.error('❌ Error fetching scenarios:', error.message);
       throw error;

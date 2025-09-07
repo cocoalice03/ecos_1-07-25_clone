@@ -271,7 +271,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let parsedCriteria = null;
       if (evaluationCriteria) {
         try {
-          parsedCriteria = JSON.parse(evaluationCriteria);
+          // Handle both string and object formats
+          if (typeof evaluationCriteria === 'string') {
+            parsedCriteria = JSON.parse(evaluationCriteria);
+          } else if (typeof evaluationCriteria === 'object') {
+            parsedCriteria = evaluationCriteria;
+          }
+          
+          // Validate criteria structure
+          if (!parsedCriteria || typeof parsedCriteria !== 'object') {
+            throw new Error('Evaluation criteria must be a valid object');
+          }
         } catch (parseError) {
           return res.status(400).json({ 
             message: "Format JSON invalide pour les critères d'évaluation",
@@ -321,7 +331,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let parsedCriteria = null;
       if (evaluationCriteria) {
         try {
-          parsedCriteria = JSON.parse(evaluationCriteria);
+          // Handle both string and object formats
+          if (typeof evaluationCriteria === 'string') {
+            parsedCriteria = JSON.parse(evaluationCriteria);
+          } else if (typeof evaluationCriteria === 'object') {
+            parsedCriteria = evaluationCriteria;
+          }
+          
+          // Validate criteria structure
+          if (!parsedCriteria || typeof parsedCriteria !== 'object') {
+            throw new Error('Evaluation criteria must be a valid object');
+          }
         } catch (parseError) {
           return res.status(400).json({ 
             message: "Format JSON invalide pour les critères d'évaluation",
@@ -728,7 +748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try to get session from database and fetch actual scenario data
       try {
         // Extract scenario ID from session ID (format: session_SCENARIOID_timestamp_random)
-        let scenarioId = 1; // fallback
+        let scenarioId = null;
         if (sessionId.startsWith('session_')) {
           const parts = sessionId.split('_');
           if (parts.length >= 2 && !isNaN(parseInt(parts[1]))) {
@@ -736,37 +756,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
+        if (!scenarioId) {
+          return res.status(400).json({
+            error: 'Invalid session ID format - cannot extract scenario ID',
+            code: 'INVALID_SESSION_ID'
+          });
+        }
+        
         // Get actual scenario data from database
         const scenarios = await unifiedDb.getScenarios();
-        let scenario = scenarios.find(s => s.id == scenarioId);
+        const scenario = scenarios.find(s => s.id === scenarioId);
         
-        // Fallback scenario data if not found in database
         if (!scenario) {
-          const scenarioTitles = {
-            1: "Consultation d'urgence - Douleur thoracique",
-            2: "Examen de l'épaule douloureuse", 
-            3: "Traumatisme du poignet",
-            4: "Arthrose de la main",
-            5: "Syndrome du canal carpien",
-            6: "Détection précoce d'un état de choc chez une personne âgée en service de médecine interne",
-            7: "Gestion d'une crise de frustration chez un patient atteint de troubles schizophréniques en hospitalisation libre"
-          };
-          
-          const scenarioDescriptions = {
-            1: "Prendre en charge un patient se présentant avec une douleur thoracique",
-            2: "Examiner et diagnostiquer une douleur à l'épaule",
-            3: "Évaluer et traiter un traumatisme au niveau du poignet", 
-            4: "Diagnostiquer et prendre en charge l'arthrose de la main",
-            5: "Évaluer et traiter le syndrome du canal carpien",
-            6: "Détecter précocement les signes d'un état de choc chez une personne âgée hospitalisée",
-            7: "Gérer une crise comportementale chez un patient avec troubles psychiatriques"
-          };
-          
-          scenario = {
-            id: scenarioId,
-            title: scenarioTitles[scenarioId as keyof typeof scenarioTitles] || "Scénario ECOS",
-            description: scenarioDescriptions[scenarioId as keyof typeof scenarioDescriptions] || "Scénario d'examen clinique"
-          };
+          return res.status(404).json({
+            error: `Scenario ${scenarioId} not found in database`,
+            code: 'SCENARIO_NOT_FOUND'
+          });
         }
 
         // Return session with actual scenario data
@@ -777,13 +782,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             startTime: new Date(),
             studentEmail: email,
             scenario: {
+              id: scenario.id,
               title: scenario.title,
-              description: scenario.description
+              description: scenario.description,
+              patient_prompt: scenario.patient_prompt,
+              evaluation_criteria: scenario.evaluation_criteria
             }
           },
           messages: [],
           totalMessages: 0,
-          note: 'Session with actual scenario data'
+          note: 'Session with complete scenario data from database'
         });
 
         const session = sessions[0];
@@ -797,21 +805,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalMessages: messages.length
         });
       } catch (dbError) {
-        // Fallback response for when database is not available
-        res.status(200).json({
-          session: {
-            id: sessionId,
-            status: 'active',
-            startTime: new Date(),
-            studentEmail: email,
-            scenario: {
-              title: "Consultation d'urgence - Douleur thoracique",
-              description: "Prendre en charge un patient se présentant avec une douleur thoracique"
-            }
-          },
-          messages: [],
-          totalMessages: 0,
-          note: 'Database not available - mock session data'
+        console.error('❌ Database error retrieving scenario:', dbError);
+        return res.status(500).json({
+          error: 'Database error - unable to retrieve scenario data',
+          code: 'DATABASE_ERROR',
+          details: process.env.NODE_ENV === 'development' ? dbError.message : 'Internal server error'
         });
       }
     } catch (error) {
@@ -934,6 +932,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { sessionId } = req.params;
       const { email } = req.query;
       const { criteria, responses } = req.validatedBody || req.body;
+
+      // Validate criteria format
+      let evaluationCriteria = null;
+      if (criteria) {
+        try {
+          if (typeof criteria === 'string') {
+            evaluationCriteria = JSON.parse(criteria);
+          } else if (typeof criteria === 'object') {
+            evaluationCriteria = criteria;
+          }
+        } catch (parseError) {
+          return res.status(400).json({
+            error: 'Invalid evaluation criteria format',
+            code: 'INVALID_CRITERIA_FORMAT'
+          });
+        }
+      }
 
       // Generate evaluation ID
       const evaluationId = `eval_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1157,6 +1172,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
         scenarioId
       });
+
+      // Validate scenario exists before processing
+      if (scenarioId) {
+        try {
+          const scenarios = await unifiedDb.getScenarios();
+          const scenario = scenarios.find(s => s.id === parseInt(scenarioId));
+          if (!scenario) {
+            return res.status(404).json({
+              error: `Scenario ${scenarioId} not found`,
+              code: 'SCENARIO_NOT_FOUND'
+            });
+          }
+          console.log(`✅ Using scenario: "${scenario.title}" (ID: ${scenarioId})`);
+        } catch (error) {
+          console.error('❌ Error validating scenario:', error);
+          return res.status(500).json({
+            error: 'Failed to validate scenario',
+            code: 'SCENARIO_VALIDATION_FAILED'
+          });
+        }
+      }
 
       // Generate AI-powered patient response with memory and role awareness
       const patientResponse = await virtualPatientService.generatePatientResponse(
