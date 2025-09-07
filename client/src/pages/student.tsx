@@ -140,6 +140,11 @@ export default function StudentPage({ email }: StudentPageProps) {
     setViewingReport(sessionId);
   };
 
+  const handleShowEvaluation = (sessionId: number) => {
+    console.log('Showing evaluation for session:', sessionId);
+    setViewingReport(sessionId);
+  };
+
   // If viewing diagnostic
   if (showDiagnostic) {
     return (
@@ -186,6 +191,7 @@ export default function StudentPage({ email }: StudentPageProps) {
           sessionId={activeSessionId} 
           email={decodedEmail} 
           onSessionEnd={handleSessionEnd}
+          onShowEvaluation={handleShowEvaluation}
         />
       </div>
     );
@@ -373,43 +379,51 @@ export default function StudentPage({ email }: StudentPageProps) {
                           className="relative cursor-pointer" 
                           onClick={() => handleStartSession(scenario.id)}
                         >
-                          {scenario.id === 1 ? (
-                            <img 
-                              src="/images/douleur_thoracique.png"
-                              className="feature-header-image"
-                              alt="Consultation d'urgence - Douleur thoracique"
-                            />
-                          ) : scenario.id === 2 ? (
-                            <img 
-                              src="/images/douleur_thoracic.png"
-                              className="feature-header-image"
-                              alt="Examen de l'épaule douloureuse"
-                            />
-                          ) : scenario.id === 3 ? (
-                            <img 
-                              src="/images/trauma_poignet.png"
-                              className="feature-header-image"
-                              alt="Traumatisme du poignet"
-                            />
-                          ) : scenario.id === 4 ? (
-                            <img 
-                              src="/images/arthrose_de_la_main.png"
-                              className="feature-header-image"
-                              alt="Arthrose de la main"
-                            />
-                          ) : scenario.id === 5 ? (
-                            <img 
-                              src="/images/syndrome_du_canal_carpien.png"
-                              className="feature-header-image"
-                              alt="Syndrome du canal carpien"
-                            />
-                          ) : (
-                            <img 
-                              src="/images/cahier.png"
-                              className="feature-header-image"
-                              alt="Scénario d'examen"
-                            />
-                          )}
+                          {(() => {
+                            // Dynamic image mapping based on scenario ID or title
+                            const getScenarioImage = (scenario: any) => {
+                              const scenarioImages = {
+                                1: "/images/douleur_thoracique.png",
+                                2: "/images/douleur_thoracic.png", 
+                                3: "/images/trauma_poignet.png",
+                                4: "/images/arthrose_de_la_main.png",
+                                5: "/images/syndrome_du_canal_carpien.png",
+                                6: "/images/douleur_thoracic.png", // État de choc - use generic medical image
+                                7: "/images/cahier.png", // Troubles psychiatriques - use generic image
+                              };
+                              
+                              // Use scenario ID if available, otherwise use title matching
+                              if (scenarioImages[scenario.id as keyof typeof scenarioImages]) {
+                                return scenarioImages[scenario.id as keyof typeof scenarioImages];
+                              }
+                              
+                              // Fallback image matching based on title keywords
+                              const title = scenario.title?.toLowerCase() || '';
+                              if (title.includes('thoracique') || title.includes('douleur thoracique')) {
+                                return "/images/douleur_thoracique.png";
+                              } else if (title.includes('épaule')) {
+                                return "/images/douleur_thoracic.png";
+                              } else if (title.includes('poignet') || title.includes('trauma')) {
+                                return "/images/trauma_poignet.png";
+                              } else if (title.includes('arthrose') || title.includes('main')) {
+                                return "/images/arthrose_de_la_main.png";
+                              } else if (title.includes('canal carpien')) {
+                                return "/images/syndrome_du_canal_carpien.png";
+                              } else if (title.includes('choc') || title.includes('personne âgée')) {
+                                return "/images/douleur_thoracic.png";
+                              } else {
+                                return "/images/cahier.png"; // Default image
+                              }
+                            };
+                            
+                            return (
+                              <img 
+                                src={getScenarioImage(scenario)}
+                                className="feature-header-image"
+                                alt={scenario.title}
+                              />
+                            );
+                          })()}
 
                           {/* Overlay qui apparaît au hover */}
                           <div className="feature-overlay-content">

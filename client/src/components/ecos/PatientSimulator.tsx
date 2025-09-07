@@ -11,6 +11,7 @@ interface PatientSimulatorProps {
   sessionId: number;
   email: string;
   onSessionEnd: () => void;
+  onShowEvaluation?: (sessionId: number) => void;
 }
 
 interface Message {
@@ -20,7 +21,7 @@ interface Message {
   timestamp: string;
 }
 
-export default function PatientSimulator({ sessionId, email, onSessionEnd }: PatientSimulatorProps) {
+export default function PatientSimulator({ sessionId, email, onSessionEnd, onShowEvaluation }: PatientSimulatorProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentQuery, setCurrentQuery] = useState("");
   const [sessionStartTime] = useState(new Date());
@@ -91,7 +92,13 @@ export default function PatientSimulator({ sessionId, email, onSessionEnd }: Pat
       });
     },
     onSuccess: () => {
-      onSessionEnd();
+      // If there are messages (meaningful interaction), show evaluation
+      if (messages.length > 0 && onShowEvaluation) {
+        onShowEvaluation(sessionId);
+      } else {
+        // No interaction occurred, go back to dashboard
+        onSessionEnd();
+      }
     },
     onError: (error) => {
       console.error('Error ending session:', error);

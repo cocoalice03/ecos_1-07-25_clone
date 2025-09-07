@@ -31,9 +31,9 @@ export default function EvaluationReport({ sessionId, email }: EvaluationReportP
   const { data: evaluation, isLoading, error } = useQuery({
     queryKey: ['ecos-evaluation', sessionId],
     queryFn: async () => {
-      const response = await apiRequest('POST', '/api/ecos/evaluate', {
-        email,
-        sessionId
+      const response = await apiRequest('POST', `/api/ecos/sessions/${sessionId}/evaluate?email=${email}`, {
+        criteria: ['communication', 'clinical_reasoning', 'empathy', 'professionalism'],
+        responses: [] // Empty for now - should be populated from actual session
       });
       return response as EvaluationData;
     }
