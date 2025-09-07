@@ -293,6 +293,101 @@ export class UnifiedDatabaseService {
   }
 
   /**
+   * Store conversation exchange in database
+   */
+  async storeConversationExchange(exchange: {
+    email: string;
+    question: string;
+    response: string;
+    sessionId?: string;
+    scenarioId?: number;
+    studentRole?: string;
+    contextData?: any;
+  }): Promise<any> {
+    try {
+      const client = await this.getClient();
+      
+      const { data, error } = await client
+        .from('exchanges')
+        .insert({
+          utilisateur_email: exchange.email,
+          question: exchange.question,
+          reponse: exchange.response,
+          session_id: exchange.sessionId,
+          scenario_id: exchange.scenarioId,
+          student_role: exchange.studentRole,
+          context_data: exchange.contextData,
+          timestamp: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error storing conversation exchange:', error);
+        throw error;
+      }
+
+      console.log(`💾 Stored conversation exchange for session ${exchange.sessionId}`);
+      return data;
+    } catch (error: any) {
+      console.error('❌ Failed to store conversation exchange:', error);
+      // Don't throw - conversation storage failure shouldn't break the flow
+      return null;
+    }
+  }
+
+  /**
+   * Get conversation history for a session
+   */
+  async getConversationHistory(sessionId: string, limit: number = 50): Promise<any[]> {
+    try {
+      const client = await this.getClient();
+      
+      const { data, error } = await client
+        .from('exchanges')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('timestamp', { ascending: true })
+        .limit(limit);
+
+      if (error) {
+        console.error('❌ Error fetching conversation history:', error);
+        return [];
+      }
+
+      console.log(`📚 Retrieved ${data?.length || 0} conversation exchanges for session ${sessionId}`);
+      return data || [];
+    } catch (error: any) {
+      console.error('❌ Error fetching conversation history:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent conversations for a student
+   */
+  async getStudentConversations(email: string, limit: number = 100): Promise<any[]> {
+    try {
+      const client = await this.getClient();
+      
+      const { data, error } = await client
+        .from('exchanges')
+        .select('*')
+        .eq('utilisateur_email', email)
+        .order('timestamp', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+
+      console.log(`📚 Retrieved ${data?.length || 0} conversations for student ${email}`);
+      return data || [];
+    } catch (error: any) {
+      console.error('❌ Error fetching student conversations:', error.message);
+      return [];
+    }
+  }
+
+  /**
    * Get metrics for monitoring
    */
   getMetrics(): DatabaseMetrics {

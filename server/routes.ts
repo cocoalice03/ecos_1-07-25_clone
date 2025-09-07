@@ -1009,61 +1009,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Patient simulator endpoint for AI agent messaging 
+  // AI-powered virtual patient simulator with memory and role recognition
   app.post("/api/ecos/patient-simulator", apiRateLimit.middleware(), validateContentType(), validateRequestSize(), async (req: Request, res: Response) => {
     try {
-      const { email, sessionId, query } = req.body;
+      const { email, sessionId, query, scenarioId } = req.body;
       
-      if (!email || !sessionId || !query) {
+      // Import services
+      const { virtualPatientService } = await import('./services/virtual-patient.service.js');
+      
+      // Validate input
+      const validation = virtualPatientService.validateInput({ 
+        sessionId, 
+        email, 
+        query, 
+        scenarioId 
+      });
+      
+      if (!validation.valid) {
         return res.status(400).json({ 
-          error: "Email, sessionId, and query are required",
-          code: "MISSING_REQUIRED_FIELDS"
+          error: validation.error,
+          code: "INVALID_INPUT"
         });
       }
 
-      console.log(`🤖 Patient simulator query from ${email} in session ${sessionId}: ${query}`);
+      console.log(`🤖 AI Patient simulator query from ${email} in session ${sessionId}:`, {
+        query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+        scenarioId
+      });
 
-      // Generate AI patient response based on query
-      // This is a simplified response - in production you'd use actual AI service
-      const patientResponses = [
-        "Je ressens une douleur dans la poitrine qui a commencé il y a environ une heure.",
-        "La douleur est comme une pression, située au centre de ma poitrine.",
-        "Non, je n'ai pas d'allergies connues aux médicaments.",
-        "Oui, j'ai déjà eu des problèmes cardiaques dans ma famille.",
-        "La douleur s'intensifie quand je bouge ou que je respire profondément.",
-        "J'ai aussi ressenti quelques nausées et des sueurs froides.",
-        "Non, je n'ai pas pris de médicaments aujourd'hui.",
-        "Je me sens un peu essoufflé(e) et anxieux(se)."
-      ];
+      // Generate AI-powered patient response with memory and role awareness
+      const patientResponse = await virtualPatientService.generatePatientResponse(
+        sessionId,
+        email,
+        query,
+        scenarioId
+      );
 
-      // Simple response selection based on query content
-      let response = "Pouvez-vous me poser une question plus spécifique, docteur ?";
-      
-      const queryLower = query.toLowerCase();
-      if (queryLower.includes("douleur") || queryLower.includes("mal")) {
-        response = patientResponses[Math.floor(Math.random() * 2)];
-      } else if (queryLower.includes("allergie") || queryLower.includes("médicament")) {
-        response = patientResponses[2];
-      } else if (queryLower.includes("famille") || queryLower.includes("antécédent")) {
-        response = patientResponses[3];
-      } else if (queryLower.includes("symptôme") || queryLower.includes("ressent")) {
-        response = patientResponses[Math.floor(Math.random() * 3) + 4];
-      } else if (queryLower.includes("traitement") || queryLower.includes("pris")) {
-        response = patientResponses[6];
+      // Store conversation in database for analytics and memory persistence
+      try {
+        const memory = virtualPatientService.getConversationMemory?.(sessionId);
+        await unifiedDb.storeConversationExchange({
+          email,
+          question: query,
+          response: patientResponse.response,
+          sessionId,
+          scenarioId,
+          studentRole: patientResponse.addressing,
+          contextData: {
+            medicalContext: patientResponse.medicalContext,
+            timestamp: new Date().toISOString(),
+            responseMetadata: {
+              aiGenerated: true,
+              memoryUsed: !!memory,
+              conversationLength: memory?.conversationHistory?.length || 0
+            }
+          }
+        });
+      } catch (storageError) {
+        console.warn('⚠️ Failed to store conversation exchange:', storageError);
+        // Continue - storage failure shouldn't break patient simulator
       }
 
       res.status(200).json({
-        response,
+        response: patientResponse.response,
         sessionId,
         timestamp: new Date(),
-        message: 'Patient simulator response generated successfully'
+        addressing: patientResponse.addressing,
+        medicalContext: patientResponse.medicalContext,
+        message: 'AI patient response generated with memory and role awareness'
       });
 
-    } catch (error) {
-      console.error('Error in patient simulator:', error);
+    } catch (error: any) {
+      console.error('❌ Error in AI patient simulator:', error);
       res.status(500).json({
-        error: 'Failed to generate patient response',
-        code: 'PATIENT_SIMULATOR_FAILED'
+        error: 'Failed to generate AI patient response',
+        code: 'AI_PATIENT_SIMULATOR_FAILED',
+        details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   });
