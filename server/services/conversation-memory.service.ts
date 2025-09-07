@@ -66,7 +66,7 @@ export class ConversationMemoryService {
       sessionId,
       studentEmail,
       scenarioId,
-      studentRole: 'étudiant', // Default, will be detected
+      studentRole: 'infirmier', // Default to infirmier for ECOS-infirmier platform
       patientPersona: patientPrompt,
       conversationHistory: [],
       lastActivity: new Date(),
@@ -172,7 +172,7 @@ export class ConversationMemoryService {
   } {
     const memory = this.cache.get(sessionId);
     if (!memory) {
-      return { history: '', role: 'étudiant', medicalContext: '' };
+      return { history: '', role: 'infirmier', medicalContext: '' };
     }
 
     // Build conversation history summary
@@ -201,7 +201,7 @@ export class ConversationMemoryService {
    */
   getStudentAddressing(sessionId: string): string {
     const memory = this.cache.get(sessionId);
-    if (!memory) return '';
+    if (!memory) return 'infirmier'; // Default for ECOS-infirmier platform
 
     switch (memory.studentRole) {
       case 'infirmier':
@@ -209,7 +209,7 @@ export class ConversationMemoryService {
       case 'docteur':
         return 'docteur';
       default:
-        return '';
+        return 'infirmier'; // Default for ECOS-infirmier platform
     }
   }
 

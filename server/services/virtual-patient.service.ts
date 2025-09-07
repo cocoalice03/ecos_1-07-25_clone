@@ -100,22 +100,18 @@ export class VirtualPatientService {
       const scenarios = await unifiedDb.getScenarios();
       const scenario = scenarios.find(s => s.id === scenarioId);
       
-      if (scenario?.patient_prompt) {
+      if (scenario?.patient_prompt && scenario.patient_prompt.trim()) {
         console.log(`✅ Using scenario-specific patient prompt for scenario ${scenarioId}`);
         return scenario.patient_prompt;
       }
       
-      console.error(`❌ No patient prompt found for scenario ${scenarioId}. This should not happen in production.`);
-      throw new Error(`Missing patient prompt for scenario ${scenarioId}. Please ensure scenario has proper patient_prompt in database.`);
+      console.warn(`⚠️ No patient prompt found for scenario ${scenarioId}, using fallback prompt`);
+      return this.getDefaultPatientPrompt();
       
     } catch (error) {
       console.error('❌ Error fetching scenario prompt:', error);
-      // Only use default prompt as absolute fallback in development
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('⚠️ Using default prompt in development mode');
-        return this.getDefaultPatientPrompt();
-      }
-      throw error;
+      console.warn('⚠️ Using emergency fallback prompt due to database error');
+      return this.getDefaultPatientPrompt();
     }
   }
 
@@ -165,13 +161,17 @@ IMPORTANT: Si l'étudiant a déjà posé une question similaire, fais référenc
    * Get role-specific instruction
    */
   private getRoleInstruction(addressing: string): string {
+    console.log(`🎭 Generating role instruction for addressing: "${addressing}"`);
+    
     switch (addressing) {
       case 'infirmier':
-        return 'Adresse-toi à l\'infirmier(ère) de manière appropriée. Tu peux demander "Que faites-vous comme soins infirmier?" ou dire "Merci infirmier" quand c\'est approprié.';
+        return 'Adresse-toi à l\'infirmier(ère) de manière appropriée. Tu peux demander "Que faites-vous comme soins infirmier?" ou dire "Merci infirmier/infirmière" quand c\'est approprié.';
       case 'docteur':
         return 'Adresse-toi au docteur de manière formelle. Tu peux dire "Docteur, qu\'est-ce que j\'ai?" ou "Merci docteur" quand c\'est approprié.';
       default:
-        return 'Adresse-toi à l\'étudiant de manière polie. Attends qu\'il/elle se présente pour savoir comment l\'appeler.';
+        // Default to infirmier for ECOS-infirmier platform if no role detected yet
+        console.log('🎭 No specific role detected, defaulting to infirmier addressing for ECOS-infirmier platform');
+        return 'Adresse-toi à l\'infirmier(ère) de manière appropriée. Tu peux demander "Que faites-vous comme soins infirmier?" ou dire "Merci infirmier/infirmière" quand c\'est approprié.';
     }
   }
 
@@ -212,11 +212,27 @@ IMPORTANT: Si l'étudiant a déjà posé une question similaire, fais référenc
   }
 
   /**
-   * Default patient prompt - SHOULD NOT BE USED
-   * Force utilisation des prompts configurés en base de données
+   * Default patient prompt - Emergency fallback only
+   * This should only be used if database scenarios are missing patient prompts
    */
   private getDefaultPatientPrompt(): string {
-    throw new Error('❌ Aucun prompt patient configuré pour ce scénario. Tous les scénarios doivent avoir un patient_prompt défini en base de données. Pas de prompt générique hardcodé.');
+    console.warn('⚠️ Using emergency fallback patient prompt - this indicates missing patient_prompt in database');
+    return `Tu es un patient virtuel dans un exercice de formation médicale ECOS.
+
+CONTEXTE GÉNÉRAL :
+- Tu es un patient qui consulte pour un problème de santé
+- Tu ressens des symptômes que tu peux décrire quand on te pose les bonnes questions
+- Tu es coopératif mais réaliste dans tes réponses
+- Tu peux exprimer de l'inquiétude ou des émotions appropriées
+
+COMPORTEMENT :
+- Réponds aux questions médicales de manière cohérente
+- Ne mentionne que les symptômes qu'on t'a déjà demandés ou qui sont évidents
+- Sois patient et poli avec le personnel soignant
+- Si on te demande des détails spécifiques, tu peux les fournir graduellement
+- Exprime tes préoccupations de santé de manière naturelle
+
+IMPORTANT : Ce prompt générique doit être remplacé par un prompt spécifique au scénario dans la base de données.`;
   }
 
   /**

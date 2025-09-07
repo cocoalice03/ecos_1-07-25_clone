@@ -1115,6 +1115,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const scores: any = {};
         const criteriaArray: any[] = [];
         
+        // If no criteria provided, use default ECOS criteria
+        if (!criteria || (typeof criteria === 'object' && Object.keys(criteria).length === 0)) {
+          console.log('📊 No evaluation criteria found, using default ECOS criteria');
+          criteria = [
+            { name: 'Communication', maxScore: 4, weight: 25 },
+            { name: 'Raisonnement Clinique', maxScore: 4, weight: 25 },
+            { name: 'Empathie', maxScore: 4, weight: 25 },
+            { name: 'Professionnalisme', maxScore: 4, weight: 25 }
+          ];
+        }
+        
         if (Array.isArray(criteria)) {
           // Format array (scenario 5)
           criteria.forEach((criterion: any) => {
@@ -1216,28 +1227,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return weaknesses;
       };
       
+      // Ensure consistent data types to avoid frontend validation errors
+      const feedback = generateDynamicFeedback(criteriaArray, overallScore);
+      const recommendations = generateDynamicRecommendations(criteriaArray, overallScore);
+      const strengths = generateDynamicStrengths(criteriaArray);
+      const weaknesses = generateDynamicWeaknesses(criteriaArray);
+      
+      // Log data types for debugging
+      console.log('📊 Report data types:', {
+        feedback: Array.isArray(feedback) ? 'array' : typeof feedback,
+        recommendations: Array.isArray(recommendations) ? 'array' : typeof recommendations,
+        strengths: Array.isArray(strengths) ? 'array' : typeof strengths,
+        weaknesses: Array.isArray(weaknesses) ? 'array' : typeof weaknesses,
+        criteriaArray: Array.isArray(criteriaArray) ? 'array' : typeof criteriaArray
+      });
+
       res.status(200).json({
         evaluationId: `eval_${sessionId}_${Date.now()}`,
         sessionId,
-        overallScore,
-        scenarioTitle,
-        criteriaScores: scores,
-        criteria: criteriaArray,
-        feedback: generateDynamicFeedback(criteriaArray, overallScore),
-        recommendations: generateDynamicRecommendations(criteriaArray, overallScore),
-        strengths: generateDynamicStrengths(criteriaArray),
-        weaknesses: generateDynamicWeaknesses(criteriaArray),
-        createdAt: new Date(),
-        teacherEmail: email,
+        overallScore: Number(overallScore),
+        scenarioTitle: String(scenarioTitle),
+        criteriaScores: scores || {},
+        criteria: Array.isArray(criteriaArray) ? criteriaArray : [],
+        feedback: Array.isArray(feedback) ? feedback : [feedback],
+        recommendations: Array.isArray(recommendations) ? recommendations : [recommendations],
+        strengths: Array.isArray(strengths) ? strengths : [strengths],
+        weaknesses: Array.isArray(weaknesses) ? weaknesses : [weaknesses],
+        createdAt: new Date().toISOString(),
+        teacherEmail: String(email),
         report: {
           summary: `Session d'examen clinique complétée avec un score global de ${overallScore}%. ${overallScore > 85 ? 'Performance excellente' : overallScore > 75 ? 'Performance satisfaisante' : 'Performance à améliorer'}.`,
           detailedAnalysis: criteriaArray.reduce((analysis, criterion) => {
             analysis[criterion.id] = `${criterion.name}: Score ${criterion.score}/${criterion.maxScore} - ${criterion.feedback}`;
             return analysis;
           }, {} as any),
-          strengths: generateDynamicStrengths(criteriaArray),
-          weaknesses: generateDynamicWeaknesses(criteriaArray),
-          recommendations: generateDynamicRecommendations(criteriaArray, overallScore)
+          strengths: Array.isArray(strengths) ? strengths : [strengths],
+          weaknesses: Array.isArray(weaknesses) ? weaknesses : [weaknesses],
+          recommendations: Array.isArray(recommendations) ? recommendations : [recommendations]
         },
         metadata: {
           generatedAt: new Date().toISOString(),
