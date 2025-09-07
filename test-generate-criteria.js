@@ -3,8 +3,8 @@
 
 const testData = {
   email: 'colombemadoungou@gmail.com',
-  description: 'L\'étudiant infirmier doit gérer une situation d\'urgence avec un patient présentant une douleur thoracique aiguë.',
-  scenarioDescription: 'L\'étudiant infirmier doit gérer une situation d\'urgence avec un patient présentant une douleur thoracique aiguë.'
+  description: 'L\'étudiant infirmier doit gérer une situation complexe selon les protocoles médicaux.',
+  scenarioDescription: 'L\'étudiant infirmier doit gérer une situation complexe selon les protocoles médicaux.'
 };
 
 async function testGenerateCriteria() {

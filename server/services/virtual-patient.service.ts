@@ -131,14 +131,17 @@ export class VirtualPatientService {
     
     return `Tu es un patient virtuel dans un exercice de formation médicale ECOS (Examen Clinique Objectif Structuré).
 
-PERSONNALITÉ ET CONTEXTE DU PATIENT:
+PERSONNALITÉ ET CONTEXTE DU PATIENT (À RESPECTER ABSOLUMENT):
 ${patientPrompt}
 
-INSTRUCTIONS COMPORTEMENTALES:
+INSTRUCTIONS COMPORTEMENTALES CRITIQUES:
 - Parle uniquement en français
-- Reste dans le rôle du patient tout au long de la conversation
-- Réponds de manière réaliste et cohérente avec tes symptômes
+- RESPECTE STRICTEMENT le contexte et les symptômes décrits dans ton prompt de patient
+- NE JAMAIS inventer ou mentionner des symptômes qui ne sont PAS dans ton contexte
+- NE JAMAIS nier des symptômes qui SONT explicitement mentionnés dans ton contexte
+- Si ton prompt mentionne des symptômes spécifiques, tu DOIS les avoir
 - ${roleInstruction}
+- Réponds de manière réaliste et cohérente avec EXACTEMENT tes symptômes décrits
 - Sois coopératif mais réaliste (certaines informations peuvent nécessiter des questions spécifiques)
 - Exprime tes émotions et préoccupations comme un vrai patient
 - Référence les informations déjà échangées dans la conversation
@@ -149,7 +152,13 @@ ${context.medicalContext}
 HISTORIQUE DE LA CONVERSATION:
 ${context.history}
 
-IMPORTANT: Utilise les informations de l'historique pour maintenir la continuité de la conversation. Si l'étudiant a déjà posé une question similaire, fais référence à ta réponse précédente.`;
+RÈGLES D'OR:
+1. RESTE FIDÈLE à ton prompt de patient - ne jamais en dévier
+2. Si ton contexte mentionne des symptômes, tu les as RÉELLEMENT
+3. Ne mentionne JAMAIS de symptômes non inclus dans ton contexte
+4. Utilise l'historique pour maintenir la continuité de la conversation
+
+IMPORTANT: Si l'étudiant a déjà posé une question similaire, fais référence à ta réponse précédente. Respecte ton contexte médical à 100%.`;
   }
 
   /**
@@ -189,40 +198,25 @@ IMPORTANT: Utilise les informations de l'historique pour maintenir la continuit�
 
   /**
    * Extract medical context from AI response
+   * NOTE: Symptômes gérés par le LLM + RAG, pas de hardcode
    */
   private extractMedicalContext(response: string): PatientResponse['medicalContext'] {
-    // Simple extraction - could be enhanced with NLP
-    const symptomsRevealed: string[] = [];
-    const questionsAnswered: string[] = [];
+    // Extraction simplifiée - le LLM gère les symptômes selon ses connaissances
+    // Pas de liste hardcodée de symptômes
     
-    // Extract symptoms mentioned
-    const symptomPatterns = [
-      /douleur/gi, /mal\s/gi, /fièvre/gi, /nausée/gi, /fatigue/gi, /toux/gi,
-      /maux?\s+de\s+tête/gi, /vertiges?/gi, /essoufflement/gi
-    ];
-    
-    symptomPatterns.forEach(pattern => {
-      const matches = response.match(pattern);
-      if (matches) {
-        symptomsRevealed.push(...matches.map(m => m.toLowerCase()));
-      }
-    });
-
     return {
-      symptomsRevealed: [...new Set(symptomsRevealed)], // Remove duplicates
-      questionsAnswered: [], // Could be enhanced to track specific questions answered
-      nextSteps: [] // Could suggest next diagnostic steps
+      symptomsRevealed: [], // LLM + RAG gèrent les symptômes dynamiquement
+      questionsAnswered: [], // Pourrait être amélioré avec NLP
+      nextSteps: [] // Pourrait suggérer les prochaines étapes diagnostiques
     };
   }
 
   /**
-   * Default patient prompt for scenarios without specific prompts
+   * Default patient prompt - SHOULD NOT BE USED
+   * Force utilisation des prompts configurés en base de données
    */
   private getDefaultPatientPrompt(): string {
-    return `Tu es un patient qui consulte pour un problème de santé. Tu es légèrement anxieux mais coopératif. 
-Tu réponds honnêtement aux questions médicales mais tu ne donnes des détails que si on te pose des questions spécifiques. 
-Tu as des symptômes qui t'inquiètent et tu espères obtenir des réponses et de l'aide.
-Tu arrives avec tes propres préoccupations et questions sur ton état de santé.`;
+    throw new Error('❌ Aucun prompt patient configuré pour ce scénario. Tous les scénarios doivent avoir un patient_prompt défini en base de données. Pas de prompt générique hardcodé.');
   }
 
   /**

@@ -1,61 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
 async function createTestScenarios() {
-  console.log('🔧 Creating test scenarios in Supabase...');
+  console.log('❌ DEPRECATED: Test scenario creation with hardcoded medical content');
+  console.log('⚠️ This script contained hardcoded medical scenarios and has been deprecated.');
+  console.log('✅ Use create-correct-scenarios.js instead for legitimate scenarios.');
+  console.log('📋 All scenarios should now be configured in database with specific evaluation criteria.');
   
-  // Convert PostgreSQL URL to Supabase HTTP URL if needed
-  let supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+  return;
   
-  if (supabaseUrl && supabaseUrl.startsWith('postgresql://')) {
-    const match = supabaseUrl.match(/db\.([^.]+)\.supabase\.co/);
-    if (match) {
-      const projectId = match[1];
-      supabaseUrl = `https://${projectId}.supabase.co`;
-    }
-  }
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  
-  try {
-    console.log('✅ Connected to Supabase');
-    
-    const testScenarios = [
-      {
-        title: "Examen d'un patient avec douleur à l'épaule",
-        description: "Le patient présente une douleur à l'épaule droite depuis 2 semaines après une chute",
-        patientPrompt: "Je suis un homme de 45 ans qui a chuté de vélo il y a 2 semaines. Depuis, j'ai une douleur constante à l'épaule droite qui s'aggrave quand je lève le bras.",
-        evaluationCriteria: {
-          anamnese: ["Mécanisme de la chute", "Localisation précise de la douleur", "Facteurs aggravants/soulageants"],
-          examenClinique: ["Inspection", "Palpation", "Tests de mobilité", "Tests spécifiques de l'épaule"]
-        },
-        imageUrl: null,
-        createdBy: "system"
-      },
-      {
-        title: "Consultation pour lombalgie aiguë",
-        description: "Patient se présentant avec une lombalgie aiguë apparue brutalement",
-        patientPrompt: "J'ai 35 ans et j'ai ressenti une douleur intense dans le bas du dos ce matin en soulevant une boîte. La douleur irradie parfois dans ma jambe gauche.",
-        evaluationCriteria: {
-          anamnese: ["Circonstances de survenue", "Irradiation", "Antécédents de lombalgie"],
-          examenClinique: ["Test de Lasègue", "Examen neurologique", "Palpation vertébrale"]
-        },
-        imageUrl: null,
-        createdBy: "system"
-      },
-      {
-        title: "Urgence: Douleur thoracique",
-        description: "Patient aux urgences avec douleur thoracique à évaluer",
-        patientPrompt: "J'ai 58 ans et je ressens une douleur oppressante dans la poitrine depuis 30 minutes. Je suis essoufflé et j'ai des sueurs froides.",
-        evaluationCriteria: {
-          urgence: ["Signes vitaux", "ECG", "Troponines"],
-          anamnese: ["Facteurs de risque cardiovasculaire", "Caractéristiques de la douleur"],
-          examenClinique: ["Auscultation cardiaque", "Examen pulmonaire"]
-        },
-        imageUrl: null,
-        createdBy: "system"
-      }
-    ];
+  // REMOVED: Hardcoded medical test scenarios
+  // - No more hardcoded symptoms (douleur épaule, lombalgie, etc.)
+  // - No more hardcoded patient prompts
+  // - No more hardcoded evaluation criteria
+  // All content should come from database configuration
     
     for (const scenario of testScenarios) {
       try {

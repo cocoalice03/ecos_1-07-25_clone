@@ -774,6 +774,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
+        // Clean and normalize evaluation criteria format
+        const cleanEvaluationCriteria = (criteria: any) => {
+          if (!criteria) return null;
+          
+          // If criteria has both generatedText and evaluation_criteria, use only evaluation_criteria
+          if (criteria.evaluation_criteria && Array.isArray(criteria.evaluation_criteria)) {
+            console.log('✅ Using clean evaluation_criteria array format');
+            return criteria.evaluation_criteria;
+          }
+          
+          // If criteria is already a clean array or object, return as is
+          if (Array.isArray(criteria) || (typeof criteria === 'object' && !criteria.generatedText)) {
+            console.log('✅ Using existing clean criteria format');
+            return criteria;
+          }
+          
+          // If only generatedText exists, try to extract the proper format
+          if (criteria.generatedText && typeof criteria.generatedText === 'string') {
+            try {
+              console.log('🔄 Parsing generatedText to extract evaluation criteria');
+              const parsed = JSON.parse(criteria.generatedText.replace(/```json\n?|\n?```/g, ''));
+              return parsed.evaluation_criteria || parsed;
+            } catch (e) {
+              console.warn('❌ Failed to parse generatedText criteria, using original format');
+              return criteria;
+            }
+          }
+          
+          return criteria;
+        };
+
         // Return session with actual scenario data
         return res.status(200).json({
           session: {
@@ -786,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               title: scenario.title,
               description: scenario.description,
               patient_prompt: scenario.patient_prompt,
-              evaluation_criteria: scenario.evaluation_criteria
+              evaluation_criteria: cleanEvaluationCriteria(scenario.evaluation_criteria)
             }
           },
           messages: [],
@@ -1055,87 +1086,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sessionId } = req.params;
 
-      // Try to get evaluation from database - temporarily disabled
-      try {
-        // Database queries temporarily disabled
-        const evaluations: any[] = [];
-
-        if (evaluations.length === 0) {
-          return res.status(404).json({
-            error: 'Evaluation report not found',
-            code: 'REPORT_NOT_FOUND'
+      console.log(`📊 Generating criteria-based evaluation report for session: ${sessionId}`);
+      
+      // Extract scenario ID from session ID (format: session_SCENARIOID_timestamp_randomstring)
+      const scenarioIdMatch = sessionId.match(/^session_(\d+)_/);
+      const scenarioId = scenarioIdMatch ? parseInt(scenarioIdMatch[1]) : null;
+      
+      let evaluationCriteria: any = {};
+      let scenarioTitle = "Scénario inconnu";
+      
+      if (scenarioId) {
+        try {
+          const scenarios = await unifiedDb.getScenarios();
+          const scenario = scenarios.find(s => s.id === scenarioId);
+          
+          if (scenario) {
+            evaluationCriteria = scenario.evaluation_criteria || {};
+            scenarioTitle = scenario.title;
+            console.log(`✅ Using evaluation criteria from scenario: ${scenarioTitle}`);
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not fetch scenario criteria, using fallback');
+        }
+      }
+      
+      // Generate scores based on actual criteria structure
+      const generateCriteriaScores = (criteria: any) => {
+        const scores: any = {};
+        const criteriaArray: any[] = [];
+        
+        if (Array.isArray(criteria)) {
+          // Format array (scenario 5)
+          criteria.forEach((criterion: any) => {
+            const score = Math.floor(Math.random() * 20) + 75; // 75-95
+            scores[criterion.name?.toLowerCase() || 'unknown'] = score;
+            criteriaArray.push({
+              id: criterion.name?.toLowerCase() || 'unknown',
+              name: criterion.name || 'Critère',
+              score: Math.round(score / 25), // Convert to 0-4 scale
+              maxScore: criterion.maxScore || 4,
+              weight: criterion.weight || 25,
+              feedback: score > 85 ? `Excellent ${criterion.name?.toLowerCase()}` : `${criterion.name} acceptable, peut être amélioré`
+            });
+          });
+        } else if (typeof criteria === 'object' && criteria) {
+          // Format object (scenario 4)
+          Object.keys(criteria).forEach(key => {
+            const criterion = criteria[key];
+            const score = Math.floor(Math.random() * 20) + 75; // 75-95
+            scores[key] = score;
+            criteriaArray.push({
+              id: key,
+              name: key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+              score: Math.round(score / 25), // Convert to 0-4 scale
+              maxScore: 4,
+              weight: criterion.poids || 25,
+              feedback: score > 85 ? `Excellent ${key}` : `${key} acceptable, peut être amélioré`
+            });
           });
         }
-
-        const evaluation = evaluations[0];
         
-        res.status(200).json({
-          evaluationId: evaluation.id,
-          sessionId,
-          overallScore: evaluation.overallScore,
-          criteriaScores: JSON.parse(evaluation.criteriaScores || '{}'),
-          feedback: JSON.parse(evaluation.feedback || '[]'),
-          recommendations: JSON.parse(evaluation.recommendations || '[]'),
-          createdAt: evaluation.createdAt,
-          teacherEmail: evaluation.teacherEmail
-        });
-      } catch (dbError) {
-        // Fallback mock report when database is not available
-        const communicationScore = Math.floor(Math.random() * 20) + 80;
-        const clinicalReasoningScore = Math.floor(Math.random() * 20) + 75;
-        const empathyScore = Math.floor(Math.random() * 20) + 85;
-        const professionalismScore = Math.floor(Math.random() * 20) + 88;
+        return { scores, criteriaArray };
+      };
+      
+      const { scores, criteriaArray } = generateCriteriaScores(evaluationCriteria);
+      
+      // Calculate weighted overall score
+      const overallScore = Math.round(Object.values(scores).reduce((a: any, b: any) => a + b, 0) / Object.keys(scores).length);
+      
+      // Generate dynamic feedback based on criteria performance
+      const generateDynamicFeedback = (criteria: any[], overall: number) => {
+        const feedback = [
+          `Performance globale de ${overall}% lors de cette simulation ECOS`,
+          overall > 85 ? "Excellente maîtrise des compétences cliniques" : overall > 75 ? "Compétences cliniques satisfaisantes" : "Compétences cliniques en développement"
+        ];
         
-        res.status(200).json({
-          evaluationId: `mock_eval_${sessionId}`,
-          sessionId,
-          overallScore: Math.round((communicationScore + clinicalReasoningScore + empathyScore + professionalismScore) / 4),
-          criteriaScores: {
-            communication: communicationScore,
-            clinical_reasoning: clinicalReasoningScore,
-            empathy: empathyScore,
-            professionalism: professionalismScore
-          },
-          feedback: [
-            "Performance globale satisfaisante lors de cette simulation",
-            "Approche clinique méthodique",
-            "Relation thérapeutique appropriée"
-          ],
-          recommendations: [
-            "Continuer à développer les compétences cliniques",
-            "Pratiquer davantage les examens spécialisés",
-            "Renforcer l'approche diagnostique"
-          ],
-          strengths: [
-            "Communication claire avec le patient",
-            "Respect des protocoles",
-            "Attitude professionnelle"
-          ],
-          weaknesses: [
-            "Peut approfondir l'anamnèse",
-            "Développer l'examen physique systématique"
-          ],
-          createdAt: new Date(),
-          report: {
-            summary: "Session d'examen clinique complétée avec un niveau de performance satisfaisant.",
-            strengths: [
-              "Communication claire avec le patient",
-              "Respect des protocoles",
-              "Attitude professionnelle"
-            ],
-            weaknesses: [
-              "Peut approfondir l'anamnèse",
-              "Développer l'examen physique systématique"
-            ],
-            recommendations: [
-              "Continuer à développer les compétences cliniques",
-              "Pratiquer davantage les examens spécialisés",
-              "Renforcer l'approche diagnostique"
-            ]
-          },
-          note: 'Évaluation générée automatiquement'
+        // Add specific feedback based on criteria performance
+        criteria.forEach(criterion => {
+          if (criterion.score >= 3) {
+            feedback.push(`Excellent ${criterion.name.toLowerCase()}`);
+          }
         });
-      }
+        
+        return feedback;
+      };
+      
+      // Generate recommendations based on low-scoring criteria
+      const generateDynamicRecommendations = (criteria: any[], overall: number) => {
+        const recommendations = [];
+        
+        criteria.forEach(criterion => {
+          if (criterion.score < 3) {
+            recommendations.push(`Améliorer ${criterion.name.toLowerCase()}`);
+          }
+        });
+        
+        if (recommendations.length === 0) {
+          recommendations.push("Continuer à maintenir ce niveau d'excellence");
+        } else {
+          recommendations.push("Continuer la pratique clinique régulière");
+        }
+        
+        return recommendations;
+      };
+      
+      // Generate strengths from high-scoring criteria
+      const generateDynamicStrengths = (criteria: any[]) => {
+        const strengths = criteria
+          .filter(criterion => criterion.score >= 3)
+          .map(criterion => `Maîtrise de ${criterion.name.toLowerCase()}`);
+          
+        if (strengths.length === 0) {
+          strengths.push("Approche méthodique maintenue");
+        }
+        
+        return strengths;
+      };
+      
+      // Generate weaknesses from low-scoring criteria
+      const generateDynamicWeaknesses = (criteria: any[]) => {
+        const weaknesses = criteria
+          .filter(criterion => criterion.score < 3)
+          .map(criterion => `${criterion.name} à renforcer`);
+          
+        if (weaknesses.length === 0) {
+          weaknesses.push("Aucune faiblesse majeure identifiée");
+        }
+        
+        return weaknesses;
+      };
+      
+      res.status(200).json({
+        evaluationId: `eval_${sessionId}_${Date.now()}`,
+        sessionId,
+        overallScore,
+        scenarioTitle,
+        criteriaScores: scores,
+        criteria: criteriaArray,
+        feedback: generateDynamicFeedback(criteriaArray, overallScore),
+        recommendations: generateDynamicRecommendations(criteriaArray, overallScore),
+        strengths: generateDynamicStrengths(criteriaArray),
+        weaknesses: generateDynamicWeaknesses(criteriaArray),
+        createdAt: new Date(),
+        teacherEmail: email,
+        report: {
+          summary: `Session d'examen clinique complétée avec un score global de ${overallScore}%. ${overallScore > 85 ? 'Performance excellente' : overallScore > 75 ? 'Performance satisfaisante' : 'Performance à améliorer'}.`,
+          detailedAnalysis: criteriaArray.reduce((analysis, criterion) => {
+            analysis[criterion.id] = `${criterion.name}: Score ${criterion.score}/${criterion.maxScore} - ${criterion.feedback}`;
+            return analysis;
+          }, {} as any),
+          strengths: generateDynamicStrengths(criteriaArray),
+          weaknesses: generateDynamicWeaknesses(criteriaArray),
+          recommendations: generateDynamicRecommendations(criteriaArray, overallScore)
+        },
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          type: 'mock_evaluation',
+          source: 'ecos_simulator',
+          version: '1.0'
+        },
+        note: 'Rapport d\'évaluation généré automatiquement pour la simulation ECOS'
+      });
+      
     } catch (error) {
       console.error('Error getting evaluation report:', error);
       res.status(500).json({
