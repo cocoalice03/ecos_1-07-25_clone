@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { CircuitBreakerError } from './circuit-breaker.middleware.js';
+import { logger } from '../services/logger.service.js';
 
 export enum ErrorCode {
   // General errors
@@ -114,6 +115,22 @@ export class APIError extends Error {
   static internal(message: string = 'Internal server error'): APIError {
     return new APIError(message, 500, ErrorCode.INTERNAL_ERROR);
   }
+
+  static sessionNotFound(message: string = 'Session not found'): APIError {
+    return new APIError(message, 404, ErrorCode.SESSION_NOT_FOUND);
+  }
+
+  static scenarioNotFound(message: string = 'Scenario not found'): APIError {
+    return new APIError(message, 404, ErrorCode.SCENARIO_NOT_FOUND);
+  }
+
+  static evaluationFailed(message: string = 'Evaluation failed'): APIError {
+    return new APIError(message, 422, ErrorCode.EVALUATION_FAILED);
+  }
+
+  static externalServiceError(message: string, details?: ErrorDetails[]): APIError {
+    return new APIError(message, 503, ErrorCode.EXTERNAL_SERVICE_ERROR, details);
+  }
 }
 
 interface ErrorResponse {
@@ -209,18 +226,17 @@ export class ErrorHandler {
   // Handle unhandled promise rejections
   public setupGlobalHandlers() {
     process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-      console.error('Unhandled Promise Rejection:', reason);
-      console.error('Promise:', promise);
+      logger.error('Unhandled Promise Rejection', { reason, promise: promise.toString() });
       
       // In production, you might want to gracefully shutdown
       if (process.env.NODE_ENV === 'production') {
-        console.error('Shutting down due to unhandled promise rejection');
+        logger.error('Shutting down due to unhandled promise rejection');
         process.exit(1);
       }
     });
 
     process.on('uncaughtException', (error: Error) => {
-      console.error('Uncaught Exception:', error);
+      logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
       
       // Always exit on uncaught exceptions
       process.exit(1);
@@ -263,7 +279,6 @@ export class ErrorHandler {
 
   private logError(originalError: any, req: Request, apiError: APIError) {
     const logData = {
-      timestamp: new Date().toISOString(),
       requestId: apiError.requestId,
       method: req.method,
       path: req.path,
@@ -280,9 +295,9 @@ export class ErrorHandler {
     };
 
     if (apiError.statusCode >= 500) {
-      console.error('Server Error:', JSON.stringify(logData, null, 2));
+      logger.error('API Error - Server', logData);
     } else if (apiError.statusCode >= 400) {
-      console.warn('Client Error:', JSON.stringify(logData, null, 2));
+      logger.warn('API Error - Client', logData);
     }
   }
 
@@ -335,6 +350,22 @@ export const notFoundHandler = errorHandler.notFoundHandler.bind(errorHandler);
 // Global error handling setup
 export const setupGlobalErrorHandling = () => {
   errorHandler.setupGlobalHandlers();
+};
+
+// Helper function for consistent error responses
+export const sendErrorResponse = (res: Response, error: APIError) => {
+  const response: ErrorResponse = {
+    error: error.message,
+    code: error.code,
+    statusCode: error.statusCode,
+    timestamp: error.timestamp.toISOString(),
+    path: res.req?.path || '',
+    method: res.req?.method || '',
+    requestId: error.requestId,
+    details: error.details
+  };
+
+  res.status(error.statusCode).json(response);
 };
 
 // Declare module augmentation for Request

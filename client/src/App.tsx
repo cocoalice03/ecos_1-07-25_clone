@@ -44,9 +44,19 @@ function Router({ email }: { email: string | null }) {
           // Extract scenario from URL params
           const urlParams = new URLSearchParams(window.location.search);
           const scenario = urlParams.get('scenario');
-          // Use the admin email for testing since authentication is working
-          const email = 'cherubindavid@gmail.com';
-          return <StudentPage email={email} />;
+          // Use stored email or require proper authentication
+          const storedEmail = getStoredEmail();
+          if (!storedEmail) {
+            return (
+              <div className="flex items-center justify-center min-h-screen bg-neutral-50">
+                <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-card text-center">
+                  <h3 className="font-heading font-semibold text-xl mb-2">Authentication Required</h3>
+                  <p className="text-neutral-600 mb-4">Please access the student page with your email in the URL: /student/your-email@domain.com</p>
+                </div>
+              </div>
+            );
+          }
+          return <StudentPage email={storedEmail} />;
         }}
       </Route>
       <Route path="/chat/:email">
@@ -91,7 +101,7 @@ function App({ initialEmail }: AppProps) {
   const [email, setEmail] = useState<string | null>(initialEmail);
   const [authenticating, setAuthenticating] = useState<boolean>(!!initialEmail);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [userEmail, setUserEmail] = useState<string>('cherubindavid@gmail.com');
+  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
     async function authenticateUser() {
@@ -132,17 +142,13 @@ function App({ initialEmail }: AppProps) {
         if (storedEmail) {
           setEmail(storedEmail);
         } else {
-          // Fallback pour le développement - utiliser l'email admin
-          const testEmail = 'cherubindavid@gmail.com';
-          console.log('Using admin email for debugging:', testEmail);
-          setEmail(testEmail);
-          // Authentifier avec Firebase pour la cohérence
-          await authenticateWithEmail(testEmail);
+          // No stored email found - require user to provide email through URL
+          setEmail(null);
         }
       } catch (error) {
         console.error('Error detecting user:', error);
-        const testEmail = 'cherubindavid@gmail.com';
-        setEmail(testEmail);
+        // Don't set a fallback email - require proper authentication
+        setEmail(null);
       } finally {
         setIsLoading(false);
       }
@@ -182,7 +188,9 @@ function App({ initialEmail }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router email={email} />
+        <Route path=".*">
+          <Router email={email} />
+        </Route>
       </TooltipProvider>
     </QueryClientProvider>
   );

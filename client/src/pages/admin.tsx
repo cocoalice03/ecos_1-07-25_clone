@@ -45,8 +45,35 @@ export default function AdminPage() {
   const adminEmail = params.get('email') || '';
 
   // Admin authorization check
-  const ADMIN_EMAILS = ['cherubindavid@gmail.com', 'colombemadoungou@gmail.com'];
-  const isAuthorized = ADMIN_EMAILS.includes(adminEmail.toLowerCase());
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function checkAdminStatus() {
+      if (!adminEmail) {
+        setIsAuthorized(false);
+        setAuthLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/auth/check-admin?email=${encodeURIComponent(adminEmail)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsAuthorized(data.isAdmin);
+        } else {
+          setIsAuthorized(false);
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        setIsAuthorized(false);
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+
+    checkAdminStatus();
+  }, [adminEmail]);
 
   // Document upload state
   const [documentData, setDocumentData] = useState<DocumentData>({
@@ -391,6 +418,18 @@ export default function AdminPage() {
       });
     }
   };
+
+  // Check authorization loading state
+  if (authLoading) {
+    return (
+      <div className="container mx-auto p-6 max-w-2xl">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Vérification des autorisations...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Check authorization
   if (!isAuthorized) {

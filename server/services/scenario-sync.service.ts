@@ -1,5 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { SupabaseClientService } from './supabase-client.service.js';
+import { unifiedDb } from './unified-database.service.js';
 
 interface PineconeMetadata {
   title?: string;
@@ -14,11 +14,10 @@ export class ScenarioSyncService {
   private pinecone: Pinecone | null;
   private indexName: string;
   private namespace: string;
-  private dbService: SupabaseClientService;
+  // Remove dbService as we're using the unified database service
   private pineconeEnabled: boolean;
 
   constructor() {
-    this.dbService = new SupabaseClientService();
     
     if (!process.env.PINECONE_API_KEY) {
       console.warn('⚠️  PINECONE_API_KEY not provided, Pinecone features will be disabled');
@@ -37,7 +36,6 @@ export class ScenarioSyncService {
     
     this.indexName = process.env.PINECONE_INDEX_NAME || 'arthrologie-du-membre-superieur';
     this.namespace = process.env.PINECONE_NAMESPACE || 'default';
-    this.dbService = new SupabaseClientService();
   }
 
   async syncScenariosFromPinecone(): Promise<void> {
@@ -49,7 +47,7 @@ export class ScenarioSyncService {
     try {
       console.log('🔍 Synchronizing scenarios from Pinecone...');
       
-      await this.dbService.connect();
+      await unifiedDb.initialize(); // Ensure database is initialized
       
       const index = this.pinecone.index(this.indexName);
       
@@ -80,8 +78,9 @@ export class ScenarioSyncService {
         }
 
         try {
-          // Create scenario in Supabase
-          await this.dbService.createScenario({
+          // Create scenario using unified database service
+          await unifiedDb.initialize(); // Ensure database is initialized
+          await unifiedDb.createScenario({
             title: metadata.title,
             description: metadata.description,
             patientPrompt: metadata.patientPrompt,
@@ -109,8 +108,8 @@ export class ScenarioSyncService {
 
   async getAvailableScenarios(): Promise<any[]> {
     try {
-      await this.dbService.connect();
-      return await this.dbService.getScenarios();
+      await unifiedDb.initialize(); // Ensure database is initialized
+      return await unifiedDb.getScenarios();
     } catch (error) {
       console.error('❌ Error fetching scenarios from Supabase:', error);
       throw error;
@@ -119,8 +118,8 @@ export class ScenarioSyncService {
 
   async getScenarioById(id: string): Promise<any | null> {
     try {
-      await this.dbService.connect();
-      const scenarios = await this.dbService.getScenarios();
+      await unifiedDb.initialize(); // Ensure database is initialized
+      const scenarios = await unifiedDb.getScenarios();
       return scenarios.find(s => s.id === id) || null;
     } catch (error) {
       console.error('❌ Error fetching scenario by ID from Supabase:', error);

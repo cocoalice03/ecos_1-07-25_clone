@@ -32,6 +32,8 @@ import {
   emailBasedRateLimit,
   ecosSessionRateLimit
 } from './middleware/rate-limit.middleware.js';
+import { APIError, asyncHandler, sendErrorResponse } from './middleware/error-handler.middleware.js';
+import { apiLogger } from './services/logger.service.js';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -122,22 +124,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Check if email has admin privileges
+  app.get("/api/auth/check-admin", asyncHandler(async (req: Request, res: Response) => {
+    const email = req.query.email as string;
+    
+    if (!email) {
+      throw APIError.badRequest('Email parameter required');
+    }
+
+    const isAdmin = authService.isAdmin(email);
+    res.status(200).json({ 
+      isAdmin,
+      email: email.toLowerCase().trim()
+    });
+  }));
+
   // Route to sync scenarios from Pinecone - supports both auth methods during transition
-  app.post("/api/admin/sync-scenarios", async (req: Request, res: Response) => {
+  app.post("/api/admin/sync-scenarios", asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.query;
     
     if (!email || !isAdminAuthorized(email as string)) {
-      return res.status(403).json({ message: "Accès non autorisé" });
+      throw APIError.forbidden("Accès non autorisé");
     }
 
-    try {
-      await scenarioSyncService.syncScenariosFromPinecone();
-      res.status(200).json({ message: "Synchronisation des scénarios terminée avec succès" });
-    } catch (error: any) {
-      console.error("Error syncing scenarios:", error);
-      res.status(500).json({ message: "Erreur lors de la synchronisation des scénarios" });
-    }
-  });
+    await scenarioSyncService.syncScenariosFromPinecone();
+    res.status(200).json({ message: "Synchronisation des scénarios terminée avec succès" });
+  }));
 
   // Route to test direct database connection and fetch scenarios
   app.get("/api/admin/test-db", async (req: Request, res: Response) => {
@@ -148,12 +160,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { alternativeSupabaseService } = await import('./services/alternative-supabase.service');
+      console.log('🔧 Testing database connection via unified service...');
+      await unifiedDb.init(); // Ensure database is initialized
       
-      console.log('🔧 Testing alternative Supabase connection...');
-      await alternativeSupabaseService.testConnection();
-      
-      const scenarios = await alternativeSupabaseService.getScenarios();
+      const scenarios = await unifiedDb.getScenarios();
       
       res.status(200).json({ 
         connected: true,
@@ -290,11 +300,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
-      const dbService = new SupabaseClientService();
-      await dbService.connect();
+      // Use unified database service for scenario creation
+      await unifiedDb.initialize(); // Ensure database is initialized
 
-      const newScenario = await dbService.createScenario({
+      const newScenario = await unifiedDb.createScenario({
         title,
         description,
         patientPrompt: patientPrompt || null,
@@ -350,11 +359,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
-      const dbService = new SupabaseClientService();
-      await dbService.connect();
+      // Use unified database service for scenario updates
+      await unifiedDb.initialize(); // Ensure database is initialized
 
-      const updatedScenario = await dbService.updateScenario(id, {
+      const updatedScenario = await unifiedDb.updateScenario(id, {
         title,
         description,
         patientPrompt: patientPrompt || null,
@@ -386,11 +394,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
-      const dbService = new SupabaseClientService();
-      await dbService.connect();
+      // Use unified database service for scenario deletion
+      await unifiedDb.initialize(); // Ensure database is initialized
 
-      await dbService.deleteScenario(id);
+      await unifiedDb.deleteScenario(id);
 
       res.status(200).json({ 
         message: "Scénario supprimé avec succès"
@@ -591,18 +598,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin health check 
   app.get("/api/admin/health", async (req: Request, res: Response) => {
     try {
-      const { SupabaseClientService } = await import('./services/supabase-client.service.js');
-      const dbService = new SupabaseClientService();
-      
-      try {
-        await dbService.connect();
-        res.status(200).json({ status: 'healthy', message: 'Database connection is working.' });
-      } catch (error) {
-        res.status(500).json({ status: 'unhealthy', error: 'Database connection failed' });
-      }
+      // Use unified database service for health check
+      const healthResult = await unifiedDb.healthCheck();
+      res.status(200).json({ 
+        status: 'healthy', 
+        message: 'Database connection is working.',
+        metrics: healthResult.metrics,
+        uptime: healthResult.uptime
+      });
     } catch (error: any) {
       console.error('Health check failed:', error);
-      res.status(500).json({ status: 'error', message: 'Health check failed.', error: error.message });
+      res.status(500).json({ 
+        status: 'unhealthy', 
+        message: 'Database connection failed', 
+        error: error.message 
+      });
     }
   });
 

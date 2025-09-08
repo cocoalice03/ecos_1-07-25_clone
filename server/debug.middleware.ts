@@ -1,20 +1,29 @@
 
-export function createDebugMiddleware() {
-  return (req: any, res: any, next: any) => {
-    // Log all requests in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`🔄 ${req.method} ${req.path}`, {
-        query: req.query,
-        body: req.body ? Object.keys(req.body) : undefined,
-        timestamp: new Date().toISOString()
-      });
-    }
+import { apiLogger } from "./services/logger.service.js";
 
-    // Catch async errors
+export function createDebugMiddleware() {
+  // Only enable debug middleware in development
+  if (process.env.NODE_ENV !== 'development') {
+    return (req: any, res: any, next: any) => next();
+  }
+
+  return (req: any, res: any, next: any) => {
+    // Log all requests in development only
+    apiLogger.request(req.method, req.path, undefined, undefined, {
+      query: req.query,
+      bodyKeys: req.body ? Object.keys(req.body) : undefined
+    });
+
+    // Catch async errors in development only
     const originalSend = res.send;
     res.send = function(data: any) {
       if (res.statusCode >= 400) {
-        console.error(`❌ Error response ${res.statusCode} for ${req.method} ${req.path}:`, data);
+        apiLogger.error(`Error response ${res.statusCode} for ${req.method} ${req.path}`, {
+          statusCode: res.statusCode,
+          method: req.method,
+          path: req.path,
+          responseData: typeof data === 'object' ? data : { message: data }
+        });
       }
       return originalSend.call(this, data);
     };
@@ -26,7 +35,12 @@ export function createDebugMiddleware() {
 export function createDatabaseErrorHandler() {
   return (error: any, req: any, res: any, next: any) => {
     if (error.code === 'CONNECTION_LOST' || error.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.error('🔴 Database connection lost:', error);
+      apiLogger.error('Database connection lost', { 
+        errorCode: error.code, 
+        message: error.message,
+        path: req.path,
+        method: req.method
+      });
       return res.status(503).json({
         error: 'Database connection lost',
         message: 'The database connection was lost. Please try again.',
@@ -35,7 +49,11 @@ export function createDatabaseErrorHandler() {
     }
 
     if (error.message && error.message.includes('WebSocket')) {
-      console.error('🔴 WebSocket database error:', error);
+      apiLogger.error('WebSocket database error', { 
+        message: error.message,
+        path: req.path,
+        method: req.method
+      });
       return res.status(503).json({
         error: 'Database WebSocket error',
         message: 'WebSocket connection to database failed. Please try again.',

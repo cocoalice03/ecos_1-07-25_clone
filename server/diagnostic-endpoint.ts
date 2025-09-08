@@ -1,12 +1,13 @@
 
 import { Request, Response } from "express";
+import { authService } from "./middleware/auth.middleware.js";
 
 export function addDiagnosticRoutes(app: any) {
   // Auth debugging endpoint
   app.get("/api/diagnostic/auth-check", async (req: Request, res: Response) => {
     try {
       const { email } = req.query;
-      const ADMIN_EMAILS = ['cherubindavid@gmail.com', 'colombemadoungou@gmail.com'];
+      const ADMIN_EMAILS = authService.getAdminEmails();
       
       const authInfo = {
         receivedEmail: email,
@@ -14,9 +15,8 @@ export function addDiagnosticRoutes(app: any) {
         emailString: String(email || ''),
         emailLowerCase: String(email || '').toLowerCase(),
         adminEmails: ADMIN_EMAILS,
-        isAuthorized: ADMIN_EMAILS.includes(String(email || '').toLowerCase()),
-        directCheck: email === 'cherubindavid@gmail.com',
-        includes: ADMIN_EMAILS.includes(email as string),
+        isAuthorized: authService.isAdmin(String(email || '')),
+        includes: ADMIN_EMAILS.includes(String(email || '').toLowerCase()),
         query: req.query,
         timestamp: new Date().toISOString()
       };
@@ -34,16 +34,7 @@ export function addDiagnosticRoutes(app: any) {
   app.get("/api/diagnostic/auth-test", async (req: Request, res: Response) => {
     try {
       const { email } = req.query;
-      const ADMIN_EMAILS = ['cherubindavid@gmail.com', 'colombemadoungou@gmail.com'];
-      
-      function testIsAdminAuthorized(email: string): boolean {
-        if (!email || typeof email !== 'string') {
-          return false;
-        }
-        const normalizedEmail = email.toLowerCase().trim();
-        const normalizedAdminEmails = ADMIN_EMAILS.map(adminEmail => adminEmail.toLowerCase().trim());
-        return normalizedAdminEmails.includes(normalizedEmail);
-      }
+      const ADMIN_EMAILS = authService.getAdminEmails();
       
       const result = {
         inputEmail: email,
@@ -52,7 +43,7 @@ export function addDiagnosticRoutes(app: any) {
         normalizedEmail: typeof email === 'string' ? email.toLowerCase().trim() : null,
         adminEmails: ADMIN_EMAILS,
         normalizedAdminEmails: ADMIN_EMAILS.map(e => e.toLowerCase().trim()),
-        isAuthorized: testIsAdminAuthorized(email as string),
+        isAuthorized: authService.isAdmin(email as string),
         timestamp: new Date().toISOString()
       };
       

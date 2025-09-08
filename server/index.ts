@@ -1,7 +1,3 @@
-// Load environment variables first
-import dotenv from "dotenv";
-dotenv.config();
-
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
@@ -19,13 +15,14 @@ import {
 } from "./middleware/error-handler.middleware.js";
 import { startupSequencer } from "./services/startup-sequencer.service.js";
 import { createReadinessGate, addReadinessHeaders } from "./middleware/readiness-gate.middleware.js";
+import { logger } from "./services/logger.service.js";
 
 
 // Simplified environment validation
 function validateEnvironment() {
   const missing = ['DATABASE_URL', 'OPENAI_API_KEY', 'PINECONE_API_KEY'].filter(v => !process.env[v]);
   if (missing.length > 0) {
-    console.warn(`Missing environment variables: ${missing.join(', ')}`);
+    logger.warn(`Missing environment variables: ${missing.join(', ')}`, { missingVariables: missing });
   }
 }
 
@@ -55,7 +52,13 @@ app.use(createDatabaseErrorHandler());
 
 // Health check endpoint with robust error handling
 app.get('/health', async (req: Request, res: Response) => {
-  const healthStatus = {
+  const healthStatus: {
+    status: string;
+    timestamp: string;
+    environment: string;
+    services: { database: string; server: string; };
+    uptime?: number;
+  } = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
@@ -89,7 +92,7 @@ app.get('/health', async (req: Request, res: Response) => {
     res.status(200).json(healthStatus);
   } catch (error) {
     // Never let the health check crash the server
-    console.error('Health check error:', error);
+    logger.error('Health check error', { error: error instanceof Error ? error.message : String(error) });
     res.status(200).json({
       status: 'degraded',
       timestamp: new Date().toISOString(),
@@ -126,7 +129,7 @@ app.get('/ready', (req: Request, res: Response) => {
     }
   } catch (error) {
     // Even readiness check should not crash
-    console.error('Ready check error:', error);
+    logger.error('Ready check error', { error: error instanceof Error ? error.message : String(error) });
     res.status(503).json({
       status: 'not-ready',
       timestamp: new Date().toISOString(),
@@ -154,38 +157,9 @@ app.get('/circuit-breaker', (req: Request, res: Response) => {
 // Rate limiter status endpoint
 app.get('/rate-limit-status', rateLimitStatus());
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
 
 (async () => {
-  console.log('Starting ECOS-Infirmier Application...');
+  logger.info('Starting ECOS-Infirmier Application...');
   
   // Validate environment
   validateEnvironment();
@@ -194,13 +168,13 @@ app.use((req, res, next) => {
   addDiagnosticRoutes(app);
 
   // Initialize services in sequence (CRITICAL for stability)
-  console.log('🚀 Initializing services sequentially...');
+  logger.info('🚀 Initializing services sequentially...');
   try {
     await startupSequencer.waitForReady(30000); // 30 second timeout
-    console.log('✅ All services ready - server can now accept requests');
+    logger.info('✅ All services ready - server can now accept requests');
   } catch (error: any) {
-    console.warn('⚠️ Service initialization incomplete:', error.message);
-    console.log('⚠️ Server will start in degraded mode');
+    logger.warn('⚠️ Service initialization incomplete', { error: error.message });
+    logger.warn('⚠️ Server will start in degraded mode');
   }
 
   // Setup routes
@@ -236,38 +210,46 @@ app.use((req, res, next) => {
 
   // Start server with error handling
   const port = parseInt(process.env.PORT || '5000', 10);
-  const host = '0.0.0.0';
+  const host = '127.0.0.1';
   
   server.on('error', (error: any) => {
     if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is already in use. Please stop any running servers and try again.`);
+      logger.error(`Port ${port} is already in use. Please stop any running servers and try again.`, { port, code: error.code });
       process.exit(1);
     } else {
-      console.error('Server error:', error.message);
+      logger.error('Server error', { error: error.message, code: error.code });
       process.exit(1);
     }
   });
   
   server.listen(port, host, () => {
-    console.log('Server started successfully');
-    console.log(`Listening on http://${host}:${port}`);
-    console.log(`Health check: http://${host}:${port}/health`);
-    console.log(`Ready check: http://${host}:${port}/ready`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info('Server started successfully', {
+      host,
+      port,
+      environment: process.env.NODE_ENV || 'development',
+      urls: {
+        app: `http://${host}:${port}`,
+        health: `http://${host}:${port}/health`,
+        ready: `http://${host}:${port}/ready`
+      }
+    });
   });
 
   // Graceful shutdown
   process.on('SIGTERM', () => {
-    console.log('Received SIGTERM, shutting down gracefully');
+    logger.info('Received SIGTERM, shutting down gracefully');
     server.close(() => process.exit(0));
   });
 
   process.on('SIGINT', () => {
-    console.log('Received SIGINT, shutting down gracefully');
+    logger.info('Received SIGINT, shutting down gracefully');
     server.close(() => process.exit(0));
   });
 
 })().catch((error) => {
-  console.error('Application startup failed:', error instanceof Error ? error.message : String(error));
+  logger.error('Application startup failed', { 
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined
+  });
   process.exit(1);
 });

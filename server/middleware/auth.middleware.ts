@@ -40,9 +40,9 @@ class AuthenticationService {
       );
       console.log(`✅ Loaded ${this.adminEmails.size} admin emails from environment`);
     } else {
-      // Fallback for development only
-      this.adminEmails = new Set(['cherubindavid@gmail.com']);
-      console.warn('⚠️ Using fallback admin email for development. Set ADMIN_EMAILS environment variable.');
+      // No fallback - require proper environment configuration
+      this.adminEmails = new Set();
+      console.error('❌ No admin emails configured! Set ADMIN_EMAILS environment variable.');
     }
   }
 

@@ -1,3 +1,5 @@
+import { logger } from "../services/logger.service.js";
+
 export enum CircuitBreakerState {
   CLOSED = 'CLOSED',
   OPEN = 'OPEN',
@@ -28,10 +30,10 @@ export class DatabaseCircuitBreaker {
 
   constructor(options: Partial<CircuitBreakerOptions> = {}) {
     this.options = {
-      failureThreshold: 15, // Increased from 5 to reduce false positives
-      recoveryTimeMs: 30000, // Reduced from 60s to 30s for faster recovery
-      monitoringPeriodMs: 180000, // Increased to 3 minutes for better stability
-      expectedFailureRate: 0.7, // Increased tolerance from 0.5 to 0.7
+      failureThreshold: 10, // Reasonable threshold - not too aggressive
+      recoveryTimeMs: 60000, // 1 minute recovery time for proper database recovery
+      monitoringPeriodMs: 300000, // 5 minutes monitoring window for stability
+      expectedFailureRate: 0.5, // 50% failure rate threshold - reasonable for database issues
       ...options
     };
     
@@ -168,8 +170,8 @@ export class DatabaseCircuitBreaker {
 
 // Global circuit breaker instance for database operations
 export const databaseCircuitBreaker = new DatabaseCircuitBreaker({
-  failureThreshold: 5,
-  recoveryTimeMs: 30000, // 30 seconds for faster recovery in development
-  monitoringPeriodMs: 60000, // 1 minute monitoring window
-  expectedFailureRate: 0.3 // Allow 30% failure rate before opening
+  failureThreshold: 10, // Not too aggressive - allow some transient failures
+  recoveryTimeMs: 60000, // 1 minute recovery time for proper database recovery
+  monitoringPeriodMs: 300000, // 5 minutes monitoring window for better stability
+  expectedFailureRate: 0.5 // 50% failure rate before opening - reasonable for database issues
 });
