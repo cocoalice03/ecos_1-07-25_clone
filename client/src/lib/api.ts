@@ -74,22 +74,19 @@ import { useQuery } from '@tanstack/react-query';
 
 export const teacherApi = {
   getDashboard: async (email: string) => {
-    const response = await fetch(`/api/teacher/dashboard?email=${encodeURIComponent(email)}`);
-    if (!response.ok) {
-      throw new Error('Échec de récupération des données du dashboard');
-    }
-    const data = await response.json();
+    const data = await apiRequest('GET', `/api/teacher/dashboard?email=${encodeURIComponent(email)}`);
     console.log('API dashboard response:', data);
     return data;
   },
 
   getScenarios: async (email: string) => {
-    const response = await fetch(`/api/teacher/scenarios?email=${encodeURIComponent(email)}`);
-    if (!response.ok) {
-      throw new Error('Échec de récupération des scénarios');
-    }
-    const data = await response.json();
-    console.log('API scenarios response:', data);
+    console.log('🔄 [DEBUG] teacherApi.getScenarios called with email:', email);
+    const url = `/api/teacher/scenarios?email=${encodeURIComponent(email)}`;
+    console.log('🔄 [DEBUG] API URL:', url);
+    
+    const data = await apiRequest('GET', url);
+    console.log('📊 [DEBUG] teacherApi.getScenarios raw response:', data);
+    console.log('📊 [DEBUG] teacherApi.getScenarios scenarios count:', data?.scenarios?.length || 0);
     return data;
   },
 
@@ -182,12 +179,26 @@ export const useTeacherScenarios = (email: string) => {
   return useQuery({
     queryKey: ['teacher-scenarios', email],
     queryFn: async () => {
-      console.log('🔄 Fetching teacher scenarios for:', email);
+      console.log('🔄 [DEBUG] Fetching teacher scenarios for email:', email);
+      console.log('🔄 [DEBUG] Email is valid?', !!email);
+      
+      if (!email) {
+        console.warn('❌ [DEBUG] No email provided to useTeacherScenarios');
+        return [];
+      }
+      
       const data = await teacherApi.getScenarios(email);
-      console.log('📊 Teacher scenarios loaded:', data);
-      return data.scenarios || [];
+      console.log('📊 [DEBUG] Raw API response:', data);
+      console.log('📊 [DEBUG] Scenarios in response:', data?.scenarios);
+      console.log('📊 [DEBUG] Number of scenarios:', data?.scenarios?.length || 0);
+      
+      const scenarios = data?.scenarios || [];
+      console.log('📊 [DEBUG] Final scenarios array:', scenarios);
+      return scenarios;
     },
     enabled: !!email,
-    retry: 1
+    retry: 1,
+    staleTime: 0, // Force fresh queries
+    cacheTime: 0  // Don't cache results
   });
 };

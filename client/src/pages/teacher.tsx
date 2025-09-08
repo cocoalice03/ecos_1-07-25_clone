@@ -622,13 +622,26 @@ function TeacherPage({ email }: TeacherPageProps) {
                   </CardTitle>
                   <CardDescription className="text-sm text-gray-500 mt-1">Créez et gérez vos scénarios ECOS</CardDescription>
                 </div>
-                <Button 
-                  onClick={() => setActiveTab('create')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Nouveau Scénario
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      console.log('🔄 [MANUAL] Force refreshing teacher scenarios');
+                      queryClient.invalidateQueries({ queryKey: ['teacher-scenarios'] });
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-1" />
+                    Actualiser
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab('create')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Nouveau Scénario
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {/* Debug information */}
@@ -638,6 +651,15 @@ function TeacherPage({ email }: TeacherPageProps) {
                   </p>
                   <p className="text-xs text-blue-600 mt-1">
                     Source: {teacherScenarios?.source || 'database'} | Connected: {teacherScenarios?.connected ? 'Yes' : 'No'}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    <strong>Raw teacherScenarios:</strong> {JSON.stringify(teacherScenarios)}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    <strong>Loading:</strong> {isScenariosLoading ? 'Yes' : 'No'} | <strong>Error:</strong> {scenariosError ? scenariosError.message : 'None'}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    <strong>Email:</strong> {email || 'NOT SET'} | <strong>Final scenarios:</strong> {JSON.stringify(scenarios)}
                   </p>
                 </div>
                 {scenarios.length > 0 ? (
